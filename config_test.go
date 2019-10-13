@@ -35,7 +35,15 @@ func Test_Config_Feed_With_Map_Repo(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, 1979, year)
 
+	year, err = c.GetInt("year")
+	assert.NoError(t, err)
+	assert.Equal(t, 1979, year)
+
 	duration, err := c.Get("duration")
+	assert.NoError(t, err)
+	assert.Equal(t, 4.6, duration)
+
+	duration, err = c.GetFloat("duration")
 	assert.NoError(t, err)
 	assert.Equal(t, 4.6, duration)
 

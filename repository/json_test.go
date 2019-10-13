@@ -2,7 +2,6 @@ package repository_test
 
 import (
 	"config/repository"
-	"fmt"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -27,8 +26,6 @@ func Test_Json_Extract_Sample1(t *testing.T) {
 	j := repository.Json{Path:"../test/config.json"}
 
 	m, err := j.Extract()
-
-	fmt.Println(m)
 
 	assert.NoError(t, err)
 	assert.Equal(t, "MyAppUsingConfig", m["name"])

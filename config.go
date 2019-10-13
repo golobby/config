@@ -50,6 +50,66 @@ func (c Config) GetString(key string) (string, error) {
 	return "", errors.New("value for " + key + " is not string")
 }
 
+func (c Config) GetInt(key string) (int, error) {
+	v, err := c.Get(key)
+	if err != nil {
+		return 0, err
+	}
+
+	if v, ok := v.(int); ok {
+		return v, nil
+	}
+
+	return 0, errors.New("value for " + key + " is not int")
+}
+
+func (c Config) GetFloat(key string) (float64, error) {
+	v, err := c.Get(key)
+	if err != nil {
+		return 0, err
+	}
+
+	if v, ok := v.(float64); ok {
+		return v, nil
+	}
+
+	return 0, errors.New("value for " + key + " is not float")
+}
+
+func (c Config) GetBool(key string) (bool, error) {
+	v, err := c.Get(key)
+	if err != nil {
+		return false, err
+	}
+
+	if v, ok := v.(bool); ok {
+		return v, nil
+	}
+
+	if v, ok := v.(string); ok {
+		if v == "true" {
+			return true, nil
+		} else if v == "false" {
+			return false, nil
+		}
+	}
+
+	return false, errors.New("value for " + key + " is not bool")
+}
+
+func (c Config) GetStrictBool(key string) (bool, error) {
+	v, err := c.Get(key)
+	if err != nil {
+		return false, err
+	}
+
+	if v, ok := v.(bool); ok {
+		return v, nil
+	}
+
+	return false, errors.New("value for " + key + " is not bool")
+}
+
 func parse(value interface{}) interface{} {
 	if stmt, ok := value.(string); ok {
 		if stmt[0:2] == "${" && stmt[len(stmt)-1:] == "}" {
