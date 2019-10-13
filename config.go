@@ -83,7 +83,7 @@ func (c Config) GetString(key string) (string, error) {
 		return v, nil
 	}
 
-	return "", errors.New("find for " + key + " is not string")
+	return "", errors.New("value for " + key + " is not string")
 }
 
 func parse(value interface{}) interface{} {
