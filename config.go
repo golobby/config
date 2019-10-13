@@ -30,6 +30,10 @@ func (c Config) Get(key string) (interface{}, error) {
 		return v, nil
 	}
 
+	if strings.Contains(key, ".") == false {
+		return nil, errors.New("value not found for the key " + key)
+	}
+
 	return lookup(c, key)
 }
 
