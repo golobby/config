@@ -47,27 +47,12 @@ func (c Config) Get(key string) (interface{}, error) {
 			return find(top, key)
 		}
 
-		if v, ok := top.(Config); ok {
-			if v, ok := v[key]; ok {
-				stack = append(stack, v)
-				continue
-			}
-		} else if v, ok := top.(map[string]interface{}); ok {
-			if v, ok := v[key]; ok {
-				stack = append(stack, v)
-				continue
-			}
-		} else if v, ok := top.([]interface{}); ok {
-			i, err := strconv.Atoi(key)
-			if err != nil {
-				return nil, e
-			} else if len(v) > i {
-				stack = append(stack, v[i])
-				continue
-			}
+		collection, err := dig(top, key)
+		if err != nil {
+			return nil, e
 		}
 
-		return nil, e
+		stack = append(stack, collection)
 	}
 
 	return nil, e
@@ -126,6 +111,27 @@ func find(collection interface{}, key string) (interface{}, error) {
 	}
 
 	return nil, e
+}
+
+func dig(collection interface{}, key string) (interface{}, error) {
+	if v, ok := collection.(Config); ok {
+		if v, ok := v[key]; ok {
+			return v, nil
+		}
+	} else if v, ok := collection.(map[string]interface{}); ok {
+		if v, ok := v[key]; ok {
+			return v, nil
+		}
+	} else if v, ok := collection.([]interface{}); ok {
+		i, err := strconv.Atoi(key)
+		if err != nil {
+			return nil, errors.New("find not found for the key " + key)
+		} else if len(v) > i {
+			return v[i], nil
+		}
+	}
+
+	return nil, errors.New("find not found for the key " + key)
 }
 
 func New(rs ...Repository) (Config, error) {
