@@ -42,7 +42,7 @@ func (c config) Feed(r Feeder) error {
 }
 
 func (c config) Env(key string) string {
-	if v, ok := c.envs[key]; ok {
+	if v, ok := c.envs[key]; ok && v != "" {
 		return v
 	}
 
@@ -209,6 +209,7 @@ func dig(collection interface{}, key string) (interface{}, error) {
 func New(options ...Options) (*config, error) {
 	c := &config{
 		items: map[string]interface{}{},
+		envs:  map[string]string{},
 	}
 
 	for _, o := range options {

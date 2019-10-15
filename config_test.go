@@ -130,3 +130,36 @@ func Test_Config_Feed_JSON(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, "Delfan", v)
 }
+
+func Test_Config_Env_With_Sample_Env_File(t *testing.T) {
+	c, err := config.New(config.Options{
+		Feeder: feeder.Map{
+			"url": "${ APP_URL }",
+		},
+		EnvFile: "env/test/.env",
+	})
+	assert.NoError(t, err)
+
+	v, err := c.Get("url")
+	assert.NoError(t, err)
+	assert.Equal(t, "https://example.com", v)
+}
+
+func Test_Config_Env_With_Empty_Env_It_Should_Use_OS_Vars(t *testing.T) {
+	err := os.Setenv("APP_NAME", "MyApp")
+	if err != nil {
+		panic(err)
+	}
+
+	c, err := config.New(config.Options{
+		Feeder: feeder.Map{
+			"name": "${ APP_NAME }",
+		},
+		EnvFile: "env/test/.env",
+	})
+	assert.NoError(t, err)
+
+	v, err := c.Get("name")
+	assert.NoError(t, err)
+	assert.Equal(t, "MyApp", v)
+}
