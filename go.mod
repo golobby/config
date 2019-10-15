@@ -1,4 +1,4 @@
-module config
+module github.com/golobby/config
 
 go 1.12
 
