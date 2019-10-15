@@ -1,4 +1,4 @@
-package repository
+package feeder
 
 import (
 	"encoding/json"
@@ -9,7 +9,7 @@ type Json struct {
 	Path string
 }
 
-func (j Json) Extract() (map[string]interface{}, error) {
+func (j Json) Feed() (map[string]interface{}, error) {
 	content, err := ioutil.ReadFile(j.Path)
 	if err != nil {
 		return nil, err

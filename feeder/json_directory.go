@@ -1,4 +1,4 @@
-package repository
+package feeder
 
 import (
 	"io/ioutil"
@@ -10,7 +10,7 @@ type JsonDirectory struct {
 	Path string
 }
 
-func (jd JsonDirectory) Extract() (map[string]interface{}, error) {
+func (jd JsonDirectory) Feed() (map[string]interface{}, error) {
 	files, err := ioutil.ReadDir(jd.Path)
 	if err != nil {
 		return nil, err
@@ -25,7 +25,7 @@ func (jd JsonDirectory) Extract() (map[string]interface{}, error) {
 
 		j := Json{Path: jd.Path + string(os.PathSeparator) + f.Name()}
 
-		items, err := j.Extract()
+		items, err := j.Feed()
 		if err != nil {
 			return nil, err
 		}

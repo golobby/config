@@ -1,4 +1,4 @@
-package repository_test
+package feeder_test
 
 import (
 	"config/repository"
@@ -7,7 +7,7 @@ import (
 )
 
 func Test_Json_Extract_Not_Existing_File_It_Should_Return_Error(t *testing.T) {
-	j := repository.Json{Path:"/404.json"}
+	j := repository.Json{Path: "/404.json"}
 
 	_, err := j.Extract()
 
@@ -15,7 +15,7 @@ func Test_Json_Extract_Not_Existing_File_It_Should_Return_Error(t *testing.T) {
 }
 
 func Test_Json_Extract_Invalid_JSON_It_Should_Return_Error(t *testing.T) {
-	j := repository.Json{Path:"../test/invalid.json"}
+	j := repository.Json{Path: "../test/invalid.json"}
 
 	_, err := j.Extract()
 
@@ -23,7 +23,7 @@ func Test_Json_Extract_Invalid_JSON_It_Should_Return_Error(t *testing.T) {
 }
 
 func Test_Json_Extract_Sample1(t *testing.T) {
-	j := repository.Json{Path:"../test/config.json"}
+	j := repository.Json{Path: "../test/config.json"}
 
 	m, err := j.Extract()
 
