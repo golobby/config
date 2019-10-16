@@ -15,6 +15,7 @@ before_install:
 script:
   - go test -v github.com/golobby/config/env -coverprofile=subpkg1.coverprofile
   - go test -v github.com/golobby/config/feeder -coverprofile=subpkg2.coverprofile
+  - go test -v github.com/golobby/config -coverprofile=subpkg3.coverprofile
   - gover
   - goveralls -race -coverprofile gover.coverprofile -service travis-ci
 
