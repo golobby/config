@@ -8,6 +8,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"sync"
 )
 
 // Feeder is an interface for feeders which can feed config instances (provider their contents).
@@ -26,6 +27,7 @@ type config struct {
 	options  []Options              // options is the construction options
 	envFiles map[string]string      // envFiles keeps all the given .env file paths
 	items    map[string]interface{} // items keeps the config data
+	sync     sync.RWMutex
 }
 
 // addEnv will add given env items to the instance env items.
@@ -52,7 +54,11 @@ func (c config) Feed(r Feeder) error {
 
 // Env will return environment variable value for the given environment variable key.
 func (c config) Env(key string) string {
-	if v, ok := c.envFiles[key]; ok && v != "" {
+	c.sync.RLock()
+	v, ok := c.envFiles[key]
+	c.sync.RUnlock()
+
+	if ok && v != "" {
 		return v
 	}
 
@@ -63,14 +69,20 @@ func (c config) Env(key string) string {
 // It keeps the key/values that have added on runtime in the memory.
 // It won't change the config files.
 func (c config) Set(key string, value interface{}) {
+	c.sync.Lock()
 	c.items[key] = value
+	c.sync.Unlock()
 }
 
 // Get will return the value of the given key.
 // The return type is interface, so it probably should be cast to the related data type.
 // It will return an error if there is no value for the given key.
 func (c config) Get(key string) (interface{}, error) {
-	if v, ok := c.items[key]; ok {
+	c.sync.RLock()
+	v, ok := c.items[key]
+	c.sync.RUnlock()
+
+	if ok {
 		return v, nil
 	}
 
@@ -78,7 +90,11 @@ func (c config) Get(key string) (interface{}, error) {
 		return nil, errors.New("value not found for the key " + key)
 	}
 
-	return lookup(c.items, key)
+	c.sync.RLock()
+	v, err := lookup(c.items, key)
+	c.sync.RUnlock()
+
+	return v, err
 }
 
 // Get will return the value of the given key.
