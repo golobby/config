@@ -38,13 +38,22 @@ func Test_Config_Feed_With_Map_Repo(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, "Hey You", v)
 
+	_, err = c.GetInt("name")
+	assert.Error(t, err)
+
 	band, err := c.Get("band")
 	assert.NoError(t, err)
 	assert.Equal(t, "Pink Floyd", band)
 
+	_, err = c.GetFloat("band")
+	assert.Error(t, err)
+
 	year, err := c.Get("year")
 	assert.NoError(t, err)
 	assert.Equal(t, 1979, year)
+
+	_, err = c.GetString("year")
+	assert.Error(t, err)
 
 	year, err = c.GetInt("year")
 	assert.NoError(t, err)
@@ -54,9 +63,15 @@ func Test_Config_Feed_With_Map_Repo(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, 4.6, duration)
 
+	_, err = c.GetBool("duration")
+	assert.Error(t, err)
+
 	duration, err = c.GetFloat("duration")
 	assert.NoError(t, err)
 	assert.Equal(t, 4.6, duration)
+
+	_, err = c.GetStrictBool("duration")
+	assert.Error(t, err)
 
 	wrong, err := c.Get("wrong")
 	assert.Error(t, err)
