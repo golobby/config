@@ -73,13 +73,26 @@ func Test_Config_Feed_With_Map_Repo(t *testing.T) {
 	_, err = c.GetStrictBool("duration")
 	assert.Error(t, err)
 
-	wrong, err := c.Get("wrong")
+	_, err = c.Get("wrong")
 	assert.Error(t, err)
-	assert.Equal(t, nil, wrong)
 
-	wrong, err = c.Get("wrong.nested")
+	_, err = c.GetString("wrong")
 	assert.Error(t, err)
-	assert.Equal(t, nil, wrong)
+
+	_, err = c.GetInt("wrong")
+	assert.Error(t, err)
+
+	_, err = c.GetFloat("wrong")
+	assert.Error(t, err)
+
+	_, err = c.GetBool("wrong")
+	assert.Error(t, err)
+
+	_, err = c.GetStrictBool("wrong")
+	assert.Error(t, err)
+
+	_, err = c.Get("wrong.nested")
+	assert.Error(t, err)
 }
 
 func Test_Config_GetBool(t *testing.T) {
