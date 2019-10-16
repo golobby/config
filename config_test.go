@@ -63,6 +63,68 @@ func Test_Config_Feed_With_Map_Repo(t *testing.T) {
 	assert.Equal(t, nil, wrong)
 }
 
+func Test_Config_GetBool(t *testing.T) {
+	c, err := config.New(config.Options{
+		Feeder: feeder.Map{
+			"a": true,
+			"b": "true",
+			"c": false,
+			"d": "false",
+			"e": "error",
+		},
+	})
+	assert.NoError(t, err)
+
+	v, err := c.GetBool("a")
+	assert.NoError(t, err)
+	assert.Equal(t, true, v)
+
+	v, err = c.GetBool("b")
+	assert.NoError(t, err)
+	assert.Equal(t, true, v)
+
+	v, err = c.GetBool("c")
+	assert.NoError(t, err)
+	assert.Equal(t, false, v)
+
+	v, err = c.GetBool("d")
+	assert.NoError(t, err)
+	assert.Equal(t, false, v)
+
+	_, err = c.GetBool("e")
+	assert.Error(t, err)
+}
+
+func Test_Config_GetStrictBool(t *testing.T) {
+	c, err := config.New(config.Options{
+		Feeder: feeder.Map{
+			"a": true,
+			"b": "true",
+			"c": false,
+			"d": "false",
+			"e": "error",
+		},
+	})
+	assert.NoError(t, err)
+
+	v, err := c.GetStrictBool("a")
+	assert.NoError(t, err)
+	assert.Equal(t, true, v)
+
+	_, err = c.GetStrictBool("b")
+	assert.Error(t, err)
+
+	v, err = c.GetStrictBool("c")
+	assert.NoError(t, err)
+	assert.Equal(t, false, v)
+
+	_, err = c.GetStrictBool("d")
+	assert.Error(t, err)
+
+	_, err = c.GetStrictBool("e")
+	assert.Error(t, err)
+}
+
 func Test_Config_Feed_With_Map_Repo_Includes_A_Slice(t *testing.T) {
 	c, err := config.New(config.Options{Feeder: feeder.Map{
 		"scores": map[string]interface{}{
