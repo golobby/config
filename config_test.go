@@ -193,6 +193,23 @@ func Test_Config_Feed_It_Should_Get_Env_From_OS(t *testing.T) {
 	assert.Equal(t, os.Getenv("URL"), v)
 }
 
+func Test_Config_Feed_It_Should_Get_Env_From_OS_With_Default_Value(t *testing.T) {
+	err := os.Setenv("URL", "https://miladrahimi.com")
+	if err != nil {
+		panic(err)
+	}
+
+	c, err := config.New(config.Options{Feeder: feeder.Map{
+		"url": "${ URL | DEFAULT_BUT_NOT_USED }",
+	}})
+	assert.NoError(t, err)
+
+	v, err := c.Get("url")
+	assert.NoError(t, err)
+
+	assert.Equal(t, os.Getenv("URL"), v)
+}
+
 func Test_Config_Feed_It_Should_Get_Env_Default_When_Not_In_OS(t *testing.T) {
 	err := os.Setenv("EMPTY", "")
 	if err != nil {
