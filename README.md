@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.org/golobby/config.svg?branch=master)](https://travis-ci.org/golobby/config)
 [![Go Report Card](https://goreportcard.com/badge/github.com/golobby/config)](https://goreportcard.com/report/github.com/golobby/config)
-[![Coverage Status](https://coveralls.io/repos/github/golobby/config/badge.png?branch=master)](https://coveralls.io/github/golobby/config?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/golobby/config/badge.svg?branch=master)](https://coveralls.io/github/golobby/config?branch=master)
 
 # Config
 GoLobby Config is a lightweight yet powerful config package for Go projects. 
