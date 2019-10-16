@@ -6,10 +6,12 @@ import (
 	"strings"
 )
 
+// Map is a feeder that feeds using a directory of json files.
 type JsonDirectory struct {
 	Path string
 }
 
+// Feed will return the feed
 func (jd JsonDirectory) Feed() (map[string]interface{}, error) {
 	files, err := ioutil.ReadDir(jd.Path)
 	if err != nil {

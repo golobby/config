@@ -5,10 +5,12 @@ import (
 	"io/ioutil"
 )
 
+// Json is a feeder that feeds using a single json file.
 type Json struct {
 	Path string
 }
 
+// Feed will return the feed
 func (j Json) Feed() (map[string]interface{}, error) {
 	content, err := ioutil.ReadFile(j.Path)
 	if err != nil {
