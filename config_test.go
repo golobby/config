@@ -58,7 +58,11 @@ func Test_Config_Feed_With_Map_Repo(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, 4.6, duration)
 
-	wrong, err := c.Get("wrong.nested")
+	wrong, err := c.Get("wrong")
+	assert.Error(t, err)
+	assert.Equal(t, nil, wrong)
+
+	wrong, err = c.Get("wrong.nested")
 	assert.Error(t, err)
 	assert.Equal(t, nil, wrong)
 }
