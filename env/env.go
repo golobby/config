@@ -65,7 +65,7 @@ func parse(line string) (string, string, error) {
 
 	s := strings.Index(ln, "=")
 	if s == -1 {
-		return "", "", errors.New("Invalid ln: " + ln)
+		return "", "", errors.New("Invalid line: " + ln)
 	}
 
 	k := strings.TrimSpace(ln[:s])
