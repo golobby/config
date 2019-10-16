@@ -286,3 +286,11 @@ func Test_Config_Env_With_Empty_Env_It_Should_Use_OS_Vars(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, "MyApp", v)
 }
+
+func Test_Config_Env_With_Invalid_Env_It_Should_Raise_An_Error(t *testing.T) {
+	_, err := config.New(config.Options{
+		Feeder: feeder.Map{},
+		EnvFile: "env/test/.invalid.env",
+	})
+	assert.Error(t, err)
+}
