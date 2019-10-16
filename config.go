@@ -223,14 +223,14 @@ func lookup(collection interface{}, key string) (interface{}, error) {
 
 	if len(keys) == 1 {
 		return find(collection, keys[0])
-	} else {
-		c, err := dig(collection, keys[0])
-		if err != nil {
-			return nil, err
-		}
-
-		return lookup(c, strings.Join(keys[1:], "."))
 	}
+
+	c, err := dig(collection, keys[0])
+	if err != nil {
+		return nil, err
+	}
+
+	return lookup(c, strings.Join(keys[1:], "."))
 }
 
 // find will return the value of given key in the given collection
