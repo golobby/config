@@ -41,15 +41,17 @@ func (c config) addEnv(items map[string]string) {
 // It accepts all kinds of feeders that implement the Feeder interface.
 // The built-in feeders are in the feeder subpackage.
 func (c config) Feed(r Feeder) error {
-	if items, err := r.Feed(); err != nil {
-		return err
-	} else {
-		for k, v := range items {
-			c.items[k] = c.parse(v)
-		}
+	items, err := r.Feed()
 
-		return nil
+	if err != nil {
+		return err
 	}
+
+	for k, v := range items {
+		c.items[k] = c.parse(v)
+	}
+
+	return nil
 }
 
 // Env will return environment variable value for the given environment variable key.

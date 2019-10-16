@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Map is a feeder that feeds using a directory of json files.
+// JsonDirectory is a feeder that feeds using a directory of json files.
 type JsonDirectory struct {
 	Path string
 }
