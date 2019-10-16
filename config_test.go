@@ -174,6 +174,9 @@ func Test_Config_Feed_With_Map_Repo_Includes_A_Slice(t *testing.T) {
 	v, err = c.Get("scores.B")
 	assert.NoError(t, err)
 	assert.Equal(t, 2, v)
+
+	_, err = c.Get("scores.Wrong")
+	assert.Error(t, err)
 }
 
 func Test_Config_Feed_It_Should_Get_Env_From_OS(t *testing.T) {
