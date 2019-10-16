@@ -15,7 +15,7 @@ func Test_JsonDirectory_Feed_Not_Existing_Dir_It_Should_Return_Error(t *testing.
 }
 
 func Test_JsonDirectory_Feed_Invalid_JSON_Dir_It_Should_Return_Error(t *testing.T) {
-	j := feeder.JsonDirectory{Path: "../invalid-json"}
+	j := feeder.JsonDirectory{Path: "test/invalid-json"}
 
 	_, err := j.Feed()
 
@@ -23,7 +23,7 @@ func Test_JsonDirectory_Feed_Invalid_JSON_Dir_It_Should_Return_Error(t *testing.
 }
 
 func Test_JsonDirectory_Feed_Sample1(t *testing.T) {
-	j := feeder.JsonDirectory{Path: "../test/json"}
+	j := feeder.JsonDirectory{Path: "test/json"}
 
 	m, err := j.Feed()
 
