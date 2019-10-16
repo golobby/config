@@ -180,7 +180,7 @@ v, err := c.Get("port") // equivalent to os.Getenv("APP_PORT")
 APP_PORT=8585
 ```
 
-```json
+```go
 c, err := config.New(config.Options{
     Feeder: feeder.Json{Path: "path/to/config.json"},
     EnvFile: "path/to/.env",
@@ -200,7 +200,7 @@ v, err := c.Get("port") // 8585
 APP_PORT=
 ```
 
-```json
+```go
 c, err := config.New(config.Options{
     Feeder: feeder.Json{Path: "path/to/config.json"},
     EnvFile: "path/to/.env",
