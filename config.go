@@ -277,11 +277,13 @@ func New(options ...Options) (*config, error) {
 		c.options = append(c.options, o)
 
 		if o.EnvFile != "" {
-			if items, err := env.Load(o.EnvFile); err != nil {
+			items, err := env.Load(o.EnvFile)
+
+			if err != nil {
 				return nil, err
-			} else {
-				c.addEnv(items)
 			}
+
+			c.addEnv(items)
 		}
 
 		if o.Feeder != nil {
