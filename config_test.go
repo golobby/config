@@ -227,6 +227,13 @@ func Test_Config_Feed_JSON(t *testing.T) {
 	assert.Equal(t, "Delfan", v)
 }
 
+func Test_Config_Feed_Invalid_JSON(t *testing.T) {
+	_, err := config.New(config.Options{
+		Feeder: feeder.Json{Path: "feeder/test/invalid-json"},
+	})
+	assert.Error(t, err)
+}
+
 func Test_Config_Env_With_Sample_Env_File(t *testing.T) {
 	c, err := config.New(config.Options{
 		Feeder: feeder.Map{
