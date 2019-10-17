@@ -9,7 +9,7 @@ import (
 )
 
 func Test_Config_Set_Get_With_A_Simple_Key_String_Value(t *testing.T) {
-	c, err := config.New()
+	c, err := config.New(config.Options{})
 	assert.NoError(t, err)
 
 	c.Set("k", "v")

@@ -20,6 +20,7 @@ type Feeder interface {
 type Options struct {
 	Feeder  Feeder // Feeder that is going to feed the config instance
 	EnvFile string // EnvFile is the .env file that is going to be used in config file values
+	Signal  bool   // If true it listens to OS signal to re-read config end env files
 }
 
 // config is the main struct that keeps all the config instance data.
@@ -267,29 +268,27 @@ func dig(collection interface{}, key string) (interface{}, error) {
 }
 
 // New will return a brand new instance of Config with given options.
-func New(options ...Options) (*config, error) {
+func New(o Options) (*config, error) {
 	c := &config{
 		items:    map[string]interface{}{},
 		envFiles: map[string]string{},
 	}
 
-	for _, o := range options {
-		c.options = append(c.options, o)
+	c.options = append(c.options, o)
 
-		if o.EnvFile != "" {
-			items, err := env.Load(o.EnvFile)
+	if o.EnvFile != "" {
+		items, err := env.Load(o.EnvFile)
 
-			if err != nil {
-				return nil, err
-			}
-
-			c.addEnv(items)
+		if err != nil {
+			return nil, err
 		}
 
-		if o.Feeder != nil {
-			if err := c.Feed(o.Feeder); err != nil {
-				return nil, err
-			}
+		c.addEnv(items)
+	}
+
+	if o.Feeder != nil {
+		if err := c.Feed(o.Feeder); err != nil {
+			return nil, err
 		}
 	}
 
