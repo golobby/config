@@ -25,12 +25,14 @@ type Options struct {
 
 // Config is the main struct that keeps all the Config instance data.
 type Config struct {
-	envFeeders []string               // envFeeders keeps all the added env file paths
-	envItems   map[string]string      // envItems keeps all the given .env key/value items
-	envSync    sync.RWMutex           // envSync is responsible for lock/unlock the env
-	feeders    []Feeder               // feeders keeps all the added feeders
-	items      map[string]interface{} // items keeps the Config data
-	sync       sync.RWMutex           // sync is responsible for lock/unlock the config
+	env struct {
+		feeders []string          // feeders keeps all the added env file paths
+		items   map[string]string // items keeps all the given .env key/value items
+		sync    sync.RWMutex      // sync is responsible for lock/unlock the env
+	}
+	feeders []Feeder               // feeders keeps all the added feeders
+	items   map[string]interface{} // items keeps the Config data
+	sync    sync.RWMutex           // sync is responsible for lock/unlock the config
 }
 
 // FeedEnv will add key/value items from given env file to the config instance
@@ -40,15 +42,15 @@ func (c Config) FeedEnv(path string) error {
 		return err
 	}
 
-	c.envSync.Lock()
+	c.env.sync.Lock()
 
 	for k, v := range items {
-		c.envItems[k] = v
+		c.env.items[k] = v
 	}
 
-	c.envFeeders = append(c.envFeeders, path)
+	c.env.feeders = append(c.env.feeders, path)
 
-	c.envSync.Unlock()
+	c.env.sync.Unlock()
 
 	return nil
 }
@@ -77,9 +79,9 @@ func (c Config) Feed(f Feeder) error {
 
 // Env will return environment variable value for the given environment variable key.
 func (c Config) Env(key string) string {
-	c.envSync.RLock()
-	v, ok := c.envItems[key]
-	c.envSync.RUnlock()
+	c.env.sync.RLock()
+	v, ok := c.env.items[key]
+	c.env.sync.RUnlock()
 
 	if ok && v != "" {
 		return v
@@ -290,9 +292,9 @@ func dig(collection interface{}, key string) (interface{}, error) {
 // New will return a brand new instance of Config with given option.
 func New(ops Options) (*Config, error) {
 	c := &Config{
-		items:    map[string]interface{}{},
-		envItems: map[string]string{},
+		items: map[string]interface{}{},
 	}
+	c.env.items = map[string]string{}
 
 	if ops.Env != "" {
 		err := c.FeedEnv(ops.Env)
