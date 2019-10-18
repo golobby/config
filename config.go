@@ -1,5 +1,5 @@
-// Package config is a lightweight yet powerful config package for Go projects.
-// It takes advantage of env files and OS variables alongside config files to be your ultimate requirement.
+// Package Config is a lightweight yet powerful Config package for Go projects.
+// It takes advantage of env files and OS variables alongside Config files to be your ultimate requirement.
 package config
 
 import (
@@ -11,37 +11,37 @@ import (
 	"sync"
 )
 
-// Feeder is an interface for feeders which can feed config instances (provider their contents).
+// Feeder is an interface for feeders which can feed Config instances (provider their contents).
 type Feeder interface {
 	Feed() (map[string]interface{}, error)
 }
 
-// Options is a struct that contains all the required data for instantiating a new config instance.
+// Options is a struct that contains all the required data for instantiating a new Config instance.
 type Options struct {
-	Feeder  Feeder // Feeder that is going to feed the config instance
-	EnvFile string // EnvFile is the .env file that is going to be used in config file values
-	Signal  bool   // If true it listens to OS signal to re-read config end env files
+	Feeder  Feeder // Feeder that is going to feed the Config instance
+	EnvFile string // EnvFile is the .env file that is going to be used in Config file values
+	Signal  bool   // If true it listens to OS signal to re-read Config end env files
 }
 
-// config is the main struct that keeps all the config instance data.
-type config struct {
+// Config is the main struct that keeps all the Config instance data.
+type Config struct {
 	options  []Options              // options is the construction options
 	envFiles map[string]string      // envFiles keeps all the given .env file paths
-	items    map[string]interface{} // items keeps the config data
+	items    map[string]interface{} // items keeps the Config data
 	sync     sync.RWMutex
 }
 
 // addEnv will add given env items to the instance env items.
-func (c config) addEnv(items map[string]string) {
+func (c Config) addEnv(items map[string]string) {
 	for k, v := range items {
 		c.envFiles[k] = v
 	}
 }
 
-// Feed will feed the config instance using the given feeder.
+// Feed will feed the Config instance using the given feeder.
 // It accepts all kinds of feeders that implement the Feeder interface.
 // The built-in feeders are in the feeder subpackage.
-func (c config) Feed(r Feeder) error {
+func (c Config) Feed(r Feeder) error {
 	items, err := r.Feed()
 
 	if err != nil {
@@ -56,7 +56,7 @@ func (c config) Feed(r Feeder) error {
 }
 
 // Env will return environment variable value for the given environment variable key.
-func (c config) Env(key string) string {
+func (c Config) Env(key string) string {
 	c.sync.RLock()
 	v, ok := c.envFiles[key]
 	c.sync.RUnlock()
@@ -68,10 +68,10 @@ func (c config) Env(key string) string {
 	return os.Getenv(key)
 }
 
-// Set will store the given key/value into the config instance.
+// Set will store the given key/value into the Config instance.
 // It keeps the key/values that have added on runtime in the memory.
-// It won't change the config files.
-func (c config) Set(key string, value interface{}) {
+// It won't change the Config files.
+func (c Config) Set(key string, value interface{}) {
 	c.sync.Lock()
 	c.items[key] = value
 	c.sync.Unlock()
@@ -80,7 +80,7 @@ func (c config) Set(key string, value interface{}) {
 // Get will return the value of the given key.
 // The return type is interface, so it probably should be cast to the related data type.
 // It will return an error if there is no value for the given key.
-func (c config) Get(key string) (interface{}, error) {
+func (c Config) Get(key string) (interface{}, error) {
 	c.sync.RLock()
 	v, ok := c.items[key]
 	c.sync.RUnlock()
@@ -104,7 +104,7 @@ func (c config) Get(key string) (interface{}, error) {
 // It casts the value type to string.
 // It will return an error if the related value is not string.
 // It will return an error if there is no value for the given key.
-func (c config) GetString(key string) (string, error) {
+func (c Config) GetString(key string) (string, error) {
 	v, err := c.Get(key)
 	if err != nil {
 		return "", err
@@ -121,7 +121,7 @@ func (c config) GetString(key string) (string, error) {
 // It casts the value type to int.
 // It will return an error if the related value is not bool.
 // It will return an error if there is no value for the given key.
-func (c config) GetInt(key string) (int, error) {
+func (c Config) GetInt(key string) (int, error) {
 	v, err := c.Get(key)
 	if err != nil {
 		return 0, err
@@ -138,7 +138,7 @@ func (c config) GetInt(key string) (int, error) {
 // It casts the value type to float64.
 // It will return an error if the related value is not float.
 // It will return an error if there is no value for the given key.
-func (c config) GetFloat(key string) (float64, error) {
+func (c Config) GetFloat(key string) (float64, error) {
 	v, err := c.Get(key)
 	if err != nil {
 		return 0, err
@@ -156,7 +156,7 @@ func (c config) GetFloat(key string) (float64, error) {
 // It considers the "true" and "false" string values like true and false boolean values respectively.
 // It will return an error if the related value is not bool.
 // It will return an error if there is no value for the given key.
-func (c config) GetBool(key string) (bool, error) {
+func (c Config) GetBool(key string) (bool, error) {
 	v, err := c.Get(key)
 	if err != nil {
 		return false, err
@@ -182,7 +182,7 @@ func (c config) GetBool(key string) (bool, error) {
 // It checks the value type strictly so "true" and "false" string values won't considered boolean.
 // It will return an error if the related value is not bool.
 // It will return an error if there is no value for the given key.
-func (c config) GetStrictBool(key string) (bool, error) {
+func (c Config) GetStrictBool(key string) (bool, error) {
 	v, err := c.Get(key)
 	if err != nil {
 		return false, err
@@ -196,7 +196,7 @@ func (c config) GetStrictBool(key string) (bool, error) {
 }
 
 // parse will replace the placeholders with env and OS values.
-func (c config) parse(value interface{}) interface{} {
+func (c Config) parse(value interface{}) interface{} {
 	if stmt, ok := value.(string); ok {
 		if stmt[0:2] == "${" && stmt[len(stmt)-1:] == "}" {
 			pipe := strings.Index(stmt, "|")
@@ -268,8 +268,8 @@ func dig(collection interface{}, key string) (interface{}, error) {
 }
 
 // New will return a brand new instance of Config with given options.
-func New(o Options) (*config, error) {
-	c := &config{
+func New(o Options) (*Config, error) {
+	c := &Config{
 		items:    map[string]interface{}{},
 		envFiles: map[string]string{},
 	}
@@ -290,6 +290,10 @@ func New(o Options) (*config, error) {
 		if err := c.Feed(o.Feeder); err != nil {
 			return nil, err
 		}
+	}
+
+	if o.Signal {
+		
 	}
 
 	return c, nil

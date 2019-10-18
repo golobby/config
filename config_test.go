@@ -234,7 +234,7 @@ func Test_Config_Feed_It_Should_Get_Env_Default_When_Not_In_OS(t *testing.T) {
 
 func Test_Config_Feed_JSON(t *testing.T) {
 	c, err := config.New(config.Options{
-		Feeder: feeder.Json{Path: "feeder/test/config.json"},
+		Feeder: feeder.Json{Path: "feeder/test/Config.json"},
 	})
 	assert.NoError(t, err)
 
