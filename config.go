@@ -64,15 +64,11 @@ func (c Config) Feed(f Feeder) error {
 		return err
 	}
 
-	c.sync.Lock()
-
 	for k, v := range items {
-		c.items[k] = c.parse(v)
+		c.Set(k, c.parse(v))
 	}
 
 	c.feeders = append(c.feeders, f)
-
-	c.sync.Unlock()
 
 	return nil
 }
