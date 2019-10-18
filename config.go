@@ -19,7 +19,7 @@ type Feeder interface {
 // Options is a struct that contains all the required data for instantiating a new Config instance.
 type Options struct {
 	Feeder Feeder // Feeder that is going to feed the Config instance
-	Env    string // Env is the .env file that is going to be used in Config file values
+	Env    string // GetEnv is the .env file that is going to be used in Config file values
 	Signal bool   // If true it listens to OS signal to re-read Config end env files
 }
 
@@ -73,8 +73,8 @@ func (c Config) Feed(f Feeder) error {
 	return nil
 }
 
-// Env will return environment variable value for the given environment variable key.
-func (c Config) Env(key string) string {
+// GetEnv will return environment variable value for the given environment variable key.
+func (c Config) GetEnv(key string) string {
 	c.env.sync.RLock()
 	v, ok := c.env.items[key]
 	c.env.sync.RUnlock()
@@ -229,11 +229,11 @@ func (c Config) parse(value interface{}) interface{} {
 
 			if pipe == -1 {
 				key := strings.TrimSpace(stmt[2 : len(stmt)-1])
-				return c.Env(key)
+				return c.GetEnv(key)
 			}
 
 			key := strings.TrimSpace(stmt[2:pipe])
-			if v := c.Env(key); v != "" {
+			if v := c.GetEnv(key); v != "" {
 				return v
 			}
 
