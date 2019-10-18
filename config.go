@@ -25,16 +25,16 @@ type Options struct {
 
 // Config is the main struct that keeps all the Config instance data.
 type Config struct {
-	option   Options              // option is the construction option
-	envFiles map[string]string      // envFiles keeps all the given .env file paths
+	option   Options                // option is the construction option
+	envItems map[string]string      // envItems keeps all the given .env file paths
 	items    map[string]interface{} // items keeps the Config data
-	sync     sync.RWMutex
+	sync     sync.RWMutex           // sync is responsible for lock/unlock the config
 }
 
 // addEnv will add given env items to the instance env items.
 func (c Config) addEnv(items map[string]string) {
 	for k, v := range items {
-		c.envFiles[k] = v
+		c.envItems[k] = v
 	}
 }
 
@@ -58,7 +58,7 @@ func (c Config) Feed(r Feeder) error {
 // Env will return environment variable value for the given environment variable key.
 func (c Config) Env(key string) string {
 	c.sync.RLock()
-	v, ok := c.envFiles[key]
+	v, ok := c.envItems[key]
 	c.sync.RUnlock()
 
 	if ok && v != "" {
@@ -271,7 +271,7 @@ func dig(collection interface{}, key string) (interface{}, error) {
 func New(ops Options) (*Config, error) {
 	c := &Config{
 		items:    map[string]interface{}{},
-		envFiles: map[string]string{},
+		envItems: map[string]string{},
 	}
 
 	c.option = ops
@@ -293,7 +293,7 @@ func New(ops Options) (*Config, error) {
 	}
 
 	if ops.Signal {
-		
+
 	}
 
 	return c, nil
