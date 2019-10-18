@@ -91,7 +91,13 @@ func (c Config) Env(key string) string {
 // It won't change the Config files.
 func (c Config) Set(key string, value interface{}) {
 	c.sync.Lock()
+
+	if c.items == nil {
+		c.items = map[string]interface{}{}
+	}
+
 	c.items[key] = value
+
 	c.sync.Unlock()
 }
 
@@ -100,19 +106,21 @@ func (c Config) Set(key string, value interface{}) {
 // It will return an error if there is no value for the given key.
 func (c Config) Get(key string) (interface{}, error) {
 	c.sync.RLock()
+
 	v, ok := c.items[key]
-	c.sync.RUnlock()
 
 	if ok {
+		c.sync.RUnlock()
 		return v, nil
 	}
 
 	if strings.Contains(key, ".") == false {
+		c.sync.RUnlock()
 		return nil, errors.New("value not found for the key " + key)
 	}
 
-	c.sync.RLock()
 	v, err := lookup(c.items, key)
+
 	c.sync.RUnlock()
 
 	return v, err
