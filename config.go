@@ -27,16 +27,16 @@ type Options struct {
 type Config struct {
 	env struct {
 		feeders []string          // feeders keeps all the added env file paths
-		items   map[string]string // items keeps all the given .env key/value items
+		items   map[string]string // Items keeps all the given .env key/value Items
 		sync    sync.RWMutex      // sync is responsible for lock/unlock the env
 	}
 	feeders []Feeder               // feeders keeps all the added feeders
-	items   map[string]interface{} // items keeps the Config data
+	Items   map[string]interface{} // Items keeps the Config data
 	sync    sync.RWMutex           // sync is responsible for lock/unlock the config
 }
 
-// FeedEnv will add key/value items from given env file to the config instance
-func (c Config) FeedEnv(path string) error {
+// FeedEnv will add key/value Items from given env file to the config instance
+func (c *Config) FeedEnv(path string) error {
 	items, err := env.Load(path)
 	if err != nil {
 		return err
@@ -51,10 +51,36 @@ func (c Config) FeedEnv(path string) error {
 	return nil
 }
 
+// GetEnv will return environment variable value for the given environment variable key.
+func (c Config) GetEnv(key string) string {
+	c.env.sync.RLock()
+	defer c.env.sync.RUnlock()
+
+	v, ok := c.env.items[key]
+
+	if ok && v != "" {
+		return v
+	}
+
+	return os.Getenv(key)
+}
+
+// SetEnv will set value for the given env key
+func (c *Config) SetEnv(key, value string) {
+	c.env.sync.Lock()
+	defer c.env.sync.Unlock()
+
+	if c.env.items == nil {
+		c.env.items = map[string]string{}
+	}
+
+	c.env.items[key] = value
+}
+
 // Feed will feed the Config instance using the given feeder.
 // It accepts all kinds of feeders that implement the Feeder interface.
 // The built-in feeders are in the feeder subpackage.
-func (c Config) Feed(f Feeder) error {
+func (c *Config) Feed(f Feeder) error {
 	items, err := f.Feed()
 	if err != nil {
 		return err
@@ -69,39 +95,18 @@ func (c Config) Feed(f Feeder) error {
 	return nil
 }
 
-// GetEnv will return environment variable value for the given environment variable key.
-func (c Config) GetEnv(key string) string {
-	c.env.sync.RLock()
-	v, ok := c.env.items[key]
-	c.env.sync.RUnlock()
-
-	if ok && v != "" {
-		return v
-	}
-
-	return os.Getenv(key)
-}
-
-// GetEnv will return environment variable value for the given environment variable key.
-func (c Config) SetEnv(key, value string) {
-	c.env.sync.Lock()
-	c.env.items[key] = value
-	c.env.sync.Unlock()
-}
-
 // Set will store the given key/value into the Config instance.
 // It keeps the key/values that have added on runtime in the memory.
 // It won't change the Config files.
-func (c Config) Set(key string, value interface{}) {
+func (c *Config) Set(key string, value interface{}) {
 	c.sync.Lock()
+	defer c.sync.Unlock()
 
-	if c.items == nil {
-		c.items = map[string]interface{}{}
+	if c.Items == nil {
+		c.Items = map[string]interface{}{}
 	}
 
-	c.items[key] = value
-
-	c.sync.Unlock()
+	c.Items[key] = value
 }
 
 // Get will return the value of the given key.
@@ -109,22 +114,19 @@ func (c Config) Set(key string, value interface{}) {
 // It will return an error if there is no value for the given key.
 func (c Config) Get(key string) (interface{}, error) {
 	c.sync.RLock()
+	defer c.sync.RUnlock()
 
-	v, ok := c.items[key]
+	v, ok := c.Items[key]
 
 	if ok {
-		c.sync.RUnlock()
 		return v, nil
 	}
 
 	if strings.Contains(key, ".") == false {
-		c.sync.RUnlock()
 		return nil, errors.New("value not found for the key " + key)
 	}
 
-	v, err := lookup(c.items, key)
-
-	c.sync.RUnlock()
+	v, err := lookup(c.Items, key)
 
 	return v, err
 }
@@ -298,10 +300,7 @@ func dig(collection interface{}, key string) (interface{}, error) {
 
 // New will return a brand new instance of Config with given option.
 func New(ops Options) (*Config, error) {
-	c := &Config{
-		items: map[string]interface{}{},
-	}
-	c.env.items = map[string]string{}
+	c := &Config{}
 
 	if ops.Env != "" {
 		err := c.FeedEnv(ops.Env)
