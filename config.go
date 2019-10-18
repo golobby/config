@@ -25,16 +25,16 @@ type Options struct {
 
 // Config is the main struct that keeps all the Config instance data.
 type Config struct {
-	envFiles []string               // envFiles keeps all the added env file paths
-	envItems map[string]string      // envItems keeps all the given .env key/value items
-	feeders  []Feeder               // feeders keeps all the added feeders
-	items    map[string]interface{} // items keeps the Config data
-	sync     sync.RWMutex           // sync is responsible for lock/unlock the config
-	envSync  sync.RWMutex           // envSync is responsible for lock/unlock the env
+	envFeeders []string               // envFeeders keeps all the added env file paths
+	envItems   map[string]string      // envItems keeps all the given .env key/value items
+	envSync    sync.RWMutex           // envSync is responsible for lock/unlock the env
+	feeders    []Feeder               // feeders keeps all the added feeders
+	items      map[string]interface{} // items keeps the Config data
+	sync       sync.RWMutex           // sync is responsible for lock/unlock the config
 }
 
-// AddEnv will add key/value items from given env file to the config instance
-func (c Config) AddEnv(path string) error {
+// FeedEnv will add key/value items from given env file to the config instance
+func (c Config) FeedEnv(path string) error {
 	items, err := env.Load(path)
 	if err != nil {
 		return err
@@ -46,7 +46,7 @@ func (c Config) AddEnv(path string) error {
 		c.envItems[k] = v
 	}
 
-	c.envFiles = append(c.envFiles, path)
+	c.envFeeders = append(c.envFeeders, path)
 
 	c.envSync.Unlock()
 
@@ -295,7 +295,7 @@ func New(ops Options) (*Config, error) {
 	}
 
 	if ops.Env != "" {
-		err := c.AddEnv(ops.Env)
+		err := c.FeedEnv(ops.Env)
 		if err != nil {
 			return nil, err
 		}
