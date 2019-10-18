@@ -240,7 +240,7 @@ Go code:
 ```go
 c, err := config.New(config.Options{
     Feeder: feeder.Json{Path: "config.json"},
-    EnvFile: ".env",
+    Env: ".env",
 })
 
 v, err := c.Get("name") // MyApp (from config.json)
@@ -302,7 +302,7 @@ _ := os.Setenv("DB_HOST", "192.168.0.13")
 
 c, err := config.New(config.Options{
     Feeder: feeder.JsonDirectory{Path: "config"},
-    EnvFile: ".env",
+    Env: ".env",
 })
 
 v, err := c.Get("app.name") // MyApp (from app.json)
