@@ -18,24 +18,39 @@ type Feeder interface {
 
 // Options is a struct that contains all the required data for instantiating a new Config instance.
 type Options struct {
-	Feeder  Feeder // Feeder that is going to feed the Config instance
-	EnvFile string // EnvFile is the .env file that is going to be used in Config file values
-	Signal  bool   // If true it listens to OS signal to re-read Config end env files
+	Feeder Feeder // Feeder that is going to feed the Config instance
+	Env    string // Env is the .env file that is going to be used in Config file values
+	Signal bool   // If true it listens to OS signal to re-read Config end env files
 }
 
 // Config is the main struct that keeps all the Config instance data.
 type Config struct {
-	option   Options                // option is the construction option
-	envItems map[string]string      // envItems keeps all the given .env file paths
+	envFiles []string               // envFiles keeps all the added env file paths
+	envItems map[string]string      // envItems keeps all the given .env key/value items
+	feeders  []Feeder               // feeders keeps all the added feeders
 	items    map[string]interface{} // items keeps the Config data
 	sync     sync.RWMutex           // sync is responsible for lock/unlock the config
+	envSync  sync.RWMutex           // envSync is responsible for lock/unlock the env
 }
 
-// addEnv will add given env items to the instance env items.
-func (c Config) addEnv(items map[string]string) {
+// AddEnv will add key/value items from given env file to the config instance
+func (c Config) AddEnv(path string) error {
+	items, err := env.Load(path)
+	if err != nil {
+		return err
+	}
+
+	c.envSync.Lock()
+
 	for k, v := range items {
 		c.envItems[k] = v
 	}
+
+	c.envFiles = append(c.envFiles, path)
+
+	c.envSync.Unlock()
+
+	return nil
 }
 
 // Feed will feed the Config instance using the given feeder.
@@ -43,23 +58,28 @@ func (c Config) addEnv(items map[string]string) {
 // The built-in feeders are in the feeder subpackage.
 func (c Config) Feed(r Feeder) error {
 	items, err := r.Feed()
-
 	if err != nil {
 		return err
 	}
 
+	c.sync.Lock()
+
 	for k, v := range items {
 		c.items[k] = c.parse(v)
 	}
+
+	c.feeders = append(c.feeders, r)
+
+	c.sync.Unlock()
 
 	return nil
 }
 
 // Env will return environment variable value for the given environment variable key.
 func (c Config) Env(key string) string {
-	c.sync.RLock()
+	c.envSync.RLock()
 	v, ok := c.envItems[key]
-	c.sync.RUnlock()
+	c.envSync.RUnlock()
 
 	if ok && v != "" {
 		return v
@@ -274,16 +294,11 @@ func New(ops Options) (*Config, error) {
 		envItems: map[string]string{},
 	}
 
-	c.option = ops
-
-	if ops.EnvFile != "" {
-		items, err := env.Load(ops.EnvFile)
-
+	if ops.Env != "" {
+		err := c.AddEnv(ops.Env)
 		if err != nil {
 			return nil, err
 		}
-
-		c.addEnv(items)
 	}
 
 	if ops.Feeder != nil {
