@@ -25,7 +25,7 @@ type Options struct {
 
 // Config is the main struct that keeps all the Config instance data.
 type Config struct {
-	options  []Options              // options is the construction options
+	option   Options              // option is the construction option
 	envFiles map[string]string      // envFiles keeps all the given .env file paths
 	items    map[string]interface{} // items keeps the Config data
 	sync     sync.RWMutex
@@ -267,17 +267,17 @@ func dig(collection interface{}, key string) (interface{}, error) {
 	return nil, errors.New("value not found for the key " + key)
 }
 
-// New will return a brand new instance of Config with given options.
-func New(o Options) (*Config, error) {
+// New will return a brand new instance of Config with given option.
+func New(ops Options) (*Config, error) {
 	c := &Config{
 		items:    map[string]interface{}{},
 		envFiles: map[string]string{},
 	}
 
-	c.options = append(c.options, o)
+	c.option = ops
 
-	if o.EnvFile != "" {
-		items, err := env.Load(o.EnvFile)
+	if ops.EnvFile != "" {
+		items, err := env.Load(ops.EnvFile)
 
 		if err != nil {
 			return nil, err
@@ -286,13 +286,13 @@ func New(o Options) (*Config, error) {
 		c.addEnv(items)
 	}
 
-	if o.Feeder != nil {
-		if err := c.Feed(o.Feeder); err != nil {
+	if ops.Feeder != nil {
+		if err := c.Feed(ops.Feeder); err != nil {
 			return nil, err
 		}
 	}
 
-	if o.Signal {
+	if ops.Signal {
 		
 	}
 
