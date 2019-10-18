@@ -56,8 +56,8 @@ func (c Config) FeedEnv(path string) error {
 // Feed will feed the Config instance using the given feeder.
 // It accepts all kinds of feeders that implement the Feeder interface.
 // The built-in feeders are in the feeder subpackage.
-func (c Config) Feed(r Feeder) error {
-	items, err := r.Feed()
+func (c Config) Feed(f Feeder) error {
+	items, err := f.Feed()
 	if err != nil {
 		return err
 	}
@@ -68,7 +68,7 @@ func (c Config) Feed(r Feeder) error {
 		c.items[k] = c.parse(v)
 	}
 
-	c.feeders = append(c.feeders, r)
+	c.feeders = append(c.feeders, f)
 
 	c.sync.Unlock()
 
