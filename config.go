@@ -42,15 +42,11 @@ func (c Config) FeedEnv(path string) error {
 		return err
 	}
 
-	c.env.sync.Lock()
-
 	for k, v := range items {
-		c.env.items[k] = v
+		c.SetEnv(k, v)
 	}
 
 	c.env.feeders = append(c.env.feeders, path)
-
-	c.env.sync.Unlock()
 
 	return nil
 }
@@ -84,6 +80,13 @@ func (c Config) GetEnv(key string) string {
 	}
 
 	return os.Getenv(key)
+}
+
+// GetEnv will return environment variable value for the given environment variable key.
+func (c Config) SetEnv(key, value string) {
+	c.env.sync.Lock()
+	c.env.items[key] = value
+	c.env.sync.Unlock()
 }
 
 // Set will store the given key/value into the Config instance.
