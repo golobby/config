@@ -276,7 +276,7 @@ func (c Config) GetStrictBool(key string) (bool, error) {
 // parse will replace the placeholders with env and OS values.
 func (c Config) parse(value interface{}) interface{} {
 	if stmt, ok := value.(string); ok {
-		if stmt[0:2] == "${" && stmt[len(stmt)-1:] == "}" {
+		if len(stmt) > 3 && stmt[0:2] == "${" && stmt[len(stmt)-1:] == "}" {
 			pipe := strings.Index(stmt, "|")
 
 			if pipe == -1 {
