@@ -6,9 +6,11 @@ import (
 	"errors"
 	"github.com/golobby/config/env"
 	"os"
+	"os/signal"
 	"strconv"
 	"strings"
 	"sync"
+	"syscall"
 )
 
 // Feeder is an interface for paths which can feed Config instances (provider their contents).
@@ -18,9 +20,9 @@ type Feeder interface {
 
 // Options is a struct that contains all the required data for instantiating a new Config instance.
 type Options struct {
-	Feeder Feeder // Feeder that is going to feed the Config instance
-	Env    string // GetEnv is the .env file that is going to be used in Config file values
-	Signal bool   // If true it listens to OS signal to re-read Config end env files
+	Feeder   Feeder // Feeder that is going to feed the Config instance
+	Env      string // GetEnv is the .env file that is going to be used in Config file values
+	listener bool   // If true it listens to OS signal to reload Config end env files
 }
 
 // Config is the main struct that keeps all the Config instance data.
@@ -88,10 +90,20 @@ func (c *Config) SetEnv(key, value string) {
 	c.env.items[key] = value
 }
 
-//func EnableSignalListener() {
-//	s := make(chan os.Signal, 1)
-//	signal.Notify(s, syscall.SIGINFO)
-//}
+// StartListener will make Config to listen to SIGINFO signal and reload the feeders and env files
+func (c *Config) StartListener() {
+	s := make(chan os.Signal, 1)
+
+	signal.Notify(s, syscall.SIGINFO)
+
+	go func() {
+		for {
+			<-s
+			_ = c.ReloadEnv()
+			_ = c.Reload()
+		}
+	}()
+}
 
 // Feed will feed the Config instance using the given feeder.
 // It accepts all kinds of paths that implement the Feeder interface.
@@ -342,8 +354,8 @@ func New(ops Options) (*Config, error) {
 		}
 	}
 
-	if ops.Signal {
-
+	if ops.listener {
+		c.StartListener()
 	}
 
 	return c, nil
