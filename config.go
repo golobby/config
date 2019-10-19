@@ -29,15 +29,15 @@ type Options struct {
 type Config struct {
 	env struct {
 		paths []string          // paths keeps all the added env file paths
-		items map[string]string // Items keeps all the given .env key/value Items
+		items map[string]string // items keeps all the given .env key/value items
 		sync  sync.RWMutex      // sync is responsible for lock/unlock the env
 	}
 	feeders []Feeder               // paths keeps all the added paths
-	Items   map[string]interface{} // Items keeps the Config data
+	items   map[string]interface{} // items keeps the Config data
 	sync    sync.RWMutex           // sync is responsible for lock/unlock the config
 }
 
-// FeedEnv will add key/value Items from given env file to the config instance
+// FeedEnv will add key/value items from given env file to the config instance
 func (c *Config) FeedEnv(path string) error {
 	items, err := env.Load(path)
 	if err != nil {
@@ -76,6 +76,10 @@ func (c Config) GetEnv(key string) string {
 	}
 
 	return os.Getenv(key)
+}
+
+func (c Config) GetAllEnvs() map[string]string {
+	return c.env.items
 }
 
 // SetEnv will set value for the given env key
@@ -141,11 +145,11 @@ func (c *Config) Set(key string, value interface{}) {
 	c.sync.Lock()
 	defer c.sync.Unlock()
 
-	if c.Items == nil {
-		c.Items = map[string]interface{}{}
+	if c.items == nil {
+		c.items = map[string]interface{}{}
 	}
 
-	c.Items[key] = value
+	c.items[key] = value
 }
 
 // Get will return the value of the given key.
@@ -155,7 +159,7 @@ func (c Config) Get(key string) (interface{}, error) {
 	c.sync.RLock()
 	defer c.sync.RUnlock()
 
-	v, ok := c.Items[key]
+	v, ok := c.items[key]
 
 	if ok {
 		return v, nil
@@ -165,9 +169,13 @@ func (c Config) Get(key string) (interface{}, error) {
 		return nil, errors.New("value not found for the key " + key)
 	}
 
-	v, err := lookup(c.Items, key)
+	v, err := lookup(c.items, key)
 
 	return v, err
+}
+
+func (c Config) GetAll() map[string]interface{} {
+	return c.items
 }
 
 // Get will return the value of the given key.
