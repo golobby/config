@@ -77,6 +77,11 @@ func (c *Config) SetEnv(key, value string) {
 	c.env.items[key] = value
 }
 
+//func EnableSignalListener() {
+//	s := make(chan os.Signal, 1)
+//	signal.Notify(s, syscall.SIGINFO)
+//}
+
 // Feed will feed the Config instance using the given feeder.
 // It accepts all kinds of feeders that implement the Feeder interface.
 // The built-in feeders are in the feeder subpackage.

@@ -13,8 +13,6 @@ before_install:
   - go get github.com/mattn/goveralls
 
 script:
-  - go test -v github.com/golobby/config/env -coverprofile=env.coverprofile
-  - go test -v github.com/golobby/config/feeder -coverprofile=feeder.coverprofile
   - go test -v github.com/golobby/config -coverprofile=config.coverprofile
   - gover
   - goveralls -race -coverprofile gover.coverprofile -service travis-ci
