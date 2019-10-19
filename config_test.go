@@ -1,6 +1,7 @@
 package config_test
 
 import (
+	json2 "encoding/json"
 	"github.com/golobby/config"
 	"github.com/golobby/config/feeder"
 	"github.com/stretchr/testify/assert"
@@ -309,7 +310,7 @@ func Test_Config_ReloadEnv_It_Should_Reload_The_Env_File(t *testing.T) {
 	})
 	assert.NoError(t, err)
 
-	assert.Equal(t, "", c.GetEnv("key"))
+	assert.Equal(t, "", c.GetEnv("KEY"))
 
 	err = ioutil.WriteFile(path, []byte("KEY=VALUE"), 0755)
 	if err != nil {
@@ -320,4 +321,48 @@ func Test_Config_ReloadEnv_It_Should_Reload_The_Env_File(t *testing.T) {
 	assert.NoError(t, err)
 
 	assert.Equal(t, "VALUE", c.GetEnv("KEY"))
+}
+
+func Test_Config_Reload_It_Should_Reload_The_Feeders(t *testing.T) {
+	path := "feeder/test/runtime.json"
+
+	json, err := json2.Marshal(map[string]interface{}{
+		"key": "value",
+	})
+	if err != nil {
+		panic(err)
+	}
+
+	err = ioutil.WriteFile(path, json, 0755)
+	if err != nil {
+		panic(err)
+	}
+
+	c, err := config.New(config.Options{
+		Feeder: feeder.Json{Path: path},
+	})
+	assert.NoError(t, err)
+
+	v, err := c.Get("key")
+	assert.NoError(t, err)
+	assert.Equal(t, "value", v)
+
+	json, err = json2.Marshal(map[string]interface{}{
+		"key": "new-value",
+	})
+	if err != nil {
+		panic(err)
+	}
+
+	err = ioutil.WriteFile(path, json, 0755)
+	if err != nil {
+		panic(err)
+	}
+
+	err = c.Reload()
+	assert.NoError(t, err)
+
+	v, err = c.Get("key")
+	assert.NoError(t, err)
+	assert.Equal(t, "new-value", v)
 }
