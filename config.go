@@ -22,7 +22,7 @@ type Feeder interface {
 type Options struct {
 	Feeder   Feeder // Feeder that is going to feed the Config instance
 	Env      string // GetEnv is the .env file that is going to be used in Config file values
-	listener bool   // If true it listens to OS signal to reload Config end env files
+	Listener bool   // If true it listens to OS signal to reload Config end env files
 }
 
 // Config is the main struct that keeps all the Config instance data.
@@ -354,7 +354,7 @@ func New(ops Options) (*Config, error) {
 		}
 	}
 
-	if ops.listener {
+	if ops.Listener {
 		c.StartListener()
 	}
 
