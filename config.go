@@ -11,7 +11,7 @@ import (
 	"sync"
 )
 
-// Feeder is an interface for feeders which can feed Config instances (provider their contents).
+// Feeder is an interface for paths which can feed Config instances (provider their contents).
 type Feeder interface {
 	Feed() (map[string]interface{}, error)
 }
@@ -26,11 +26,11 @@ type Options struct {
 // Config is the main struct that keeps all the Config instance data.
 type Config struct {
 	env struct {
-		feeders []string          // feeders keeps all the added env file paths
-		items   map[string]string // Items keeps all the given .env key/value Items
-		sync    sync.RWMutex      // sync is responsible for lock/unlock the env
+		paths []string          // paths keeps all the added env file paths
+		items map[string]string // Items keeps all the given .env key/value Items
+		sync  sync.RWMutex      // sync is responsible for lock/unlock the env
 	}
-	feeders []Feeder               // feeders keeps all the added feeders
+	feeders []Feeder               // paths keeps all the added paths
 	Items   map[string]interface{} // Items keeps the Config data
 	sync    sync.RWMutex           // sync is responsible for lock/unlock the config
 }
@@ -46,7 +46,18 @@ func (c *Config) FeedEnv(path string) error {
 		c.SetEnv(k, v)
 	}
 
-	c.env.feeders = append(c.env.feeders, path)
+	c.env.paths = append(c.env.paths, path)
+
+	return nil
+}
+
+// ReloadEnv will reload all the added env files and apply new changes
+func (c *Config) ReloadEnv() error {
+	for _, p := range c.env.paths {
+		if err := c.FeedEnv(p); err != nil {
+			return err
+		}
+	}
 
 	return nil
 }
@@ -83,8 +94,8 @@ func (c *Config) SetEnv(key, value string) {
 //}
 
 // Feed will feed the Config instance using the given feeder.
-// It accepts all kinds of feeders that implement the Feeder interface.
-// The built-in feeders are in the feeder subpackage.
+// It accepts all kinds of paths that implement the Feeder interface.
+// The built-in paths are in the feeder subpackage.
 func (c *Config) Feed(f Feeder) error {
 	items, err := f.Feed()
 	if err != nil {
@@ -96,6 +107,17 @@ func (c *Config) Feed(f Feeder) error {
 	}
 
 	c.feeders = append(c.feeders, f)
+
+	return nil
+}
+
+// Reload will reload all the added feeders and applies new changes
+func (c *Config) Reload() error {
+	for _, f := range c.feeders {
+		if err := c.Feed(f); err != nil {
+			return err
+		}
+	}
 
 	return nil
 }
