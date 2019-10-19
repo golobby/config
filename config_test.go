@@ -4,6 +4,7 @@ import (
 	"github.com/golobby/config"
 	"github.com/golobby/config/feeder"
 	"github.com/stretchr/testify/assert"
+	"io/ioutil"
 	"os"
 	"testing"
 )
@@ -293,4 +294,30 @@ func Test_Config_Env_With_Invalid_Env_It_Should_Raise_An_Error(t *testing.T) {
 		Env:    "env/test/.invalid.env",
 	})
 	assert.Error(t, err)
+}
+
+func Test_Config_ReloadEnv_It_Should_Reload_The_Env_File(t *testing.T) {
+	path := "env/test/runtime.env"
+
+	err := ioutil.WriteFile(path, []byte("FOO=BAR"), 0755)
+	if err != nil {
+		panic(err)
+	}
+
+	c, err := config.New(config.Options{
+		Env: path,
+	})
+	assert.NoError(t, err)
+
+	assert.Equal(t, "", c.GetEnv("key"))
+
+	err = ioutil.WriteFile(path, []byte("KEY=VALUE"), 0755)
+	if err != nil {
+		panic(err)
+	}
+
+	err = c.ReloadEnv()
+	assert.NoError(t, err)
+
+	assert.Equal(t, "VALUE", c.GetEnv("KEY"))
 }
