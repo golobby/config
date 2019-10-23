@@ -257,7 +257,7 @@ It listens to the "SIGHUP" signal and reloads the env and config files on receiv
 You can send this signal to your application with following shell command:
 
 ```shell script
-KILL -SIGHUP [PROCESS-ID]
+KILL -SIGHUP [YOUR-APP-PROCESS-ID]
 ```
 
 To get your application process id you can use `ps` shell command.
