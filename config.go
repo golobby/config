@@ -22,7 +22,6 @@ type Feeder interface {
 type Options struct {
 	Feeder   Feeder // Feeder is the feeder that will feed the Config instance
 	Env      string // Env is file path that the Config instance will use
-	Listener bool   // Listener determines that the Config instance should listen to OS signal or not
 }
 
 // Config is the main struct that keeps all the Config instance data.
@@ -362,9 +361,7 @@ func New(ops Options) (*Config, error) {
 		}
 	}
 
-	if ops.Listener {
-		c.StartListener()
-	}
+	c.StartListener()
 
 	return c, nil
 }
