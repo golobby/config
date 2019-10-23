@@ -94,11 +94,11 @@ func (c *Config) SetEnv(key, value string) {
 	c.env.items[key] = value
 }
 
-// StartListener will make Config to listen to SIGINFO signal and reload the feeders and env files
+// StartListener will make Config to listen to SIGHUP signal and reload the feeders and env files
 func (c *Config) StartListener() {
 	s := make(chan os.Signal, 1)
 
-	signal.Notify(s, syscall.SIGINFO)
+	signal.Notify(s, syscall.SIGHUP)
 
 	go func() {
 		for {
