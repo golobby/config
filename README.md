@@ -248,6 +248,20 @@ v, err := c.Get("key") // secret (from .env)
 v, err := c.Get("port") // 3306 (from config.json, the default value)
 ```
 
+### Reload the config and env files
+
+One of the benefits of using config management tools is the ability to change the configurations without redeployment.
+The Config package takes advantage of OS signals to handle this need.
+It listens to the "SIGHUP" signal and reloads the env and config files on receive.
+
+You can send this signal to your application with following shell command:
+
+```shell script
+KILL -SIGHUP [PROCESS-ID]
+```
+
+To get your application process id you can use `ps` shell command.
+
 ### Altogether!
 
 In this section, we illustrate a complete example that shows many of the package features.
