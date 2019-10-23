@@ -1,5 +1,5 @@
-// Package Config is a lightweight yet powerful Config package for Go projects.
-// It takes advantage of env files and OS variables alongside Config files to be your ultimate requirement.
+// Package Config is a lightweight yet powerful configuration management tool for Go projects.
+// It takes advantage of env files and OS variables alongside Config files to be your only need.
 package config
 
 import (
@@ -13,28 +13,28 @@ import (
 	"syscall"
 )
 
-// Feeder is an interface for paths which can feed Config instances (provider their contents).
+// Feeder is an interface for config feeders which provide config contents.
 type Feeder interface {
 	Feed() (map[string]interface{}, error)
 }
 
 // Options is a struct that contains all the required data for instantiating a new Config instance.
 type Options struct {
-	Feeder   Feeder // Feeder that is going to feed the Config instance
-	Env      string // GetEnv is the .env file that is going to be used in Config file values
-	Listener bool   // If true it listens to OS signal to reload Config end env files
+	Feeder   Feeder // Feeder is the feeder that will feed the Config instance
+	Env      string // Env is file path that the Config instance will use
+	Listener bool   // Listener determines that the Config instance should listen to OS signal or not
 }
 
 // Config is the main struct that keeps all the Config instance data.
 type Config struct {
 	env struct {
-		paths []string          // paths keeps all the added env file paths
+		paths []string          // paths keeps all the added env files' paths
 		items map[string]string // items keeps all the given .env key/value items
-		sync  sync.RWMutex      // sync is responsible for lock/unlock the env
+		sync  sync.RWMutex      // sync is responsible for locking/unlocking the env items
 	}
-	feeders []Feeder               // paths keeps all the added paths
+	feeders []Feeder               // feeders keeps all the added feeders
 	items   map[string]interface{} // items keeps the Config data
-	sync    sync.RWMutex           // sync is responsible for lock/unlock the config
+	sync    sync.RWMutex           // sync is responsible for locking/unlocking the config items
 }
 
 // FeedEnv will add key/value items from given env file to the config instance
