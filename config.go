@@ -78,9 +78,6 @@ func (c Config) GetEnv(key string) string {
 }
 
 func (c Config) GetAllEnvs() map[string]string {
-	c.env.sync.RLock()
-	defer c.env.sync.RUnlock()
-
 	return c.env.items
 }
 
