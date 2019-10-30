@@ -1,5 +1,5 @@
 // Package Config is a lightweight yet powerful configuration management tool for Go projects.
-// It takes advantage of env files and OS variables alongside Config files to be your only need.
+// It takes advantage of env files and OS variables alongside Config files to be your only requirement.
 package config
 
 import (
@@ -13,30 +13,30 @@ import (
 	"syscall"
 )
 
-// Feeder is an interface for config feeders which provide config contents.
+// Feeder is an interface for config feeders that provide content of a config instance.
 type Feeder interface {
 	Feed() (map[string]interface{}, error)
 }
 
-// Options is a struct that contains all the required data for instantiating a new Config instance.
+// Options will contain all the required data for instantiating a new Config instance.
 type Options struct {
-	Feeder Feeder // Feeder is the feeder that will feed the Config instance
-	Env    string // Env is file path that the Config instance will use
+	Feeder Feeder // Feeder is the feeder that is going to feed the Config instance.
+	Env    string // Env is the file path that locates the environment file.
 }
 
-// Config is the main struct that keeps all the Config instance data.
+// Config keeps all the Config instance data.
 type Config struct {
 	env struct {
-		paths []string          // paths keeps all the added env files' paths
-		items map[string]string // items keeps all the given .env key/value items
-		sync  sync.RWMutex      // sync is responsible for locking/unlocking the env items
+		paths []string          // It keeps all the added environment files' paths
+		items map[string]string // It keeps all the given environment key/value items.
+		sync  sync.RWMutex      // It's responsible for (un)locking the items
 	}
-	feeders []Feeder               // feeders keeps all the added feeders
-	items   map[string]interface{} // items keeps the Config data
-	sync    sync.RWMutex           // sync is responsible for locking/unlocking the config items
+	feeders []Feeder               // It keeps all the added feeders
+	items   map[string]interface{} // It keeps all the key/value items (excluding environment ones).
+	sync    sync.RWMutex           // It's responsible for (un)locking the items
 }
 
-// FeedEnv will add key/value items from given env file to the config instance
+// FeedEnv reads the given environment file path, extract key/value items, and add them to the Config instance.
 func (c *Config) FeedEnv(path string) error {
 	items, err := env.Load(path)
 	if err != nil {
@@ -52,7 +52,7 @@ func (c *Config) FeedEnv(path string) error {
 	return nil
 }
 
-// ReloadEnv will reload all the added env files and apply new changes
+// ReloadEnv reloads all the added environment files and applies new changes.
 func (c *Config) ReloadEnv() error {
 	for _, p := range c.env.paths {
 		if err := c.FeedEnv(p); err != nil {
