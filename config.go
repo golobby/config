@@ -63,7 +63,7 @@ func (c *Config) ReloadEnv() error {
 	return nil
 }
 
-// GetEnv will return environment variable value for the given environment variable key.
+// GetEnv returns the environment variable value for the given environment variable key.
 func (c Config) GetEnv(key string) string {
 	c.env.sync.RLock()
 	defer c.env.sync.RUnlock()
