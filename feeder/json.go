@@ -10,7 +10,7 @@ type Json struct {
 	Path string
 }
 
-// Feed will return the feed
+// Feed returns all the content.
 func (j Json) Feed() (map[string]interface{}, error) {
 	content, err := ioutil.ReadFile(j.Path)
 	if err != nil {

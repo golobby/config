@@ -11,7 +11,7 @@ type JsonDirectory struct {
 	Path string
 }
 
-// Feed will return the feed
+// Feed returns all the content.
 func (jd JsonDirectory) Feed() (map[string]interface{}, error) {
 	files, err := ioutil.ReadDir(jd.Path)
 	if err != nil {
