@@ -77,11 +77,12 @@ func (c Config) GetEnv(key string) string {
 	return os.Getenv(key)
 }
 
+// GetAllEnvs returns all the environment variables (key/values)
 func (c Config) GetAllEnvs() map[string]string {
 	return c.env.items
 }
 
-// SetEnv will set value for the given env key
+// SetEnv sets the given value for the given env key
 func (c *Config) SetEnv(key, value string) {
 	c.env.sync.Lock()
 	defer c.env.sync.Unlock()
@@ -93,7 +94,7 @@ func (c *Config) SetEnv(key, value string) {
 	c.env.items[key] = value
 }
 
-// StartListener will make Config to listen to SIGHUP signal and reload the feeders and env files
+// StartListener makes the Config instance to listen to the SIGHUP signal and reload the feeders and environment files.
 func (c *Config) StartListener() {
 	s := make(chan os.Signal, 1)
 
@@ -108,9 +109,8 @@ func (c *Config) StartListener() {
 	}()
 }
 
-// Feed will feed the Config instance using the given feeder.
-// It accepts all kinds of paths that implement the Feeder interface.
-// The built-in paths are in the feeder subpackage.
+// Feed takes a feeder and feeds the Config instance with it.
+// The built-in feeders are in the feeder subpackage.
 func (c *Config) Feed(f Feeder) error {
 	items, err := f.Feed()
 	if err != nil {
@@ -126,7 +126,7 @@ func (c *Config) Feed(f Feeder) error {
 	return nil
 }
 
-// Reload will reload all the added feeders and applies new changes
+// Reload reloads all the added feeders and applies new changes.
 func (c *Config) Reload() error {
 	for _, f := range c.feeders {
 		if err := c.Feed(f); err != nil {
@@ -137,9 +137,8 @@ func (c *Config) Reload() error {
 	return nil
 }
 
-// Set will store the given key/value into the Config instance.
-// It keeps the key/values that have added on runtime in the memory.
-// It won't change the Config files.
+// Set stores the given key/value into the Config instance.
+// It keeps all the changes in memory and won't change the Config files.
 func (c *Config) Set(key string, value interface{}) {
 	c.sync.Lock()
 	defer c.sync.Unlock()
@@ -151,9 +150,10 @@ func (c *Config) Set(key string, value interface{}) {
 	c.items[key] = value
 }
 
-// Get will return the value of the given key.
-// The return type is interface, so it probably should be cast to the related data type.
-// It will return an error if there is no value for the given key.
+// Get returns the value of the given key.
+// The return type is "interface{}".
+// It probably needs to be cast to the related data type.
+// It returns an error if there is no value for the given key.
 func (c Config) Get(key string) (interface{}, error) {
 	c.sync.RLock()
 	defer c.sync.RUnlock()
@@ -173,14 +173,15 @@ func (c Config) Get(key string) (interface{}, error) {
 	return v, err
 }
 
+// GetAll returns all the configuration items (key/values).
 func (c Config) GetAll() map[string]interface{} {
 	return c.items
 }
 
-// Get will return the value of the given key.
-// It casts the value type to string.
-// It will return an error if the related value is not string.
-// It will return an error if there is no value for the given key.
+// GetString returns the value of the given key.
+// It also casts the value type to string internally.
+// It returns an error if the related value is not a string.
+// It returns an error if there is no value for the given key.
 func (c Config) GetString(key string) (string, error) {
 	v, err := c.Get(key)
 	if err != nil {
@@ -194,10 +195,10 @@ func (c Config) GetString(key string) (string, error) {
 	return "", errors.New("value for " + key + " is not string")
 }
 
-// GetInt will return the value of the given key.
-// It casts the value type to int.
-// It will return an error if the related value is not bool.
-// It will return an error if there is no value for the given key.
+// GetInt returns the value of the given key.
+// It also casts the value type to int internally.
+// It returns an error if the related value is not an int.
+// It returns an error if there is no value for the given key.
 func (c Config) GetInt(key string) (int, error) {
 	v, err := c.Get(key)
 	if err != nil {
@@ -211,10 +212,10 @@ func (c Config) GetInt(key string) (int, error) {
 	return 0, errors.New("value for " + key + " is not int")
 }
 
-// GetFloat will return the value of the given key.
-// It casts the value type to float64.
-// It will return an error if the related value is not float.
-// It will return an error if there is no value for the given key.
+// GetFloat returns the value of the given key.
+// It also casts the value type to float64 internally.
+// It returns an error if the related value is not a float64.
+// It returns an error if there is no value for the given key.
 func (c Config) GetFloat(key string) (float64, error) {
 	v, err := c.Get(key)
 	if err != nil {
@@ -228,11 +229,11 @@ func (c Config) GetFloat(key string) (float64, error) {
 	return 0, errors.New("value for " + key + " is not float")
 }
 
-// GetBool will return the value of the given key.
-// It casts the value type to bool.
-// It considers the "true" and "false" string values like true and false boolean values respectively.
-// It will return an error if the related value is not bool.
-// It will return an error if there is no value for the given key.
+// GetBool returns the value of the given key.
+// It also casts the value type to bool internally.
+// It converts the "true" and "false" string values to related boolean values.
+// It returns an error if the related value is not a bool.
+// It returns an error if there is no value for the given key.
 func (c Config) GetBool(key string) (bool, error) {
 	v, err := c.Get(key)
 	if err != nil {
@@ -254,11 +255,11 @@ func (c Config) GetBool(key string) (bool, error) {
 	return false, errors.New("value for " + key + " is not bool")
 }
 
-// GetStrictBool will return the value of the given key.
-// It casts the value type to bool.
-// It checks the value type strictly so "true" and "false" string values won't considered boolean.
-// It will return an error if the related value is not bool.
-// It will return an error if there is no value for the given key.
+// GetStrictBool returns the value of the given key.
+// It also casts the value type to bool internally.
+// It doesn't convert the "true" and "false" string values to related boolean values.
+// It returns an error if the related value is not a bool.
+// It returns an error if there is no value for the given key.
 func (c Config) GetStrictBool(key string) (bool, error) {
 	v, err := c.Get(key)
 	if err != nil {
@@ -272,7 +273,7 @@ func (c Config) GetStrictBool(key string) (bool, error) {
 	return false, errors.New("value for " + key + " is not bool")
 }
 
-// parse will replace the placeholders with env and OS values.
+// parse replaces the placeholders with environment and OS variables.
 func (c Config) parse(value interface{}) interface{} {
 	if stmt, ok := value.(string); ok {
 		if len(stmt) > 3 && stmt[0:2] == "${" && stmt[len(stmt)-1:] == "}" {
@@ -295,7 +296,7 @@ func (c Config) parse(value interface{}) interface{} {
 	return value
 }
 
-// lookup will search for the given key recursively.
+// lookup searches for the given key in deep and returns related value.
 func lookup(collection interface{}, key string) (interface{}, error) {
 	keys := strings.Split(key, ".")
 
@@ -311,7 +312,7 @@ func lookup(collection interface{}, key string) (interface{}, error) {
 	return lookup(c, strings.Join(keys[1:], "."))
 }
 
-// find will return the value of given key in the given collection
+// find returns the value of given key in the given 1D collection
 func find(collection interface{}, key string) (interface{}, error) {
 	switch collection.(type) {
 	case map[string]interface{}:
@@ -328,7 +329,7 @@ func find(collection interface{}, key string) (interface{}, error) {
 	return nil, errors.New("value not found for the key " + key)
 }
 
-// dig will return sub-collection which the given partition of key points to.
+// dig returns the sub-collection of the given collection by the given key.
 func dig(collection interface{}, key string) (interface{}, error) {
 	if v, ok := collection.(map[string]interface{}); ok {
 		if v, ok := v[key]; ok {
@@ -344,7 +345,7 @@ func dig(collection interface{}, key string) (interface{}, error) {
 	return nil, errors.New("value not found for the key " + key)
 }
 
-// New will return a brand new instance of Config with given option.
+// New returns a brand new instance of Config with the given options.
 func New(ops Options) (*Config, error) {
 	c := &Config{}
 
