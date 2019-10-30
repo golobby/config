@@ -33,14 +33,14 @@ func Load(filename string) (map[string]string, error) {
 
 // read opens the given env file and extracts the variables as a string map
 func read(file *os.File) (map[string]string, error) {
-	e := map[string]string{}
+	items := map[string]string{}
 	scanner := bufio.NewScanner(file)
 
 	for scanner.Scan() {
 		if key, value, err := parse(scanner.Text()); err != nil {
 			return nil, err
 		} else if key != "" {
-			e[key] = value
+			items[key] = value
 		}
 	}
 
@@ -48,7 +48,7 @@ func read(file *os.File) (map[string]string, error) {
 		return nil, err
 	}
 
-	return e, nil
+	return items, nil
 }
 
 // parse extracts the key/value from the given line
