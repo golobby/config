@@ -1,5 +1,5 @@
 // Package env is a simple package to read environment variable files.
-// It parses env files and returns their key/values as a string map.
+// It parses env files and extracts their key/values as a string map.
 package env
 
 import (
@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-// Load will read the given env file and return its variables as a map
+// Load reads the given env file and extracts the variables as a string map
 func Load(filename string) (map[string]string, error) {
 	wd, err := os.Getwd()
 	if err != nil {
@@ -31,7 +31,7 @@ func Load(filename string) (map[string]string, error) {
 	return variables, nil
 }
 
-// read will open the given file and return the file content as a map.
+// read opens the given env file and extracts the variables as a string map
 func read(file *os.File) (map[string]string, error) {
 	e := map[string]string{}
 	scanner := bufio.NewScanner(file)
@@ -51,7 +51,7 @@ func read(file *os.File) (map[string]string, error) {
 	return e, nil
 }
 
-// parse will extract env key/values from the given line
+// parse extracts the key/value from the given line
 func parse(line string) (string, string, error) {
 	ln := strings.TrimSpace(line)
 
