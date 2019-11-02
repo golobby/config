@@ -29,7 +29,6 @@ c, err := config.New()
 c.Set("name", "John Doe")
 
 name, err := c.Get("name")
-// Check error...
 ```
 
 ### Feeders
@@ -79,7 +78,7 @@ duration, err := c.GetFloat("duration")
 
 #### Feeding using Json feeder
 
-Storing configuration data in a JSON file could be a brilliant idea. The example below shows how to use Json feeder.
+Storing configuration data in a JSON file could be a brilliant idea. The example below shows how to use the Json feeder.
 
 `config.json`:
 
