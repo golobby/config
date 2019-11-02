@@ -326,7 +326,7 @@ v, err := c.Get("db.mysql.user")  // root (from app.json, the default value)
 v, err := c.Get("db.mysql.pass")  // something (from .env)
 ```
 
-What would happen if the value existed in the config file, the environment file, and the OS variables?
+You may ask what would happen if the value existed in the config file, the environment file, and the OS variables?
 It's the order of the Config priorities:
 
 1. OS Variables
