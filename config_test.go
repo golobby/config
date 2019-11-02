@@ -270,6 +270,19 @@ func Test_Config_Env_With_Sample_Env_File(t *testing.T) {
 	assert.Equal(t, "https://example.com", v)
 }
 
+func Test_Config_GetAllEnvs(t *testing.T) {
+	c, err := config.New(config.Options{
+		Feeder: feeder.Map{
+			"url": "${ APP_URL }",
+		},
+		Env: "env/test/.env",
+	})
+	assert.NoError(t, err)
+
+	v := c.GetAllEnvs()
+	assert.Equal(t, "https://example.com", v["APP_URL"])
+}
+
 func Test_Config_Env_With_Empty_Env_It_Should_Use_OS_Vars(t *testing.T) {
 	err := os.Setenv("APP_NAME", "MyApp")
 	if err != nil {
