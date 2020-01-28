@@ -337,11 +337,6 @@ So if the value was defined is OS variables, the Config would return it.
 If it wasn't in OS variables, the Config would return the value stored in the environment file.
 If it also wasn't in the environment file, it'd eventually return the value stored in the config file as default value.
 
-## Contributors
-
-* [@miladrahimi](https://github.com/miladrahimi)
-* [@amirrezaask](https://github.com/amirrezaask)
-
 ## License
 
 GoLobby Config is released under the [MIT License](http://opensource.org/licenses/mit-license.php).
