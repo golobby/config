@@ -2,7 +2,7 @@ package feeder
 
 import (
 	"io/ioutil"
-	"os"
+	"path/filepath"
 	"strings"
 )
 
@@ -25,7 +25,7 @@ func (jd JsonDirectory) Feed() (map[string]interface{}, error) {
 			continue
 		}
 
-		j := Json{Path: jd.Path + string(os.PathSeparator) + f.Name()}
+		j := Json{Path: filepath.Join(jd.Path, string(filepath.Separator), f.Name())}
 
 		items, err := j.Feed()
 		if err != nil {
