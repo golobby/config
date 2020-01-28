@@ -6,6 +6,7 @@ import (
 	"bufio"
 	"errors"
 	"os"
+	"path/filepath"
 	"strings"
 )
 
@@ -16,7 +17,7 @@ func Load(filename string) (map[string]string, error) {
 		return nil, err
 	}
 
-	path := wd + string(os.PathSeparator) + filename
+	path := filepath.Join(wd, string(filepath.Separator), filename)
 	file, err := os.Open(path)
 	if err != nil {
 		return nil, err
