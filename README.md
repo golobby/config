@@ -10,7 +10,7 @@ It takes advantage of env files and OS variables alongside config files to be yo
 
 ## Documentation
 
-### Supported Versions
+### Required Go Version
 It requires Go `v1.11` or newer versions.
 
 ### Installation
