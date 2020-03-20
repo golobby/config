@@ -346,19 +346,21 @@ func dig(collection interface{}, key string) (interface{}, error) {
 }
 
 // New returns a brand new instance of Config with the given options.
-func New(ops Options) (*Config, error) {
+func New(ops ...Options) (*Config, error) {
 	c := &Config{}
 
-	if ops.Env != "" {
-		err := c.FeedEnv(ops.Env)
-		if err != nil {
-			return nil, err
+	for _, op := range ops {
+		if op.Env != "" {
+			err := c.FeedEnv(op.Env)
+			if err != nil {
+				return nil, err
+			}
 		}
-	}
 
-	if ops.Feeder != nil {
-		if err := c.Feed(ops.Feeder); err != nil {
-			return nil, err
+		if op.Feeder != nil {
+			if err := c.Feed(op.Feeder); err != nil {
+				return nil, err
+			}
 		}
 	}
 
