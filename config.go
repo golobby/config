@@ -291,6 +291,12 @@ func (c Config) parse(value interface{}) interface{} {
 
 			return strings.TrimSpace(stmt[pipe+1 : len(stmt)-1])
 		}
+	} else if collection, ok := value.(map[string]interface{}); ok {
+		for k, v := range collection {
+			collection[k] = c.parse(v)
+		}
+
+		return collection
 	}
 
 	return value
