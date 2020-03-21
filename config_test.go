@@ -252,6 +252,30 @@ func Test_Config_Feed_JSON(t *testing.T) {
 	assert.Equal(t, "Delfan", v)
 }
 
+func Test_Config_Feed_JSON_Directory(t *testing.T) {
+	err := os.Setenv("APP_OS", "Mac")
+	if err != nil {
+		panic(err)
+	}
+
+	c, err := config.New(config.Options{
+		Feeder: feeder.JsonDirectory{Path: "feeder/test/json"},
+	})
+	assert.NoError(t, err)
+
+	v, err := c.Get("app.name")
+	assert.NoError(t, err)
+	assert.Equal(t, "MyAppUsingConfig", v)
+
+	v, err = c.Get("app.version")
+	assert.NoError(t, err)
+	assert.Equal(t, 3.14, v)
+
+	v, err = c.Get("app.os")
+	assert.NoError(t, err)
+	assert.Equal(t, "Mac", v)
+}
+
 func Test_Config_Feed_Invalid_JSON(t *testing.T) {
 	_, err := config.New(config.Options{
 		Feeder: feeder.Json{Path: "feeder/test/invalid-json"},
