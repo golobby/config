@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// YamlDirectory is a feeder that feeds using a directory of json files.
+// YamlDirectory is a feeder that feeds using a directory of yaml files.
 type YamlDirectory struct {
 	Path string
 }
