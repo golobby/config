@@ -161,7 +161,7 @@ Go code:
 
 ```go
 c, err := config.New(config.Options{
-    Feeder: feeder.Json{Path: "path/to/config.yaml"},
+    Feeder: feeder.Yaml{Path: "path/to/config.yaml"},
 })
 
 v, err := c.Get("version") // 3.14
@@ -214,6 +214,50 @@ v, err := c.Get("app.version") // 3.14
 v, err := c.Get("db.mysql.host") // localhost
 ```
 
+#### Feeding using YamlDirectory
+
+If you have many configuration data and it doesn't fit in a single YAML file.
+In this case, you can use multiple YAML files and feed them using YamlDirectory feeder like this example:
+
+Sample project directory structure:
+
+```
+- main.go
+- config
+- - app.yaml
+- - db.yaml
+```
+
+`app.yaml`:
+
+```yaml
+name: MyApp
+version: 3.14
+```
+
+`db.yaml`:
+
+```yaml
+sqlite:
+  path: app.db
+
+mysql:
+  host: localhost
+  user: root
+  pass: secret
+
+```
+
+Go code:
+
+```go
+c, err := config.New(config.Options{
+    Feeder: feeder.YamlDirectory{Path: "config"},
+})
+
+v, err := c.Get("app.version") // 3.14
+v, err := c.Get("db.mysql.host") // localhost
+```
 ### OS variables and environment files
 
 #### OS variables
