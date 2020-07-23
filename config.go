@@ -4,13 +4,15 @@ package config
 
 import (
 	"errors"
-	"github.com/golobby/config/env"
+	"fmt"
 	"os"
 	"os/signal"
 	"strconv"
 	"strings"
 	"sync"
 	"syscall"
+
+	"github.com/golobby/config/env"
 )
 
 // Feeder is an interface for config feeders that provide content of a config instance.
@@ -23,7 +25,21 @@ type Options struct {
 	Feeder Feeder // Feeder is the feeder that is going to feed the Config instance.
 	Env    string // Env is the file path that locates the environment file.
 }
-
+//NotFoundError happens when you try to access a key which is not defined in the configuration files.
+type NotFoundError struct{
+	key string
+}
+func (n *NotFoundError) Error() string {
+	return fmt.Sprintf("value not found for the key %s", n.key)
+}
+//TypeError happens when you try to access a key using a helper function that casts value to a type which can't be done.
+type TypeError struct {
+	value interface{}
+	wanted string
+}
+func (t *TypeError) Error() string {
+	return fmt.Sprintf("value %s (%T) is not %s", t.value, t.value, t.wanted)
+}
 // Config keeps all the Config instance data.
 type Config struct {
 	env struct {
@@ -64,7 +80,7 @@ func (c *Config) ReloadEnv() error {
 }
 
 // GetEnv returns the environment variable value for the given environment variable key.
-func (c Config) GetEnv(key string) string {
+func (c *Config) GetEnv(key string) string {
 	c.env.sync.RLock()
 	defer c.env.sync.RUnlock()
 
@@ -78,7 +94,7 @@ func (c Config) GetEnv(key string) string {
 }
 
 // GetAllEnvs returns all the environment variables (key/values)
-func (c Config) GetAllEnvs() map[string]string {
+func (c *Config) GetAllEnvs() map[string]string {
 	return c.env.items
 }
 
@@ -154,7 +170,7 @@ func (c *Config) Set(key string, value interface{}) {
 // The return type is "interface{}".
 // It probably needs to be cast to the related data type.
 // It returns an error if there is no value for the given key.
-func (c Config) Get(key string) (interface{}, error) {
+func (c *Config) Get(key string) (interface{}, error) {
 	c.sync.RLock()
 	defer c.sync.RUnlock()
 
@@ -165,7 +181,7 @@ func (c Config) Get(key string) (interface{}, error) {
 	}
 
 	if strings.Contains(key, ".") == false {
-		return nil, errors.New("value not found for the key " + key)
+		return nil, &NotFoundError{key: key}
 	}
 
 	v, err := lookup(c.items, key)
@@ -174,7 +190,7 @@ func (c Config) Get(key string) (interface{}, error) {
 }
 
 // GetAll returns all the configuration items (key/values).
-func (c Config) GetAll() map[string]interface{} {
+func (c *Config) GetAll() map[string]interface{} {
 	return c.items
 }
 
@@ -182,7 +198,7 @@ func (c Config) GetAll() map[string]interface{} {
 // It also casts the value type to string internally.
 // It returns an error if the related value is not a string.
 // It returns an error if there is no value for the given key.
-func (c Config) GetString(key string) (string, error) {
+func (c *Config) GetString(key string) (string, error) {
 	v, err := c.Get(key)
 	if err != nil {
 		return "", err
@@ -192,14 +208,14 @@ func (c Config) GetString(key string) (string, error) {
 		return v, nil
 	}
 
-	return "", errors.New("value for " + key + " is not string")
+	return "", &TypeError{value: v, wanted: "string"}
 }
 
 // GetInt returns the value of the given key.
 // It also casts the value type to int internally.
 // It returns an error if the related value is not an int.
 // It returns an error if there is no value for the given key.
-func (c Config) GetInt(key string) (int, error) {
+func (c *Config) GetInt(key string) (int, error) {
 	v, err := c.Get(key)
 	if err != nil {
 		return 0, err
@@ -209,14 +225,14 @@ func (c Config) GetInt(key string) (int, error) {
 		return v, nil
 	}
 
-	return 0, errors.New("value for " + key + " is not int")
+	return 0, &TypeError{value: v, wanted: "int"}
 }
 
 // GetFloat returns the value of the given key.
 // It also casts the value type to float64 internally.
 // It returns an error if the related value is not a float64.
 // It returns an error if there is no value for the given key.
-func (c Config) GetFloat(key string) (float64, error) {
+func (c *Config) GetFloat(key string) (float64, error) {
 	v, err := c.Get(key)
 	if err != nil {
 		return 0, err
@@ -226,7 +242,7 @@ func (c Config) GetFloat(key string) (float64, error) {
 		return v, nil
 	}
 
-	return 0, errors.New("value for " + key + " is not float")
+	return 0, &TypeError{value: v, wanted: "float"}
 }
 
 // GetBool returns the value of the given key.
@@ -234,7 +250,7 @@ func (c Config) GetFloat(key string) (float64, error) {
 // It converts the "true" and "false" string values to related boolean values.
 // It returns an error if the related value is not a bool.
 // It returns an error if there is no value for the given key.
-func (c Config) GetBool(key string) (bool, error) {
+func (c *Config) GetBool(key string) (bool, error) {
 	v, err := c.Get(key)
 	if err != nil {
 		return false, err
@@ -252,7 +268,7 @@ func (c Config) GetBool(key string) (bool, error) {
 		}
 	}
 
-	return false, errors.New("value for " + key + " is not bool")
+	return false, &TypeError{value: v, wanted: "bool"}
 }
 
 // GetStrictBool returns the value of the given key.
@@ -260,7 +276,7 @@ func (c Config) GetBool(key string) (bool, error) {
 // It doesn't convert the "true" and "false" string values to related boolean values.
 // It returns an error if the related value is not a bool.
 // It returns an error if there is no value for the given key.
-func (c Config) GetStrictBool(key string) (bool, error) {
+func (c *Config) GetStrictBool(key string) (bool, error) {
 	v, err := c.Get(key)
 	if err != nil {
 		return false, err
@@ -270,11 +286,11 @@ func (c Config) GetStrictBool(key string) (bool, error) {
 		return v, nil
 	}
 
-	return false, errors.New("value for " + key + " is not bool")
+	return false, &TypeError{value: v, wanted: "bool"}
 }
 
 // parse replaces the placeholders with environment and OS variables.
-func (c Config) parse(value interface{}) interface{} {
+func (c *Config) parse(value interface{}) interface{} {
 	if stmt, ok := value.(string); ok {
 		if len(stmt) > 3 && stmt[0:2] == "${" && stmt[len(stmt)-1:] == "}" {
 			pipe := strings.Index(stmt, "|")
@@ -297,6 +313,10 @@ func (c Config) parse(value interface{}) interface{} {
 		}
 
 		return collection
+	} else if collection, ok := value.(map[interface{}]interface{}); ok {
+		for k, v := range collection {
+			collection[k] = c.parse(v)
+		}
 	}
 
 	return value
@@ -321,6 +341,10 @@ func lookup(collection interface{}, key string) (interface{}, error) {
 // find returns the value of given key in the given 1D collection
 func find(collection interface{}, key string) (interface{}, error) {
 	switch collection.(type) {
+	case map[interface{}]interface{}:
+		if v, ok := collection.(map[interface{}]interface{})[key]; ok {
+			return v, nil
+		}
 	case map[string]interface{}:
 		if v, ok := collection.(map[string]interface{})[key]; ok {
 			return v, nil

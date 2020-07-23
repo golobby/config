@@ -37,6 +37,7 @@ Feeders provide content of the configuration. Currently, these feeders exist out
 * `Map`: Feeds a simple `map[string]interface{}`.
 * `Json`: Feeds a JSON file.
 * `JsonDirectory`: Feeds a directory of JSON files.
+* `Yaml`: Feeds a Yaml file.
 
 Of course, you are free to implement your feeders by implementing the `Feeder` interface.
 
@@ -128,6 +129,47 @@ v, err := c.Get("numbers.2") // 3
 
 v, err := c.Get("users.0.address.city") // Delfan
 ```
+#### Feeding using Yaml feeder
+
+Yaml files are a trend these days, so why not store configurations in them ?
+
+`config.yaml`:
+
+```yaml
+name: MyAppUsingGoLobbyConfig
+version: 3.14
+numbers: 
+  - 1
+  - 2
+  - 3
+users:
+  - name: Milad Rahimi
+    year: 1993
+    address: 
+      country: Iran
+      state: Lorestan
+      city: Delfan
+  - name: Amirreza Askarpour
+    year: 1998
+    address:
+      country: Iran
+      state: Khouzestan
+      city: Ahvaz 
+```
+
+Go code:
+
+```go
+c, err := config.New(config.Options{
+    Feeder: feeder.Yaml{Path: "path/to/config.yaml"},
+})
+
+v, err := c.Get("version") // 3.14
+
+v, err := c.Get("numbers.2") // 3
+
+v, err := c.Get("users.0.address.city") // Delfan
+```
 
 #### Feeding using JsonDirectory
 
@@ -172,6 +214,50 @@ v, err := c.Get("app.version") // 3.14
 v, err := c.Get("db.mysql.host") // localhost
 ```
 
+#### Feeding using YamlDirectory
+
+If you have many configuration data and it doesn't fit in a single YAML file.
+In this case, you can use multiple YAML files and feed them using YamlDirectory feeder like this example:
+
+Sample project directory structure:
+
+```
+- main.go
+- config
+- - app.yaml
+- - db.yaml
+```
+
+`app.yaml`:
+
+```yaml
+name: MyApp
+version: 3.14
+```
+
+`db.yaml`:
+
+```yaml
+sqlite:
+  path: app.db
+
+mysql:
+  host: localhost
+  user: root
+  pass: secret
+
+```
+
+Go code:
+
+```go
+c, err := config.New(config.Options{
+    Feeder: feeder.YamlDirectory{Path: "config"},
+})
+
+v, err := c.Get("app.version") // 3.14
+v, err := c.Get("db.mysql.host") // localhost
+```
 ### OS variables and environment files
 
 #### OS variables
