@@ -37,6 +37,7 @@ Feeders provide content of the configuration. Currently, these feeders exist out
 * `Map`: Feeds a simple `map[string]interface{}`.
 * `Json`: Feeds a JSON file.
 * `JsonDirectory`: Feeds a directory of JSON files.
+* `Yaml`: Feeds a Yaml file.
 
 Of course, you are free to implement your feeders by implementing the `Feeder` interface.
 
@@ -120,6 +121,47 @@ Go code:
 ```go
 c, err := config.New(config.Options{
     Feeder: feeder.Json{Path: "path/to/config.json"},
+})
+
+v, err := c.Get("version") // 3.14
+
+v, err := c.Get("numbers.2") // 3
+
+v, err := c.Get("users.0.address.city") // Delfan
+```
+#### Feeding using Yaml feeder
+
+Yaml files are a trend these days, so why not store configurations in them ?
+
+`config.yaml`:
+
+```yaml
+name: MyAppUsingGoLobbyConfig
+version: 3.14
+numbers: 
+  - 1
+  - 2
+  - 3
+users:
+  - name: Milad Rahimi
+    year: 1993
+    address: 
+      country: Iran
+      state: Lorestan
+      city: Delfan
+  - name: Amirreza Askarpour
+    year: 1998
+    address:
+      country: Iran
+      state: Khouzestan
+      city: Ahvaz 
+```
+
+Go code:
+
+```go
+c, err := config.New(config.Options{
+    Feeder: feeder.Json{Path: "path/to/config.yaml"},
 })
 
 v, err := c.Get("version") // 3.14
