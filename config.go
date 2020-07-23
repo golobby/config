@@ -4,13 +4,14 @@ package config
 
 import (
 	"errors"
-	"github.com/golobby/config/env"
 	"os"
 	"os/signal"
 	"strconv"
 	"strings"
 	"sync"
 	"syscall"
+
+	"github.com/golobby/config/env"
 )
 
 // Feeder is an interface for config feeders that provide content of a config instance.
@@ -297,6 +298,10 @@ func (c Config) parse(value interface{}) interface{} {
 		}
 
 		return collection
+	} else if collection, ok := value.(map[interface{}]interface{}); ok {
+		for k, v := range collection {
+			collection[k] = c.parse(v)
+		}
 	}
 
 	return value
@@ -321,6 +326,10 @@ func lookup(collection interface{}, key string) (interface{}, error) {
 // find returns the value of given key in the given 1D collection
 func find(collection interface{}, key string) (interface{}, error) {
 	switch collection.(type) {
+	case map[interface{}]interface{}:
+		if v, ok := collection.(map[interface{}]interface{})[key]; ok {
+			return v, nil
+		}
 	case map[string]interface{}:
 		if v, ok := collection.(map[string]interface{})[key]; ok {
 			return v, nil
