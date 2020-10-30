@@ -226,16 +226,13 @@ func (c *Config) GetInt(key string) (int, error) {
 		return 0, err
 	}
 
-	if v, ok := v.(int); ok {
-		return v, nil
-	}
-
-	if v, ok := v.(float64); ok {
-		return int(v), nil
-	}
-
-	if v, ok := v.(string); ok {
-		return strconv.Atoi(v)
+	switch val := v.(type) {
+	case int:
+		return val, nil
+	case float64:
+		return int(val), nil
+	case string:
+		return strconv.Atoi(val)
 	}
 
 	return 0, &TypeError{value: v, wanted: "int"}
