@@ -2,12 +2,13 @@ package config_test
 
 import (
 	json2 "encoding/json"
-	"github.com/golobby/config"
-	"github.com/golobby/config/feeder"
-	"github.com/stretchr/testify/assert"
 	"io/ioutil"
 	"os"
 	"testing"
+
+	"github.com/golobby/config"
+	"github.com/golobby/config/feeder"
+	"github.com/stretchr/testify/assert"
 )
 
 func Test_Config_Set_Get_With_A_Simple_Key_String_Value(t *testing.T) {
@@ -405,4 +406,27 @@ func Test_Config_Reload_It_Should_Reload_The_Feeders(t *testing.T) {
 	v, err = c.Get("key")
 	assert.NoError(t, err)
 	assert.Equal(t, "new-value", v)
+}
+
+// https://github.com/golobby/config/issues/8
+func Test_GetInt_From_JSON(t *testing.T) {
+	c, err := config.New(config.Options{
+		Feeder: feeder.Json{Path: "feeder/test/issue8.json"},
+	})
+	assert.NoError(t, err)
+
+	keys := []string{
+		"int",
+		"strInt",
+	}
+
+	for _, key := range keys {
+		v, err := c.GetInt(key)
+		if err != nil {
+			t.Errorf(
+				"\nkey: %v \nv: %v \nerr: %v",
+				key, v, err.Error(),
+			)
+		}
+	}
 }
