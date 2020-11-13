@@ -25,21 +25,26 @@ type Options struct {
 	Feeder Feeder // Feeder is the feeder that is going to feed the Config instance.
 	Env    string // Env is the file path that locates the environment file.
 }
+
 //NotFoundError happens when you try to access a key which is not defined in the configuration files.
-type NotFoundError struct{
+type NotFoundError struct {
 	key string
 }
+
 func (n *NotFoundError) Error() string {
 	return fmt.Sprintf("value not found for the key %s", n.key)
 }
+
 //TypeError happens when you try to access a key using a helper function that casts value to a type which can't be done.
 type TypeError struct {
-	value interface{}
+	value  interface{}
 	wanted string
 }
+
 func (t *TypeError) Error() string {
 	return fmt.Sprintf("value %s (%T) is not %s", t.value, t.value, t.wanted)
 }
+
 // Config keeps all the Config instance data.
 type Config struct {
 	env struct {
@@ -221,8 +226,13 @@ func (c *Config) GetInt(key string) (int, error) {
 		return 0, err
 	}
 
-	if v, ok := v.(int); ok {
-		return v, nil
+	switch val := v.(type) {
+	case int:
+		return val, nil
+	case float64:
+		return int(val), nil
+	case string:
+		return strconv.Atoi(val)
 	}
 
 	return 0, &TypeError{value: v, wanted: "int"}
