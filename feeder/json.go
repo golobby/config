@@ -2,7 +2,8 @@ package feeder
 
 import (
 	"encoding/json"
-	"io/ioutil"
+	"os"
+	"path/filepath"
 )
 
 // Json is a feeder that feeds using a single json file.
@@ -12,14 +13,15 @@ type Json struct {
 
 // Feed returns all the content.
 func (j Json) Feed() (map[string]interface{}, error) {
-	content, err := ioutil.ReadFile(j.Path)
+	fl, err := os.Open(filepath.Clean(j.Path))
 	if err != nil {
 		return nil, err
 	}
+	defer fl.Close()
 
 	items := map[string]interface{}{}
 
-	if err := json.Unmarshal(content, &items); err != nil {
+	if err := json.NewDecoder(fl).Decode(&items); err != nil {
 		return nil, err
 	}
 

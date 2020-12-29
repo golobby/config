@@ -1,8 +1,10 @@
 package feeder
 
 import (
+	"os"
+	"path/filepath"
+
 	"gopkg.in/yaml.v2"
-	"io/ioutil"
 )
 
 type Yaml struct {
@@ -10,15 +12,16 @@ type Yaml struct {
 }
 
 func (y *Yaml) Feed() (map[string]interface{}, error) {
-	bs, err := ioutil.ReadFile(y.Path)
+	fl, err := os.Open(filepath.Clean(y.Path))
 	if err != nil {
-	    return nil, err
+		return nil, err
 	}
+	defer fl.Close()
+
 	items := make(map[string]interface{})
 
-	err = yaml.Unmarshal(bs, items)
-	if err != nil {
-	    return nil, err
+	if err := yaml.NewDecoder(fl).Decode(&items); err != nil {
+		return nil, err
 	}
 	return items, nil
 }
