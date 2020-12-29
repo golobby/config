@@ -5,6 +5,7 @@ package env
 import (
 	"bufio"
 	"errors"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -12,13 +13,12 @@ import (
 
 // Load reads the given env file and extracts the variables as a string map
 func Load(filename string) (map[string]string, error) {
-	wd, err := os.Getwd()
+	path, err := filepath.Abs(filename)
 	if err != nil {
 		return nil, err
 	}
 
-	path := filepath.Join(wd, string(filepath.Separator), filename)
-	file, err := os.Open(path)
+	file, err := os.Open(filepath.Clean(path))
 	if err != nil {
 		return nil, err
 	}
@@ -33,14 +33,17 @@ func Load(filename string) (map[string]string, error) {
 }
 
 // read opens the given env file and extracts the variables as a string map
-func read(file *os.File) (map[string]string, error) {
+func read(file io.Reader) (map[string]string, error) {
 	items := map[string]string{}
 	scanner := bufio.NewScanner(file)
 
 	for scanner.Scan() {
-		if key, value, err := parse(scanner.Text()); err != nil {
+		key, value, err := parse(scanner.Text())
+		if err != nil {
 			return nil, err
-		} else if key != "" {
+		}
+
+		if key != "" {
 			items[key] = value
 		}
 	}
