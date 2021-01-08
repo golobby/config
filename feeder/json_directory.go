@@ -25,7 +25,7 @@ func (jd JsonDirectory) Feed() (map[string]interface{}, error) {
 			continue
 		}
 
-		j := Json{Path: filepath.Join(jd.Path, string(filepath.Separator), f.Name())}
+		j := Json{Path: filepath.Join(jd.Path, f.Name())}
 
 		items, err := j.Feed()
 		if err != nil {
