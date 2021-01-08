@@ -327,6 +327,8 @@ func (c *Config) parse(value interface{}) interface{} {
 		for k, v := range collection {
 			collection[k] = c.parse(v)
 		}
+
+		return collection
 	}
 
 	return value
