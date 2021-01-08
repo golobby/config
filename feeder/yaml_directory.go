@@ -25,7 +25,7 @@ func (yd YamlDirectory) Feed() (map[string]interface{}, error) {
 			continue
 		}
 
-		j := Yaml{Path: filepath.Join(yd.Path, string(filepath.Separator), f.Name())}
+		j := Yaml{Path: filepath.Join(yd.Path, f.Name())}
 
 		items, err := j.Feed()
 		if err != nil {
