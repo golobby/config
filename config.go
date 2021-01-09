@@ -15,17 +15,6 @@ import (
 	"github.com/golobby/config/env"
 )
 
-// Feeder is an interface for config feeders that provide content of a config instance.
-type Feeder interface {
-	Feed() (map[string]interface{}, error)
-}
-
-// Options will contain all the required data for instantiating a new Config instance.
-type Options struct {
-	Feeder Feeder // Feeder is the feeder that is going to feed the Config instance.
-	Env    string // Env is the file path that locates the environment file.
-}
-
 //NotFoundError happens when you try to access a key which is not defined in the configuration files.
 type NotFoundError struct {
 	key string
