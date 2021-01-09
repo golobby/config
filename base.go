@@ -3,7 +3,6 @@ package config
 import (
 	"strconv"
 	"strings"
-	"sync"
 )
 
 // Feeder is an interface for config feeders that provide content of a config instance.
@@ -18,11 +17,11 @@ type Options struct {
 }
 
 // ConfigBase keeps all the Config instance data.
+// The ConfigBase is NOT goroutine safe.
 type ConfigBase struct {
 	EnvConfig
 	feeders []Feeder               // It keeps all the added feeders
 	items   map[string]interface{} // It keeps all the key/value items (excluding environment ones).
-	sync    sync.RWMutex           // It's responsible for (un)locking the items
 }
 
 // Feed takes a feeder and feeds the Config instance with it.
@@ -65,9 +64,6 @@ func (c *ConfigBase) Reload() error {
 // Set stores the given key/value into the Config instance.
 // It keeps all the changes in memory and won't change the Config files.
 func (c *ConfigBase) Set(key string, value interface{}) {
-	c.sync.Lock()
-	defer c.sync.Unlock()
-
 	if c.items == nil {
 		c.items = map[string]interface{}{}
 	}
@@ -80,9 +76,6 @@ func (c *ConfigBase) Set(key string, value interface{}) {
 // It probably needs to be cast to the related data type.
 // It returns false if there is no value for the given key.
 func (c *ConfigBase) Get(key string) (interface{}, bool) {
-	c.sync.RLock()
-	defer c.sync.RUnlock()
-
 	if v, ok := c.items[key]; ok {
 		return v, true
 	}

@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/signal"
 	"strconv"
+	"sync"
 	"syscall"
 )
 
@@ -30,8 +31,10 @@ func (t *TypeError) Error() string {
 }
 
 // Config keeps all the Config instance data.
+// The Config IS goroutine safe.
 type Config struct {
 	ConfigBase
+	sync    sync.RWMutex           // It's responsible for (un)locking the items
 }
 
 // StartListener makes the Config instance to listen to the SIGHUP signal and reload the feeders and environment files.
@@ -49,11 +52,23 @@ func (c *Config) StartListener() {
 	}()
 }
 
+// Set stores the given key/value into the Config instance.
+// It keeps all the changes in memory and won't change the Config files.
+func (c *Config) Set(key string, value interface{}) {
+	c.sync.Lock()
+	defer c.sync.Unlock()
+
+	c.ConfigBase.Set(key, value)
+}
+
 // Get returns the value of the given key.
 // The return type is "interface{}".
 // It probably needs to be cast to the related data type.
 // It returns an error if there is no value for the given key.
 func (c *Config) Get(key string) (interface{}, error) {
+	c.sync.RLock()
+	defer c.sync.RUnlock()
+
 	v, exists := c.ConfigBase.Get(key)
 	if !exists {
 		return nil, &NotFoundError{key: key}
