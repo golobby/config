@@ -59,7 +59,7 @@ type Config struct {
 
 // FeedEnv reads the given environment file path, extract key/value items, and add them to the Config instance.
 func (c *Config) FeedEnv(path string) error {
-	err := c.doFeedEnv(path)
+	err := c.feedEnvItems(path)
 	if err != nil {
 		return err
 	}
@@ -69,7 +69,7 @@ func (c *Config) FeedEnv(path string) error {
 	return nil
 }
 
-func (c *Config) doFeedEnv(path string) error {
+func (c *Config) feedEnvItems(path string) error {
 	items, err := env.Load(path)
 	if err != nil {
 		return err
@@ -85,7 +85,7 @@ func (c *Config) doFeedEnv(path string) error {
 // ReloadEnv reloads all the added environment files and applies new changes.
 func (c *Config) ReloadEnv() error {
 	for _, p := range c.env.paths {
-		if err := c.doFeedEnv(p); err != nil {
+		if err := c.feedEnvItems(p); err != nil {
 			return err
 		}
 	}
@@ -142,7 +142,7 @@ func (c *Config) StartListener() {
 // Feed takes a feeder and feeds the Config instance with it.
 // The built-in feeders are in the feeder subpackage.
 func (c *Config) Feed(f Feeder) error {
-	err := c.doFeed(f)
+	err := c.feedItems(f)
 	if err != nil {
 		return err
 	}
@@ -152,7 +152,7 @@ func (c *Config) Feed(f Feeder) error {
 	return nil
 }
 
-func (c *Config) doFeed(f Feeder) error {
+func (c *Config) feedItems(f Feeder) error {
 	items, err := f.Feed()
 	if err != nil {
 		return err
@@ -168,7 +168,7 @@ func (c *Config) doFeed(f Feeder) error {
 // Reload reloads all the added feeders and applies new changes.
 func (c *Config) Reload() error {
 	for _, f := range c.feeders {
-		if err := c.doFeed(f); err != nil {
+		if err := c.feedItems(f); err != nil {
 			return err
 		}
 	}
