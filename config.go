@@ -11,8 +11,6 @@ import (
 	"strings"
 	"sync"
 	"syscall"
-
-	"github.com/golobby/config/env"
 )
 
 //NotFoundError happens when you try to access a key which is not defined in the configuration files.
@@ -36,72 +34,10 @@ func (t *TypeError) Error() string {
 
 // Config keeps all the Config instance data.
 type Config struct {
-	env struct {
-		paths []string          // It keeps all the added environment files' paths
-		items map[string]string // It keeps all the given environment key/value items.
-		sync  sync.RWMutex      // It's responsible for (un)locking the items
-	}
+	EnvConfig
 	feeders []Feeder               // It keeps all the added feeders
 	items   map[string]interface{} // It keeps all the key/value items (excluding environment ones).
 	sync    sync.RWMutex           // It's responsible for (un)locking the items
-}
-
-// FeedEnv reads the given environment file path, extract key/value items, and add them to the Config instance.
-func (c *Config) FeedEnv(path string) error {
-	items, err := env.Load(path)
-	if err != nil {
-		return err
-	}
-
-	for k, v := range items {
-		c.SetEnv(k, v)
-	}
-
-	c.env.paths = append(c.env.paths, path)
-
-	return nil
-}
-
-// ReloadEnv reloads all the added environment files and applies new changes.
-func (c *Config) ReloadEnv() error {
-	for _, p := range c.env.paths {
-		if err := c.FeedEnv(p); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-// GetEnv returns the environment variable value for the given environment variable key.
-func (c *Config) GetEnv(key string) string {
-	c.env.sync.RLock()
-	defer c.env.sync.RUnlock()
-
-	v, ok := c.env.items[key]
-
-	if ok && v != "" {
-		return v
-	}
-
-	return os.Getenv(key)
-}
-
-// GetAllEnvs returns all the environment variables (key/values)
-func (c *Config) GetAllEnvs() map[string]string {
-	return c.env.items
-}
-
-// SetEnv sets the given value for the given env key
-func (c *Config) SetEnv(key, value string) {
-	c.env.sync.Lock()
-	defer c.env.sync.Unlock()
-
-	if c.env.items == nil {
-		c.env.items = map[string]string{}
-	}
-
-	c.env.items[key] = value
 }
 
 // StartListener makes the Config instance to listen to the SIGHUP signal and reload the feeders and environment files.
