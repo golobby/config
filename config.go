@@ -59,6 +59,17 @@ type Config struct {
 
 // FeedEnv reads the given environment file path, extract key/value items, and add them to the Config instance.
 func (c *Config) FeedEnv(path string) error {
+	err := c.doFeedEnv(path)
+	if err != nil {
+		return err
+	}
+
+	c.env.paths = append(c.env.paths, path)
+
+	return nil
+}
+
+func (c *Config) doFeedEnv(path string) error {
 	items, err := env.Load(path)
 	if err != nil {
 		return err
@@ -68,15 +79,13 @@ func (c *Config) FeedEnv(path string) error {
 		c.SetEnv(k, v)
 	}
 
-	c.env.paths = append(c.env.paths, path)
-
 	return nil
 }
 
 // ReloadEnv reloads all the added environment files and applies new changes.
 func (c *Config) ReloadEnv() error {
 	for _, p := range c.env.paths {
-		if err := c.FeedEnv(p); err != nil {
+		if err := c.doFeedEnv(p); err != nil {
 			return err
 		}
 	}
