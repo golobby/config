@@ -186,19 +186,9 @@ func (c *Config) GetStrictBool(key string) (bool, error) {
 func New(ops ...Options) (*Config, error) {
 	c := &Config{}
 
-	for _, op := range ops {
-		if op.Env != "" {
-			err := c.FeedEnv(op.Env)
-			if err != nil {
-				return nil, err
-			}
-		}
-
-		if op.Feeder != nil {
-			if err := c.Feed(op.Feeder); err != nil {
-				return nil, err
-			}
-		}
+	err := c.ConfigBase.init(ops...)
+	if err != nil {
+		return c, err
 	}
 
 	c.StartListener()

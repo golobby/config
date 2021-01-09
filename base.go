@@ -207,24 +207,30 @@ func dig(collection interface{}, key string) (interface{}, bool) {
 	return nil, false
 }
 
-// New returns a brand new instance of ConfigBase with the given options.
-func NewBase(ops ...Options) (*ConfigBase, error) {
-	c := &ConfigBase{}
-
+// Initialize the instance of ConfigBase with the given options.
+func (c *ConfigBase) init(ops ...Options) error {
 	for _, op := range ops {
 		if op.Env != "" {
 			err := c.FeedEnv(op.Env)
 			if err != nil {
-				return nil, err
+				return err
 			}
 		}
 
 		if op.Feeder != nil {
 			if err := c.Feed(op.Feeder); err != nil {
-				return nil, err
+				return err
 			}
 		}
 	}
+	return nil
+}
 
-	return c, nil
+// New returns a brand new instance of ConfigBase with the given options.
+func NewBase(ops ...Options) (*ConfigBase, error) {
+	c := &ConfigBase{}
+
+	err := c.init(ops...)
+
+	return c, err
 }
