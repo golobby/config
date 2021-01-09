@@ -52,6 +52,11 @@ func (c *Config) StartListener() {
 	}()
 }
 
+// Reload reloads all the added feeders and applies new changes.
+func (c *Config) Reload() error {
+	return c.ConfigBase.doReload(c)
+}
+
 // Set stores the given key/value into the Config instance.
 // It keeps all the changes in memory and won't change the Config files.
 func (c *Config) Set(key string, value interface{}) {

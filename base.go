@@ -16,6 +16,11 @@ type Options struct {
 	Env    string // Env is the file path that locates the environment file.
 }
 
+// The setter interface is used to solve polymorphism of Set() method using for Reload() method.
+type setter interface {
+	Set(key string, value interface{})
+}
+
 // ConfigBase keeps all the Config instance data.
 // The ConfigBase is NOT goroutine safe.
 type ConfigBase struct {
@@ -27,7 +32,7 @@ type ConfigBase struct {
 // Feed takes a feeder and feeds the Config instance with it.
 // The built-in feeders are in the feeder subpackage.
 func (c *ConfigBase) Feed(f Feeder) error {
-	err := c.doFeed(f)
+	err := c.doFeed(f, c)
 	if err != nil {
 		return err
 	}
@@ -37,14 +42,14 @@ func (c *ConfigBase) Feed(f Feeder) error {
 	return nil
 }
 
-func (c *ConfigBase) doFeed(f Feeder) error {
+func (c *ConfigBase) doFeed(f Feeder, s setter) error {
 	items, err := f.Feed()
 	if err != nil {
 		return err
 	}
 
 	for k, v := range items {
-		c.Set(k, c.parse(v))
+		s.Set(k, c.parse(v))
 	}
 
 	return nil
@@ -52,8 +57,12 @@ func (c *ConfigBase) doFeed(f Feeder) error {
 
 // Reload reloads all the added feeders and applies new changes.
 func (c *ConfigBase) Reload() error {
+	return c.doReload(c)
+}
+
+func (c *ConfigBase) doReload(s setter) error {
 	for _, f := range c.feeders {
-		if err := c.doFeed(f); err != nil {
+		if err := c.doFeed(f, s); err != nil {
 			return err
 		}
 	}
