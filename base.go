@@ -4,8 +4,6 @@ import (
 	"strconv"
 	"strings"
 	"sync"
-
-//	"github.com/golobby/config/env"
 )
 
 // Feeder is an interface for config feeders that provide content of a config instance.
@@ -93,7 +91,7 @@ func (c *ConfigBase) Get(key string) (interface{}, bool) {
 		return nil, false
 	}
 
-	return lookupX(c.items, key)
+	return lookup(c.items, key)
 }
 
 // GetAll returns all the configuration items (key/values).
@@ -137,20 +135,20 @@ func (c *ConfigBase) parse(value interface{}) interface{} {
 }
 
 // lookup searches for the given key in deep and returns related value.
-func lookupX(collection interface{}, key string) (interface{}, bool) {
+func lookup(collection interface{}, key string) (interface{}, bool) {
 	rest := key
 	key, rest = segmentKey(rest)
 
 	if rest == "" {
-		return findX(collection, key)
+		return find(collection, key)
 	}
 
-	c, ok := digX(collection, key)
+	c, ok := dig(collection, key)
 	if !ok {
 		return nil, false
 	}
 
-	return lookupX(c, rest)
+	return lookup(c, rest)
 }
 
 // segment the key by dot('.'), returns the first segment before dot and the rest.
@@ -171,7 +169,7 @@ func segmentKey(rest string) (string, string) {
 }
 
 // find returns the value of given key in the given 1D collection.
-func findX(collection interface{}, key string) (interface{}, bool) {
+func find(collection interface{}, key string) (interface{}, bool) {
 	switch collection.(type) {
 	case map[string]interface{}:
 		if v, ok := collection.(map[string]interface{})[key]; ok {
@@ -192,7 +190,7 @@ func findX(collection interface{}, key string) (interface{}, bool) {
 }
 
 // dig returns the sub-collection of the given collection by the given key.
-func digX(collection interface{}, key string) (interface{}, bool) {
+func dig(collection interface{}, key string) (interface{}, bool) {
 	if v, ok := collection.(map[string]interface{}); ok {
 		if v, ok := v[key]; ok {
 			return v, true

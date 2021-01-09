@@ -3,13 +3,10 @@
 package config
 
 import (
-	"errors"
 	"fmt"
 	"os"
 	"os/signal"
 	"strconv"
-	"strings"
-	"sync"
 	"syscall"
 )
 
@@ -34,10 +31,7 @@ func (t *TypeError) Error() string {
 
 // Config keeps all the Config instance data.
 type Config struct {
-	EnvConfig
-	feeders []Feeder               // It keeps all the added feeders
-	items   map[string]interface{} // It keeps all the key/value items (excluding environment ones).
-	sync    sync.RWMutex           // It's responsible for (un)locking the items
+	ConfigBase
 }
 
 // StartListener makes the Config instance to listen to the SIGHUP signal and reload the feeders and environment files.
@@ -55,73 +49,17 @@ func (c *Config) StartListener() {
 	}()
 }
 
-// Feed takes a feeder and feeds the Config instance with it.
-// The built-in feeders are in the feeder subpackage.
-func (c *Config) Feed(f Feeder) error {
-	items, err := f.Feed()
-	if err != nil {
-		return err
-	}
-
-	for k, v := range items {
-		c.Set(k, c.parse(v))
-	}
-
-	c.feeders = append(c.feeders, f)
-
-	return nil
-}
-
-// Reload reloads all the added feeders and applies new changes.
-func (c *Config) Reload() error {
-	for _, f := range c.feeders {
-		if err := c.Feed(f); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-// Set stores the given key/value into the Config instance.
-// It keeps all the changes in memory and won't change the Config files.
-func (c *Config) Set(key string, value interface{}) {
-	c.sync.Lock()
-	defer c.sync.Unlock()
-
-	if c.items == nil {
-		c.items = map[string]interface{}{}
-	}
-
-	c.items[key] = value
-}
-
 // Get returns the value of the given key.
 // The return type is "interface{}".
 // It probably needs to be cast to the related data type.
 // It returns an error if there is no value for the given key.
 func (c *Config) Get(key string) (interface{}, error) {
-	c.sync.RLock()
-	defer c.sync.RUnlock()
-
-	v, ok := c.items[key]
-
-	if ok {
-		return v, nil
-	}
-
-	if strings.Contains(key, ".") == false {
+	v, exists := c.ConfigBase.Get(key)
+	if !exists {
 		return nil, &NotFoundError{key: key}
 	}
 
-	v, err := lookup(c.items, key)
-
-	return v, err
-}
-
-// GetAll returns all the configuration items (key/values).
-func (c *Config) GetAll() map[string]interface{} {
-	return c.items
+	return v, nil
 }
 
 // GetString returns the value of the given key.
@@ -222,92 +160,6 @@ func (c *Config) GetStrictBool(key string) (bool, error) {
 	}
 
 	return false, &TypeError{value: v, wanted: "bool"}
-}
-
-// parse replaces the placeholders with environment and OS variables.
-func (c *Config) parse(value interface{}) interface{} {
-	if stmt, ok := value.(string); ok {
-		if len(stmt) > 3 && stmt[0:2] == "${" && stmt[len(stmt)-1:] == "}" {
-			pipe := strings.Index(stmt, "|")
-
-			if pipe == -1 {
-				key := strings.TrimSpace(stmt[2 : len(stmt)-1])
-				return c.GetEnv(key)
-			}
-
-			key := strings.TrimSpace(stmt[2:pipe])
-			if v := c.GetEnv(key); v != "" {
-				return v
-			}
-
-			return strings.TrimSpace(stmt[pipe+1 : len(stmt)-1])
-		}
-	} else if collection, ok := value.(map[string]interface{}); ok {
-		for k, v := range collection {
-			collection[k] = c.parse(v)
-		}
-
-		return collection
-	} else if collection, ok := value.(map[interface{}]interface{}); ok {
-		for k, v := range collection {
-			collection[k] = c.parse(v)
-		}
-	}
-
-	return value
-}
-
-// lookup searches for the given key in deep and returns related value.
-func lookup(collection interface{}, key string) (interface{}, error) {
-	keys := strings.Split(key, ".")
-
-	if len(keys) == 1 {
-		return find(collection, keys[0])
-	}
-
-	c, err := dig(collection, keys[0])
-	if err != nil {
-		return nil, err
-	}
-
-	return lookup(c, strings.Join(keys[1:], "."))
-}
-
-// find returns the value of given key in the given 1D collection
-func find(collection interface{}, key string) (interface{}, error) {
-	switch collection.(type) {
-	case map[interface{}]interface{}:
-		if v, ok := collection.(map[interface{}]interface{})[key]; ok {
-			return v, nil
-		}
-	case map[string]interface{}:
-		if v, ok := collection.(map[string]interface{})[key]; ok {
-			return v, nil
-		}
-	case []interface{}:
-		k, err := strconv.Atoi(key)
-		if err == nil && len(collection.([]interface{})) > k {
-			return collection.([]interface{})[k], nil
-		}
-	}
-
-	return nil, errors.New("value not found for the key " + key)
-}
-
-// dig returns the sub-collection of the given collection by the given key.
-func dig(collection interface{}, key string) (interface{}, error) {
-	if v, ok := collection.(map[string]interface{}); ok {
-		if v, ok := v[key]; ok {
-			return v, nil
-		}
-	} else if v, ok := collection.([]interface{}); ok {
-		i, err := strconv.Atoi(key)
-		if err == nil && len(v) > i {
-			return v[i], nil
-		}
-	}
-
-	return nil, errors.New("value not found for the key " + key)
 }
 
 // New returns a brand new instance of Config with the given options.
