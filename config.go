@@ -37,8 +37,8 @@ type Config struct {
 	sync    sync.RWMutex           // It's responsible for (un)locking the items
 }
 
-// StartListener makes the Config instance to listen to the SIGHUP signal and reload the feeders and environment files.
-func (c *Config) StartListener() {
+// startListener makes the Config instance to listen to the SIGHUP signal and reload the feeders and environment files.
+func (c *Config) startListener() {
 	s := make(chan os.Signal, 1)
 
 	signal.Notify(s, syscall.SIGHUP)
@@ -191,7 +191,17 @@ func New(ops ...Options) (*Config, error) {
 		return c, err
 	}
 
-	c.StartListener()
+	return c, nil
+}
+
+// New new instance of Config with the given options, with starting the listener.
+func NewWithListener(ops ...Options) (*Config, error) {
+	c, err := New(ops...)
+	if err != nil {
+		return c, err
+	}
+
+	c.startListener()
 
 	return c, nil
 }
