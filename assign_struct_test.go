@@ -57,7 +57,7 @@ func prepareData() (Data, error) {
 	return data, dec.Decode(&data)
 }
 
-func Test_AssignStructFields_Plain(t *testing.T) {
+func Test_AssignStruct_Plain(t *testing.T) {
 	assert := assert.New(t)
 
 	data := Data{"name": "Milad Rahimi", "year": 1993}
@@ -76,7 +76,7 @@ func Test_AssignStructFields_Plain(t *testing.T) {
 	assert.Equal(data["year"], ptr.Year)
 }
 
-func Test_AssignStructFields_Nested_0(t *testing.T) {
+func Test_AssignStruct_Nested_0(t *testing.T) {
 	assert := assert.New(t)
 
 	user, err := prepareData()
@@ -93,7 +93,7 @@ func Test_AssignStructFields_Nested_0(t *testing.T) {
 	assert.Equal(addr["state"], ptr.Addr.State)
 }
 
-func Test_AssignStructFields_Nested_1(t *testing.T) {
+func Test_AssignStruct_Nested_1(t *testing.T) {
 	assert := assert.New(t)
 
 	user, err := prepareData()
@@ -110,7 +110,7 @@ func Test_AssignStructFields_Nested_1(t *testing.T) {
 	assert.Equal(addr["state"], ptr.Addr.State)
 }
 
-func Test_AssignStructFields_Nested_2(t *testing.T) {
+func Test_AssignStruct_Nested_2(t *testing.T) {
 	assert := assert.New(t)
 
 	user, err := prepareData()
