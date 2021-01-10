@@ -8,8 +8,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-type Data = map[string]interface{}
-
 type Address struct {
 	City    string `json:"city"`
 	Country string `json:"country"`
@@ -32,7 +30,7 @@ type UserWithAddr_2 struct {
 	Addr *Address `json:"address"`
 }
 
-func prepareData() (Data, error) {
+func prepareStructData() (Data, error) {
 	jsonStr := `
     {
       "name": "Milad Rahimi",
@@ -73,7 +71,7 @@ func Test_AssignStruct_Plain(t *testing.T) {
 func Test_AssignStruct_Nested_0(t *testing.T) {
 	assert := assert.New(t)
 
-	user, err := prepareData()
+	user, err := prepareStructData()
 	assert.NoError(err)
 
 	ptr := &UserWithAddr_0{}
@@ -90,7 +88,7 @@ func Test_AssignStruct_Nested_0(t *testing.T) {
 func Test_AssignStruct_Nested_1(t *testing.T) {
 	assert := assert.New(t)
 
-	user, err := prepareData()
+	user, err := prepareStructData()
 	assert.NoError(err)
 
 	ptr := &UserWithAddr_1{}
@@ -107,7 +105,7 @@ func Test_AssignStruct_Nested_1(t *testing.T) {
 func Test_AssignStruct_Nested_2(t *testing.T) {
 	assert := assert.New(t)
 
-	user, err := prepareData()
+	user, err := prepareStructData()
 	assert.NoError(err)
 
 	ptr := &UserWithAddr_2{}
