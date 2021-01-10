@@ -139,8 +139,10 @@ func Test_CheckPtr(t *testing.T) {
 }
 
 func testCheckPtr(ptr interface{}) int {
-	objPtr, _, ok := checkPtr(ptr)
+	objPtr, obj, ok := checkPtr(ptr)
 	if !ok {
+		return 0
+	} else if obj.Kind() != reflect.Struct {
 		return 0
 	}
 
