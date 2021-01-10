@@ -7,6 +7,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+type Data = map[string]interface{}
+
 type User struct {
 	Name string `json:"name"`
 	Year int `json:"year"`
