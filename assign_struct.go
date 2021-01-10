@@ -42,6 +42,8 @@ func assignStruct(ptr, data interface{}, tag string) int {
 	objPtr, obj, ok := checkPtr(ptr)
 	if !ok {
 		return 0
+	} else if obj.Kind() != reflect.Struct {
+		return 0
 	}
 
 	count := assign(obj, data, tag)
@@ -63,6 +65,8 @@ func checkPtr(ptr interface{}) (refPtr, refVal reflect.Value, ok bool) {
 		return v, v, false
 	}
 
+	ok = true
+
 	// Find the final value that pointed to, or nil ptr
 	for v.Kind() == reflect.Ptr && !v.IsNil() {
 		v = v.Elem()
@@ -79,8 +83,6 @@ func checkPtr(ptr interface{}) (refPtr, refVal reflect.Value, ok bool) {
 	}
 
 	refVal = tv
-
-	ok = (tv.Kind() == reflect.Struct)
 
 	return
 }
