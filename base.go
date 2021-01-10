@@ -29,6 +29,11 @@ type ConfigBase struct {
 	items   map[string]interface{} // It keeps all the key/value items (excluding environment ones).
 }
 
+// Get the Config's env instance.
+func (c *ConfigBase) Env() *EnvConfig {
+	return &c.EnvConfig
+}
+
 // Feed takes a feeder and feeds the Config instance with it.
 // The built-in feeders are in the feeder subpackage.
 func (c *ConfigBase) Feed(f Feeder) error {
