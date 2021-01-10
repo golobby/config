@@ -33,6 +33,8 @@ func checkPtr(ptr interface{}) (refPtr, refVal reflect.Value, ok bool) {
 	return
 }
 
+// --- assign method ---
+
 func assign(obj reflect.Value, data interface{}, tag string) int {
 	src := reflect.ValueOf(data)
 	if !src.IsValid() {
@@ -77,6 +79,13 @@ func assign(obj reflect.Value, data interface{}, tag string) int {
 	}
 
 	// case reflect.Struct:
+
+	return assign_struct(obj, src, data, tag)
+}
+
+// --- assign_struct ---
+
+func assign_struct(obj, src reflect.Value, data interface{}, tag string) int {
 
 	if src.Kind() != reflect.Map || src.Type().Key().Kind() != reflect.String {
 		return 0
