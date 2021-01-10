@@ -2,7 +2,6 @@ package config
 
 import (
 	"encoding/json"
-	"reflect"
 	"testing"
 	"strings"
 
@@ -10,11 +9,6 @@ import (
 )
 
 type Data = map[string]interface{}
-
-type User struct {
-	Name string `json:"name"`
-	Year int `json:"year"`
-}
 
 type Address struct {
 	City    string `json:"city"`
@@ -125,30 +119,4 @@ func Test_AssignStruct_Nested_2(t *testing.T) {
 	assert.Equal(addr["city"], ptr.Addr.City)
 	assert.Equal(addr["country"], ptr.Addr.Country)
 	assert.Equal(addr["state"], ptr.Addr.State)
-}
-
-func Test_CheckPtr(t *testing.T) {
-	assert := assert.New(t)
-
-	var ptr *User
-	assert.Equal(0, testCheckPtr(ptr))
-	assert.Equal(2, testCheckPtr(&ptr))
-
-	ptr = &User{}
-	assert.Equal(1, testCheckPtr(ptr))
-}
-
-func testCheckPtr(ptr interface{}) int {
-	objPtr, obj, ok := checkPtr(ptr)
-	if !ok {
-		return 0
-	} else if obj.Kind() != reflect.Struct {
-		return 0
-	}
-
-	if objPtr.Kind() == reflect.Ptr {
-		return 2
-	} else {
-		return 1
-	}
 }
