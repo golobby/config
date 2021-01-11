@@ -13,7 +13,7 @@ import (
 // @param key Specify where to get the slice elements's value
 // @param tag If element's type is struct, using the tag name to retrieve struct fields
 // @return The count of elements that been assigned, -1 if slice's value not found by the key
-func (c *ConfigBase) AssignSlice(ptr *[]interface{}, key, tag string) int {
+func (c *ConfigBase) AssignSlice(ptr interface{}, key, tag string) int {
 	if data, found := c.Get(key); found {
 		return assignSlice(ptr, data, tag)
 	}
@@ -25,7 +25,7 @@ func (c *ConfigBase) AssignSlice(ptr *[]interface{}, key, tag string) int {
 // @param key Specify where to get the slice elements's value
 // @param tag If element's type is struct, using the tag name to retrieve struct fields
 // @return The count of elements that been assigned, -1 if slice's value not found by the key
-func (c *Config) AssignSlice(ptr *[]interface{}, key, tag string) int {
+func (c *Config) AssignSlice(ptr interface{}, key, tag string) int {
 	c.sync.RLock()
 	defer c.sync.RUnlock()
 
@@ -37,7 +37,7 @@ func (c *Config) AssignSlice(ptr *[]interface{}, key, tag string) int {
 // @param data The data that stores elements' value
 // @param tag If element's type is struct, using the tag name to retrieve struct fields
 // @return The count of elements that been assigned
-func AssignSlice(ptr *[]interface{}, data []interface{}, tag string) int {
+func AssignSlice(ptr, data interface{}, tag string) int {
 	return assignSlice(ptr, data, tag)
 }
 
