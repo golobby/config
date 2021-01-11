@@ -12,6 +12,10 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+type UserS struct {
+	Users []User `json:"users"`
+}
+
 func prepareSliceSimpleData() (Data, error) {
 	jsonStr := `
     { "names": [
@@ -78,5 +82,28 @@ func Test_AssignSlice_Struct(t *testing.T) {
 
 		assert.Equal(user["name"], ptr[i].Name)
 		assert.Equal(user["year"], float64(ptr[i].Year))
+	}
+}
+
+func Test_AssignStruct_Slice(t *testing.T) {
+	assert := assert.New(t)
+
+	data, err := prepareSliceStructData()
+	assert.NoError(err)
+
+	ptr := &UserS{}
+
+	assert.Equal(1, assignStruct(ptr, data, "json"))
+
+	users := data["users"].([]interface{})
+	usersLen := len(users)
+
+	assert.Equal(usersLen, len(ptr.Users))
+
+	for i := 0; i < usersLen; i++ {
+		user := users[i].(map[string]interface{})
+
+		assert.Equal(user["name"], ptr.Users[i].Name)
+		assert.Equal(user["year"], float64(ptr.Users[i].Year))
 	}
 }
