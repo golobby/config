@@ -3,16 +3,12 @@
 package config
 
 import (
-	"errors"
 	"fmt"
 	"os"
 	"os/signal"
 	"strconv"
-	"strings"
 	"sync"
 	"syscall"
-
-	"github.com/golobby/config/env"
 )
 
 //NotFoundError happens when you try to access a key which is not defined in the configuration files.
@@ -35,86 +31,19 @@ func (t *TypeError) Error() string {
 }
 
 // Config keeps all the Config instance data.
+// The Config IS goroutine safe.
 type Config struct {
-	env struct {
-		paths []string          // It keeps all the added environment files' paths
-		items map[string]string // It keeps all the given environment key/value items.
-		sync  sync.RWMutex      // It's responsible for (un)locking the items
-	}
-	feeders []Feeder               // It keeps all the added feeders
-	items   map[string]interface{} // It keeps all the key/value items (excluding environment ones).
+	ConfigBase
 	sync    sync.RWMutex           // It's responsible for (un)locking the items
 }
 
-// FeedEnv reads the given environment file path, extract key/value items, and add them to the Config instance.
-func (c *Config) FeedEnv(path string) error {
-	err := c.feedEnvItems(path)
-	if err != nil {
-		return err
-	}
-
-	c.env.paths = append(c.env.paths, path)
-
-	return nil
+// Get the Config's base instance.
+func (c *Config) Base() *ConfigBase {
+	return &c.ConfigBase
 }
 
-func (c *Config) feedEnvItems(path string) error {
-	items, err := env.Load(path)
-	if err != nil {
-		return err
-	}
-
-	for k, v := range items {
-		c.SetEnv(k, v)
-	}
-
-	return nil
-}
-
-// ReloadEnv reloads all the added environment files and applies new changes.
-func (c *Config) ReloadEnv() error {
-	for _, p := range c.env.paths {
-		if err := c.feedEnvItems(p); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-// GetEnv returns the environment variable value for the given environment variable key.
-func (c *Config) GetEnv(key string) string {
-	c.env.sync.RLock()
-	defer c.env.sync.RUnlock()
-
-	v, ok := c.env.items[key]
-
-	if ok && v != "" {
-		return v
-	}
-
-	return os.Getenv(key)
-}
-
-// GetAllEnvs returns all the environment variables (key/values)
-func (c *Config) GetAllEnvs() map[string]string {
-	return c.env.items
-}
-
-// SetEnv sets the given value for the given env key
-func (c *Config) SetEnv(key, value string) {
-	c.env.sync.Lock()
-	defer c.env.sync.Unlock()
-
-	if c.env.items == nil {
-		c.env.items = map[string]string{}
-	}
-
-	c.env.items[key] = value
-}
-
-// StartListener makes the Config instance to listen to the SIGHUP signal and reload the feeders and environment files.
-func (c *Config) StartListener() {
+// startListener makes the Config instance to listen to the SIGHUP signal and reload the feeders and environment files.
+func (c *Config) startListener() {
 	s := make(chan os.Signal, 1)
 
 	signal.Notify(s, syscall.SIGHUP)
@@ -128,41 +57,9 @@ func (c *Config) StartListener() {
 	}()
 }
 
-// Feed takes a feeder and feeds the Config instance with it.
-// The built-in feeders are in the feeder subpackage.
-func (c *Config) Feed(f Feeder) error {
-	err := c.feedItems(f)
-	if err != nil {
-		return err
-	}
-
-	c.feeders = append(c.feeders, f)
-
-	return nil
-}
-
-func (c *Config) feedItems(f Feeder) error {
-	items, err := f.Feed()
-	if err != nil {
-		return err
-	}
-
-	for k, v := range items {
-		c.Set(k, c.parse(v))
-	}
-
-	return nil
-}
-
 // Reload reloads all the added feeders and applies new changes.
 func (c *Config) Reload() error {
-	for _, f := range c.feeders {
-		if err := c.feedItems(f); err != nil {
-			return err
-		}
-	}
-
-	return nil
+	return c.ConfigBase.doReload(c)
 }
 
 // Set stores the given key/value into the Config instance.
@@ -171,11 +68,7 @@ func (c *Config) Set(key string, value interface{}) {
 	c.sync.Lock()
 	defer c.sync.Unlock()
 
-	if c.items == nil {
-		c.items = map[string]interface{}{}
-	}
-
-	c.items[key] = value
+	c.ConfigBase.Set(key, value)
 }
 
 // Get returns the value of the given key.
@@ -186,24 +79,12 @@ func (c *Config) Get(key string) (interface{}, error) {
 	c.sync.RLock()
 	defer c.sync.RUnlock()
 
-	v, ok := c.items[key]
-
-	if ok {
-		return v, nil
-	}
-
-	if strings.Contains(key, ".") == false {
+	v, exists := c.ConfigBase.Get(key)
+	if !exists {
 		return nil, &NotFoundError{key: key}
 	}
 
-	v, err := lookup(c.items, key)
-
-	return v, err
-}
-
-// GetAll returns all the configuration items (key/values).
-func (c *Config) GetAll() map[string]interface{} {
-	return c.items
+	return v, nil
 }
 
 // GetString returns the value of the given key.
@@ -306,114 +187,50 @@ func (c *Config) GetStrictBool(key string) (bool, error) {
 	return false, &TypeError{value: v, wanted: "bool"}
 }
 
-// parse replaces the placeholders with environment and OS variables.
-func (c *Config) parse(value interface{}) interface{} {
-	if stmt, ok := value.(string); ok {
-		if len(stmt) > 3 && stmt[0:2] == "${" && stmt[len(stmt)-1:] == "}" {
-			pipe := strings.Index(stmt, "|")
+// Assigns struct fields' value by its field's tag (such as the json tag).
+// @param ptr The pointer of struct's instance to set
+// @param key Specify where to get the struct's value
+// @param tag Specify which struct field's tag name used to retrieve
+// @return The count of fields that been assigned, -1 if struct's value not found by the key
+func (c *Config) AssignStruct(ptr interface{}, key, tag string) int {
+	c.sync.RLock()
+	defer c.sync.RUnlock()
 
-			if pipe == -1 {
-				key := strings.TrimSpace(stmt[2 : len(stmt)-1])
-				return c.GetEnv(key)
-			}
-
-			key := strings.TrimSpace(stmt[2:pipe])
-			if v := c.GetEnv(key); v != "" {
-				return v
-			}
-
-			return strings.TrimSpace(stmt[pipe+1 : len(stmt)-1])
-		}
-	} else if collection, ok := value.(map[string]interface{}); ok {
-		for k, v := range collection {
-			collection[k] = c.parse(v)
-		}
-
-		return collection
-	} else if collection, ok := value.(map[interface{}]interface{}); ok {
-		for k, v := range collection {
-			collection[k] = c.parse(v)
-		}
-
-		return collection
-	}
-
-	return value
+	return c.ConfigBase.AssignStruct(ptr, key, tag)
 }
 
-// lookup searches for the given key in deep and returns related value.
-func lookup(collection interface{}, key string) (interface{}, error) {
-	keys := strings.Split(key, ".")
+// Assigns slice elements.
+// @param ptr The pointer of slice instance to appent elements
+// @param key Specify where to get the slice elements's value
+// @param tag If element's type is struct, using the tag name to retrieve struct fields
+// @return The count of elements that been assigned, -1 if slice's value not found by the key
+func (c *Config) AssignSlice(ptr interface{}, key, tag string) int {
+	c.sync.RLock()
+	defer c.sync.RUnlock()
 
-	if len(keys) == 1 {
-		return find(collection, keys[0])
-	}
-
-	c, err := dig(collection, keys[0])
-	if err != nil {
-		return nil, err
-	}
-
-	return lookup(c, strings.Join(keys[1:], "."))
-}
-
-// find returns the value of given key in the given 1D collection
-func find(collection interface{}, key string) (interface{}, error) {
-	switch collection.(type) {
-	case map[interface{}]interface{}:
-		if v, ok := collection.(map[interface{}]interface{})[key]; ok {
-			return v, nil
-		}
-	case map[string]interface{}:
-		if v, ok := collection.(map[string]interface{})[key]; ok {
-			return v, nil
-		}
-	case []interface{}:
-		k, err := strconv.Atoi(key)
-		if err == nil && len(collection.([]interface{})) > k {
-			return collection.([]interface{})[k], nil
-		}
-	}
-
-	return nil, errors.New("value not found for the key " + key)
-}
-
-// dig returns the sub-collection of the given collection by the given key.
-func dig(collection interface{}, key string) (interface{}, error) {
-	if v, ok := collection.(map[string]interface{}); ok {
-		if v, ok := v[key]; ok {
-			return v, nil
-		}
-	} else if v, ok := collection.([]interface{}); ok {
-		i, err := strconv.Atoi(key)
-		if err == nil && len(v) > i {
-			return v[i], nil
-		}
-	}
-
-	return nil, errors.New("value not found for the key " + key)
+	return c.ConfigBase.AssignSlice(ptr, key, tag)
 }
 
 // New returns a brand new instance of Config with the given options.
 func New(ops ...Options) (*Config, error) {
 	c := &Config{}
 
-	for _, op := range ops {
-		if op.Env != "" {
-			err := c.FeedEnv(op.Env)
-			if err != nil {
-				return nil, err
-			}
-		}
-
-		if op.Feeder != nil {
-			if err := c.Feed(op.Feeder); err != nil {
-				return nil, err
-			}
-		}
+	err := c.ConfigBase.init(ops...)
+	if err != nil {
+		return c, err
 	}
 
-	c.StartListener()
+	return c, nil
+}
+
+// New new instance of Config with the given options, with starting the listener.
+func NewWithListener(ops ...Options) (*Config, error) {
+	c, err := New(ops...)
+	if err != nil {
+		return c, err
+	}
+
+	c.startListener()
 
 	return c, nil
 }
