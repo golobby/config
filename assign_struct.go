@@ -13,7 +13,7 @@ import (
 // @param key Specify where to get the struct's value
 // @param tag Specify which struct field's tag name used to retrieve
 // @return The count of fields that been assigned, -1 if struct's value not found by the key
-func (c *ConfigBase) AssignStruct(ptr *interface{}, key, tag string) int {
+func (c *ConfigBase) AssignStruct(ptr interface{}, key, tag string) int {
 	if data, found := c.Get(key); found {
 		return assignStruct(ptr, data, tag)
 	}
@@ -26,7 +26,7 @@ func (c *ConfigBase) AssignStruct(ptr *interface{}, key, tag string) int {
 // @param key Specify where to get the struct's value
 // @param tag Specify which struct field's tag name used to retrieve
 // @return The count of fields that been assigned, -1 if struct's value not found by the key
-func (c *Config) AssignStruct(ptr *interface{}, key, tag string) int {
+func (c *Config) AssignStruct(ptr interface{}, key, tag string) int {
 	c.sync.RLock()
 	defer c.sync.RUnlock()
 
@@ -38,7 +38,7 @@ func (c *Config) AssignStruct(ptr *interface{}, key, tag string) int {
 // @param data The data map that stores struct fields' tag/value pair
 // @param tag Specify which struct field's tag name used to retrieve
 // @return The count of fields that been assigned
-func AssignStruct(ptr *interface{}, data map[string]interface{}, tag string) int {
+func AssignStruct(ptr interface{}, data map[string]interface{}, tag string) int {
 	return assignStruct(ptr, data, tag)
 }
 
