@@ -9,6 +9,10 @@ import (
 	"strings"
 )
 
+func CheckPtr(ptr interface{}) (refPtr, refVal reflect.Value, ok bool) {
+	return checkPtr(ptr)
+}
+
 func checkPtr(ptr interface{}) (refPtr, refVal reflect.Value, ok bool) {
 	v := reflect.ValueOf(ptr)
 	if !v.IsValid() {
