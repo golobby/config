@@ -50,6 +50,7 @@ func prepareStructData() (Data, error) {
 	dec := json.NewDecoder(strings.NewReader(jsonStr))
 
 	data := Data{}
+
 	return data, dec.Decode(&data)
 }
 

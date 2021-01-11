@@ -17,6 +17,7 @@ func (c *ConfigBase) AssignStruct(ptr interface{}, key, tag string) int {
 	if data, found := c.Get(key); found {
 		return assignStruct(ptr, data, tag)
 	}
+
 	return -1
 }
 
