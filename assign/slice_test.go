@@ -2,14 +2,14 @@
 // Use of this source code is governed by a MIT style
 // license that can be found in the LICENSE file.
 
-package config_test
+package assign_test
 
 import (
 	"encoding/json"
 	"testing"
 	"strings"
 
-	"github.com/golobby/config"
+	"github.com/golobby/config/assign"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -57,7 +57,7 @@ func Test_AssignSlice_Simple(t *testing.T) {
 
 	var ptr []string
 
-	assert.Equal(namesLen, config.AssignSlice(&ptr, data["names"], "json"))
+	assert.Equal(namesLen, assign.AssignSlice(&ptr, data["names"], "json"))
 	assert.Equal(namesLen, len(ptr))
 
 	for i := 0; i < namesLen; i++ {
@@ -76,7 +76,7 @@ func Test_AssignSlice_Struct(t *testing.T) {
 
 	var ptr []User
 
-	assert.Equal(usersLen, config.AssignSlice(&ptr, data["users"], "json"))
+	assert.Equal(usersLen, assign.AssignSlice(&ptr, data["users"], "json"))
 	assert.Equal(usersLen, len(ptr))
 
 	for i := 0; i < usersLen; i++ {
@@ -95,7 +95,7 @@ func Test_AssignStruct_Slice(t *testing.T) {
 
 	ptr := &UserS{}
 
-	assert.Equal(1, config.AssignStruct(ptr, data, "json"))
+	assert.Equal(1, assign.AssignStruct(ptr, data, "json"))
 
 	users := data["users"].([]interface{})
 	usersLen := len(users)
