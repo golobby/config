@@ -2,13 +2,13 @@
 // Use of this source code is governed by a MIT style
 // license that can be found in the LICENSE file.
 
-package config_test
+package assign_test
 
 import (
 	"reflect"
 	"testing"
 
-	"github.com/golobby/config"
+	"github.com/golobby/config/assign"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -32,7 +32,7 @@ func Test_CheckPtr(t *testing.T) {
 }
 
 func testCheckPtr(ptr interface{}) int {
-	objPtr, obj, ok := config.CheckPtr(ptr)
+	objPtr, obj, ok := assign.CheckPtr(ptr)
 	if !ok {
 		return 0
 	} else if obj.Kind() != reflect.Struct {

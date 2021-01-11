@@ -3,6 +3,8 @@ package config
 import (
 	"strconv"
 	"strings"
+
+	"github.com/golobby/config/assign"
 )
 
 // Feeder is an interface for config feeders that provide content of a config instance.
@@ -104,6 +106,31 @@ func (c *ConfigBase) Get(key string) (interface{}, bool) {
 // GetAll returns all the configuration items (key/values).
 func (c *ConfigBase) GetAll() map[string]interface{} {
 	return c.items
+}
+
+// Assigns struct fields' value by its field's tag (such as the json tag).
+// @param ptr The pointer of struct's instance to set
+// @param key Specify where to get the struct's value
+// @param tag Specify which struct field's tag name used to retrieve
+// @return The count of fields that been assigned, -1 if struct's value not found by the key
+func (c *ConfigBase) AssignStruct(ptr interface{}, key, tag string) int {
+	if data, found := c.Get(key); found {
+		return assign.AssignStruct(ptr, data, tag)
+	}
+
+	return -1
+}
+
+// Assigns slice elements.
+// @param ptr The pointer of slice instance to appent elements
+// @param key Specify where to get the slice elements's value
+// @param tag If element's type is struct, using the tag name to retrieve struct fields
+// @return The count of elements that been assigned, -1 if slice's value not found by the key
+func (c *ConfigBase) AssignSlice(ptr interface{}, key, tag string) int {
+	if data, found := c.Get(key); found {
+		return assign.AssignSlice(ptr, data, tag)
+	}
+	return -1
 }
 
 // parse replaces the placeholders with environment and OS variables.

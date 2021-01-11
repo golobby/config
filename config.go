@@ -187,6 +187,30 @@ func (c *Config) GetStrictBool(key string) (bool, error) {
 	return false, &TypeError{value: v, wanted: "bool"}
 }
 
+// Assigns struct fields' value by its field's tag (such as the json tag).
+// @param ptr The pointer of struct's instance to set
+// @param key Specify where to get the struct's value
+// @param tag Specify which struct field's tag name used to retrieve
+// @return The count of fields that been assigned, -1 if struct's value not found by the key
+func (c *Config) AssignStruct(ptr interface{}, key, tag string) int {
+	c.sync.RLock()
+	defer c.sync.RUnlock()
+
+	return c.ConfigBase.AssignStruct(ptr, key, tag)
+}
+
+// Assigns slice elements.
+// @param ptr The pointer of slice instance to appent elements
+// @param key Specify where to get the slice elements's value
+// @param tag If element's type is struct, using the tag name to retrieve struct fields
+// @return The count of elements that been assigned, -1 if slice's value not found by the key
+func (c *Config) AssignSlice(ptr interface{}, key, tag string) int {
+	c.sync.RLock()
+	defer c.sync.RUnlock()
+
+	return c.ConfigBase.AssignSlice(ptr, key, tag)
+}
+
 // New returns a brand new instance of Config with the given options.
 func New(ops ...Options) (*Config, error) {
 	c := &Config{}

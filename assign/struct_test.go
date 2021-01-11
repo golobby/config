@@ -2,14 +2,14 @@
 // Use of this source code is governed by a MIT style
 // license that can be found in the LICENSE file.
 
-package config_test
+package assign_test
 
 import (
 	"encoding/json"
 	"testing"
 	"strings"
 
-	"github.com/golobby/config"
+	"github.com/golobby/config/assign"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -63,14 +63,14 @@ func Test_AssignStruct_Plain(t *testing.T) {
 
 	var ptr *User
 
-	assert.Equal(0, config.AssignStruct(ptr, data, "json"))
+	assert.Equal(0, assign.AssignStruct(ptr, data, "json"))
 
-	assert.Equal(2, config.AssignStruct(&ptr, data, "json"))
+	assert.Equal(2, assign.AssignStruct(&ptr, data, "json"))
 	assert.Equal(data["name"], ptr.Name)
 	assert.Equal(data["year"], ptr.Year)
 
 	ptr = &User{}
-	assert.Equal(2, config.AssignStruct(ptr, data, "json"))
+	assert.Equal(2, assign.AssignStruct(ptr, data, "json"))
 	assert.Equal(data["name"], ptr.Name)
 	assert.Equal(data["year"], ptr.Year)
 }
@@ -82,7 +82,7 @@ func Test_AssignStruct_Nested_0(t *testing.T) {
 	assert.NoError(err)
 
 	ptr := &UserWithAddr_0{}
-	assert.Equal(3, config.AssignStruct(ptr, user, "json"))
+	assert.Equal(3, assign.AssignStruct(ptr, user, "json"))
 	assert.Equal(user["name"], ptr.Name)
 	assert.Equal(user["year"], float64(ptr.Year))
 
@@ -99,7 +99,7 @@ func Test_AssignStruct_Nested_1(t *testing.T) {
 	assert.NoError(err)
 
 	ptr := &UserWithAddr_1{}
-	assert.Equal(3, config.AssignStruct(ptr, user, "json"))
+	assert.Equal(3, assign.AssignStruct(ptr, user, "json"))
 	assert.Equal(user["name"], ptr.Name)
 	assert.Equal(user["year"], float64(ptr.Year))
 
@@ -116,7 +116,7 @@ func Test_AssignStruct_Nested_2(t *testing.T) {
 	assert.NoError(err)
 
 	ptr := &UserWithAddr_2{}
-	assert.Equal(3, config.AssignStruct(ptr, user, "json"))
+	assert.Equal(3, assign.AssignStruct(ptr, user, "json"))
 	assert.Equal(user["name"], ptr.Name)
 	assert.Equal(user["year"], float64(ptr.Year))
 
