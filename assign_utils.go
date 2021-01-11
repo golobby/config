@@ -120,10 +120,11 @@ func assign_struct(obj, src reflect.Value, data interface{}, tag string) int {
 
 		fsv := src.MapIndex(reflect.ValueOf(name))
 		if fsv.IsValid() {
-			if needNewPtr(fv) {
-				pv := reflect.New(fv.Type().Elem())
+			if pv, need := needNewPtr(fv); need {
 				if assign(pv, fsv.Interface(), tag) > 0 {
-					fv.Set(pv)
+					if fv.Kind() == reflect.Ptr {
+						fv.Set(pv)
+					}
 					count++
 				}
 			} else {
@@ -132,10 +133,11 @@ func assign_struct(obj, src reflect.Value, data interface{}, tag string) int {
 				}
 			}
 		} else if ft.Anonymous {
-			if needNewPtr(fv) {
-				pv := reflect.New(fv.Type().Elem())
+			if pv, need := needNewPtr(fv); need {
 				if ret := assign(pv, data, tag); ret > 0 {
-					fv.Set(pv)
+					if fv.Kind() == reflect.Ptr {
+						fv.Set(pv)
+					}
 					count += ret
 				}
 			} else {
@@ -149,15 +151,17 @@ func assign_struct(obj, src reflect.Value, data interface{}, tag string) int {
 	return count
 }
 
-func needNewPtr(fv reflect.Value) bool {
+func needNewPtr(fv reflect.Value) (reflect.Value, bool) {
 	switch fv.Kind() {
 	case reflect.Slice:
-		return true
+		return fv.Addr(), true
 
 	case reflect.Ptr:
-		return fv.IsNil()
+		if fv.IsNil() {
+			return reflect.New(fv.Type().Elem()), true
+		}
 	}
-	return false
+	return fv, false
 }
 
 // --- assign_slice ---
