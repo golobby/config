@@ -39,7 +39,7 @@ func (c *ConfigBase) Env() *EnvConfig {
 // Feed takes a feeder and feeds the Config instance with it.
 // The built-in feeders are in the feeder subpackage.
 func (c *ConfigBase) Feed(f Feeder) error {
-	err := c.doFeed(f, c)
+	err := c.feedItems(f, c)
 	if err != nil {
 		return err
 	}
@@ -49,7 +49,7 @@ func (c *ConfigBase) Feed(f Feeder) error {
 	return nil
 }
 
-func (c *ConfigBase) doFeed(f Feeder, s setter) error {
+func (c *ConfigBase) feedItems(f Feeder, s setter) error {
 	items, err := f.Feed()
 	if err != nil {
 		return err
@@ -69,7 +69,7 @@ func (c *ConfigBase) Reload() error {
 
 func (c *ConfigBase) doReload(s setter) error {
 	for _, f := range c.feeders {
-		if err := c.doFeed(f, s); err != nil {
+		if err := c.feedItems(f, s); err != nil {
 			return err
 		}
 	}
