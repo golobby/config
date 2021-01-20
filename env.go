@@ -16,7 +16,7 @@ type EnvConfig struct {
 
 // FeedEnv reads the given environment file path, extract key/value items, and add them to the Config instance.
 func (env *EnvConfig) FeedEnv(path string) error {
-	err := env.doFeedEnv(path)
+	err := env.feedEnvItems(path)
 	if err != nil {
 		return err
 	}
@@ -26,7 +26,7 @@ func (env *EnvConfig) FeedEnv(path string) error {
 	return nil
 }
 
-func (env *EnvConfig) doFeedEnv(path string) error {
+func (env *EnvConfig) feedEnvItems(path string) error {
 	items, err := feed.Load(path)
 	if err != nil {
 		return err
@@ -42,7 +42,7 @@ func (env *EnvConfig) doFeedEnv(path string) error {
 // ReloadEnv reloads all the added environment files and applies new changes.
 func (env *EnvConfig) ReloadEnv() error {
 	for _, p := range env.paths {
-		if err := env.doFeedEnv(p); err != nil {
+		if err := env.feedEnvItems(p); err != nil {
 			return err
 		}
 	}
