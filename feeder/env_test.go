@@ -29,7 +29,7 @@ func Test_Load_It_Should_Read_The_Sample_Env_File(t *testing.T) {
 	l := len(vs)
 
 	assert.NoError(t, err)
-	assert.Equalf(t, 8, l, "Expected %v got %v", 8, l)
+	assert.Equalf(t, 10, l, "Expected %v got %v", 10, l)
 
 	// Read
 	assert.Equal(t, "127.0.0.1", vs["DB_HOST"])

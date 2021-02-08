@@ -11,16 +11,32 @@ import (
 
 type Env struct {
 	Path string
+	//List of keys to always load from OS
+	Keys []string
 }
 
+func makeKeyCompatible(k string) string {
+	return strings.Replace(strings.ToLower(k), "_", ".", -1)
+}
 func (e *Env) Feed() (map[string]interface{}, error) {
-	values, err := Load(e.Path)
-	if err != nil {
-		return nil, err
-	}
 	m := make(map[string]interface{})
-	for k, v := range values {
-		m[k] = v
+	if e.Path != "" {
+		values, err := Load(e.Path)
+		if err != nil {
+			return nil, err
+		}
+		for k, v := range values {
+			m[makeKeyCompatible(k)] = getEnv(k, v)
+		}
+	}
+	if e.Keys != nil {
+		for _, k := range e.Keys {
+			v := os.Getenv(k)
+			if v == "" {
+				continue
+			}
+			m[makeKeyCompatible(k)] = v
+		}
 	}
 	return m, nil
 }
@@ -90,4 +106,10 @@ func parse(line string) (string, string, error) {
 	v := strings.TrimSpace(ln[s+1:])
 
 	return k, v, nil
+}
+func getEnv(key, fallbak string) string {
+	if v := os.Getenv(key); v != "" {
+		return v
+	}
+	return fallbak
 }
