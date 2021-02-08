@@ -18,11 +18,6 @@ type Feeder interface {
 	Feed() (map[string]interface{}, error)
 }
 
-// Options will contain all the required data for instantiating a new Config instance.
-type Options struct {
-	Feeder Feeder // Feeder is the feeder that is going to feed the Config instance.
-}
-
 //NotFoundError happens when you try to access a key which is not defined in the configuration files.
 type NotFoundError struct {
 	key string
@@ -314,14 +309,12 @@ func dig(collection interface{}, key string) (interface{}, error) {
 }
 
 // New returns a brand new instance of Config with the given options.
-func New(ops ...Options) (*Config, error) {
+func New(feeders ...Feeder) (*Config, error) {
 	c := &Config{}
 
-	for _, op := range ops {
-		if op.Feeder != nil {
-			if err := c.Feed(op.Feeder); err != nil {
-				return nil, err
-			}
+	for _, fd := range feeders {
+		if err := c.Feed(fd); err != nil {
+			return nil, err
 		}
 	}
 
