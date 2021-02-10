@@ -29,9 +29,7 @@ func Test_Config_Feed_With_Map_Repo(t *testing.T) {
 		"year":     1979,
 		"duration": 4.6,
 	}
-	c, err := config.New(config.Options{
-		Feeder: m,
-	})
+	c, err := config.New(m)
 	assert.NoError(t, err)
 
 	v, err := c.Get("name")
@@ -102,15 +100,15 @@ func Test_Config_Feed_With_Map_Repo(t *testing.T) {
 }
 
 func Test_Config_GetBool(t *testing.T) {
-	c, err := config.New(config.Options{
-		Feeder: feeder.Map{
+	c, err := config.New(
+		feeder.Map{
 			"a": true,
 			"b": "true",
 			"c": false,
 			"d": "false",
 			"e": "error",
 		},
-	})
+	)
 	assert.NoError(t, err)
 
 	v, err := c.GetBool("a")
@@ -134,15 +132,15 @@ func Test_Config_GetBool(t *testing.T) {
 }
 
 func Test_Config_GetStrictBool(t *testing.T) {
-	c, err := config.New(config.Options{
-		Feeder: feeder.Map{
+	c, err := config.New(
+		feeder.Map{
 			"a": true,
 			"b": "true",
 			"c": false,
 			"d": "false",
 			"e": "error",
 		},
-	})
+	)
 	assert.NoError(t, err)
 
 	v, err := c.GetStrictBool("a")
@@ -164,13 +162,13 @@ func Test_Config_GetStrictBool(t *testing.T) {
 }
 
 func Test_Config_Feed_With_Map_Repo_Includes_A_Slice(t *testing.T) {
-	c, err := config.New(config.Options{Feeder: feeder.Map{
+	c, err := config.New(feeder.Map{
 		"scores": map[string]interface{}{
 			"A": 1,
 			"B": 2,
 			"C": 3,
 		},
-	}})
+	})
 	assert.NoError(t, err)
 
 	v, err := c.Get("scores.A")
@@ -191,9 +189,9 @@ func Test_Config_Feed_It_Should_Get_Env_From_OS(t *testing.T) {
 		panic(err)
 	}
 
-	c, err := config.New(config.Options{Feeder: feeder.Map{
-		"url": "${ URL }",
-	}})
+	c, err := config.New(feeder.Map{
+		"url": "going to be overrided by next feeder",
+	}, &feeder.Env{Path: "feeder/test/.env"})
 	assert.NoError(t, err)
 
 	v, err := c.Get("url")
@@ -208,9 +206,9 @@ func Test_Config_Feed_It_Should_Get_Env_From_OS_With_Default_Value(t *testing.T)
 		panic(err)
 	}
 
-	c, err := config.New(config.Options{Feeder: feeder.Map{
-		"url": "${ URL | DEFAULT_BUT_NOT_USED }",
-	}})
+	c, err := config.New(feeder.Map{
+		"url": "going to be overrided by next feeder",
+	}, &feeder.Env{Path: "feeder/test/.env"})
 	assert.NoError(t, err)
 
 	v, err := c.Get("url")
@@ -225,23 +223,19 @@ func Test_Config_Feed_It_Should_Get_Env_Default_When_Not_In_OS(t *testing.T) {
 		panic(err)
 	}
 
-	c, err := config.New(config.Options{
-		Feeder: feeder.Map{
-			"url": "${ EMPTY | http://localhost }",
-		},
-	})
+	c, err := config.New(feeder.Map{
+		"empty": "http://localhost",
+	}, &feeder.Env{Keys: []string{"EMPTY"}})
 	assert.NoError(t, err)
 
-	v, err := c.Get("url")
+	v, err := c.Get("empty")
 	assert.NoError(t, err)
 
 	assert.Equal(t, "http://localhost", v)
 }
 
 func Test_Config_Feed_JSON(t *testing.T) {
-	c, err := config.New(config.Options{
-		Feeder: feeder.Json{Path: "feeder/test/config.json"},
-	})
+	c, err := config.New(feeder.Json{Path: "feeder/test/config.json"})
 	assert.NoError(t, err)
 
 	v, err := c.Get("numbers.2")
@@ -254,14 +248,13 @@ func Test_Config_Feed_JSON(t *testing.T) {
 }
 
 func Test_Config_Feed_JSON_Directory(t *testing.T) {
-	err := os.Setenv("APP_OS", "Mac")
+	err := os.Setenv("APP_OS", "Linux")
 	if err != nil {
 		panic(err)
 	}
 
-	c, err := config.New(config.Options{
-		Feeder: feeder.JsonDirectory{Path: "feeder/test/json"},
-	})
+	c, err := config.New(feeder.JsonDirectory{Path: "feeder/test/json"},
+		&feeder.Env{Keys: []string{"APP_OS"}})
 	assert.NoError(t, err)
 
 	v, err := c.Get("app.name")
@@ -274,23 +267,22 @@ func Test_Config_Feed_JSON_Directory(t *testing.T) {
 
 	v, err = c.Get("app.os")
 	assert.NoError(t, err)
-	assert.Equal(t, "Mac", v)
+	assert.Equal(t, "Linux", v)
 }
 
 func Test_Config_Feed_Invalid_JSON(t *testing.T) {
-	_, err := config.New(config.Options{
-		Feeder: feeder.Json{Path: "feeder/test/invalid-json"},
-	})
+	_, err := config.New(feeder.Json{Path: "feeder/test/invalid-json"})
 	assert.Error(t, err)
 }
 
 func Test_Config_Env_With_Sample_Env_File(t *testing.T) {
-	c, err := config.New(config.Options{
-		Feeder: feeder.Map{
-			"url": "${ APP_URL }",
-		},
-		Env: "env/test/.env",
-	})
+	err := os.Setenv("URL", "")
+	if err != nil {
+		panic(err)
+	}
+	c, err := config.New(feeder.Map{
+		"url": "",
+	}, &feeder.Env{Path: "feeder/test/.env"})
 	assert.NoError(t, err)
 
 	v, err := c.Get("url")
@@ -298,31 +290,16 @@ func Test_Config_Env_With_Sample_Env_File(t *testing.T) {
 	assert.Equal(t, "https://example.com", v)
 }
 
-func Test_Config_GetAllEnvs(t *testing.T) {
-	c, err := config.New(config.Options{
-		Feeder: feeder.Map{
-			"url": "${ APP_URL }",
-		},
-		Env: "env/test/.env",
-	})
-	assert.NoError(t, err)
-
-	v := c.GetAllEnvs()
-	assert.Equal(t, "https://example.com", v["APP_URL"])
-}
-
 func Test_Config_Env_With_Empty_Env_It_Should_Use_OS_Vars(t *testing.T) {
-	err := os.Setenv("APP_NAME", "MyApp")
+	err := os.Setenv("NAME", "MyApp")
 	if err != nil {
 		panic(err)
 	}
 
-	c, err := config.New(config.Options{
-		Feeder: feeder.Map{
-			"name": "${ APP_NAME }",
-		},
-		Env: "env/test/.env",
-	})
+	c, err := config.New(feeder.Map{
+		"name": "",
+	}, &feeder.Env{Path: "feeder/test/.env"},
+	)
 	assert.NoError(t, err)
 
 	v, err := c.Get("name")
@@ -331,37 +308,10 @@ func Test_Config_Env_With_Empty_Env_It_Should_Use_OS_Vars(t *testing.T) {
 }
 
 func Test_Config_Env_With_Invalid_Env_It_Should_Raise_An_Error(t *testing.T) {
-	_, err := config.New(config.Options{
-		Feeder: feeder.Map{},
-		Env:    "env/test/.invalid.env",
-	})
+	_, err := config.New(feeder.Map{},
+		&feeder.Env{Path: "env/test/.invalid.env"},
+	)
 	assert.Error(t, err)
-}
-
-func Test_Config_ReloadEnv_It_Should_Reload_The_Env_File(t *testing.T) {
-	path := "env/test/runtime.env"
-
-	err := ioutil.WriteFile(path, []byte("FOO=BAR"), 0755)
-	if err != nil {
-		panic(err)
-	}
-
-	c, err := config.New(config.Options{
-		Env: path,
-	})
-	assert.NoError(t, err)
-
-	assert.Equal(t, "", c.GetEnv("KEY"))
-
-	err = ioutil.WriteFile(path, []byte("KEY=VALUE"), 0755)
-	if err != nil {
-		panic(err)
-	}
-
-	err = c.ReloadEnv()
-	assert.NoError(t, err)
-
-	assert.Equal(t, "VALUE", c.GetEnv("KEY"))
 }
 
 func Test_Config_Reload_It_Should_Reload_The_Feeders(t *testing.T) {
@@ -379,9 +329,7 @@ func Test_Config_Reload_It_Should_Reload_The_Feeders(t *testing.T) {
 		panic(err)
 	}
 
-	c, err := config.New(config.Options{
-		Feeder: feeder.Json{Path: path},
-	})
+	c, err := config.New(feeder.Json{Path: path})
 	assert.NoError(t, err)
 
 	v, err := c.Get("key")
@@ -410,9 +358,7 @@ func Test_Config_Reload_It_Should_Reload_The_Feeders(t *testing.T) {
 
 // https://github.com/golobby/config/issues/8
 func Test_GetInt_From_JSON(t *testing.T) {
-	c, err := config.New(config.Options{
-		Feeder: feeder.Json{Path: "feeder/test/issue8.json"},
-	})
+	c, err := config.New(feeder.Json{Path: "feeder/test/issue8.json"})
 	assert.NoError(t, err)
 
 	keys := []string{

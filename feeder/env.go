@@ -1,6 +1,4 @@
-// Package env is a simple package to read environment variable files.
-// It parses env files and extracts their key/values as a string map.
-package env
+package feeder
 
 import (
 	"bufio"
@@ -10,6 +8,38 @@ import (
 	"path/filepath"
 	"strings"
 )
+
+type Env struct {
+	Path string
+	//List of keys to always load from OS
+	Keys []string
+}
+
+func makeKeyCompatible(k string) string {
+	return strings.Replace(strings.ToLower(k), "_", ".", -1)
+}
+func (e *Env) Feed() (map[string]interface{}, error) {
+	m := make(map[string]interface{})
+	if e.Path != "" {
+		values, err := Load(e.Path)
+		if err != nil {
+			return nil, err
+		}
+		for k, v := range values {
+			m[makeKeyCompatible(k)] = getEnv(k, v)
+		}
+	}
+	if e.Keys != nil {
+		for _, k := range e.Keys {
+			v := os.Getenv(k)
+			if v == "" {
+				continue
+			}
+			m[makeKeyCompatible(k)] = v
+		}
+	}
+	return m, nil
+}
 
 // Load reads the given env file and extracts the variables as a string map
 func Load(filename string) (map[string]string, error) {
@@ -76,4 +106,10 @@ func parse(line string) (string, string, error) {
 	v := strings.TrimSpace(ln[s+1:])
 
 	return k, v, nil
+}
+func getEnv(key, fallbak string) string {
+	if v := os.Getenv(key); v != "" {
+		return v
+	}
+	return fallbak
 }

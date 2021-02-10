@@ -11,19 +11,11 @@ import (
 	"strings"
 	"sync"
 	"syscall"
-
-	"github.com/golobby/config/env"
 )
 
 // Feeder is an interface for config feeders that provide content of a config instance.
 type Feeder interface {
 	Feed() (map[string]interface{}, error)
-}
-
-// Options will contain all the required data for instantiating a new Config instance.
-type Options struct {
-	Feeder Feeder // Feeder is the feeder that is going to feed the Config instance.
-	Env    string // Env is the file path that locates the environment file.
 }
 
 //NotFoundError happens when you try to access a key which is not defined in the configuration files.
@@ -47,81 +39,9 @@ func (t *TypeError) Error() string {
 
 // Config keeps all the Config instance data.
 type Config struct {
-	env struct {
-		paths []string          // It keeps all the added environment files' paths
-		items map[string]string // It keeps all the given environment key/value items.
-		sync  sync.RWMutex      // It's responsible for (un)locking the items
-	}
 	feeders []Feeder               // It keeps all the added feeders
 	items   map[string]interface{} // It keeps all the key/value items (excluding environment ones).
 	sync    sync.RWMutex           // It's responsible for (un)locking the items
-}
-
-// FeedEnv reads the given environment file path, extract key/value items, and add them to the Config instance.
-func (c *Config) FeedEnv(path string) error {
-	err := c.feedEnvItems(path)
-	if err != nil {
-		return err
-	}
-
-	c.env.paths = append(c.env.paths, path)
-
-	return nil
-}
-
-func (c *Config) feedEnvItems(path string) error {
-	items, err := env.Load(path)
-	if err != nil {
-		return err
-	}
-
-	for k, v := range items {
-		c.SetEnv(k, v)
-	}
-
-	return nil
-}
-
-// ReloadEnv reloads all the added environment files and applies new changes.
-func (c *Config) ReloadEnv() error {
-	for _, p := range c.env.paths {
-		if err := c.feedEnvItems(p); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-// GetEnv returns the environment variable value for the given environment variable key.
-func (c *Config) GetEnv(key string) string {
-	c.env.sync.RLock()
-	defer c.env.sync.RUnlock()
-
-	v, ok := c.env.items[key]
-
-	if ok && v != "" {
-		return v
-	}
-
-	return os.Getenv(key)
-}
-
-// GetAllEnvs returns all the environment variables (key/values)
-func (c *Config) GetAllEnvs() map[string]string {
-	return c.env.items
-}
-
-// SetEnv sets the given value for the given env key
-func (c *Config) SetEnv(key, value string) {
-	c.env.sync.Lock()
-	defer c.env.sync.Unlock()
-
-	if c.env.items == nil {
-		c.env.items = map[string]string{}
-	}
-
-	c.env.items[key] = value
 }
 
 // StartListener makes the Config instance to listen to the SIGHUP signal and reload the feeders and environment files.
@@ -133,7 +53,6 @@ func (c *Config) StartListener() {
 	go func() {
 		for {
 			<-s
-			_ = c.ReloadEnv()
 			_ = c.Reload()
 		}
 	}()
@@ -319,23 +238,7 @@ func (c *Config) GetStrictBool(key string) (bool, error) {
 
 // parse replaces the placeholders with environment and OS variables.
 func (c *Config) parse(value interface{}) interface{} {
-	if stmt, ok := value.(string); ok {
-		if len(stmt) > 3 && stmt[0:2] == "${" && stmt[len(stmt)-1:] == "}" {
-			pipe := strings.Index(stmt, "|")
-
-			if pipe == -1 {
-				key := strings.TrimSpace(stmt[2 : len(stmt)-1])
-				return c.GetEnv(key)
-			}
-
-			key := strings.TrimSpace(stmt[2:pipe])
-			if v := c.GetEnv(key); v != "" {
-				return v
-			}
-
-			return strings.TrimSpace(stmt[pipe+1 : len(stmt)-1])
-		}
-	} else if collection, ok := value.(map[string]interface{}); ok {
+	if collection, ok := value.(map[string]interface{}); ok {
 		for k, v := range collection {
 			collection[k] = c.parse(v)
 		}
@@ -406,21 +309,12 @@ func dig(collection interface{}, key string) (interface{}, error) {
 }
 
 // New returns a brand new instance of Config with the given options.
-func New(ops ...Options) (*Config, error) {
+func New(feeders ...Feeder) (*Config, error) {
 	c := &Config{}
 
-	for _, op := range ops {
-		if op.Env != "" {
-			err := c.FeedEnv(op.Env)
-			if err != nil {
-				return nil, err
-			}
-		}
-
-		if op.Feeder != nil {
-			if err := c.Feed(op.Feeder); err != nil {
-				return nil, err
-			}
+	for _, fd := range feeders {
+		if err := c.Feed(fd); err != nil {
+			return nil, err
 		}
 	}
 
