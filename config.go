@@ -183,8 +183,17 @@ func (c *Config) GetFloat(key string) (float64, error) {
 		return 0, err
 	}
 
-	if v, ok := v.(float64); ok {
-		return v, nil
+	switch val := v.(type) {
+	case float64:
+		return val, nil
+	case int:
+		return float64(val), nil
+	case string:
+		i, err := strconv.Atoi(val)
+		if err != nil {
+			return 0, err
+		}
+		return float64(i), nil
 	}
 
 	return 0, &TypeError{value: v, wanted: "float"}

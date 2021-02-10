@@ -24,11 +24,12 @@ func Test_Config_Set_Get_With_A_Simple_Key_String_Value(t *testing.T) {
 
 func Test_Config_Feed_With_Map_Repo(t *testing.T) {
 	m := feeder.Map{
-		"name":     "Hey You",
-		"band":     "Pink Floyd",
-		"year":     1979,
-		"duration": 4.6,
+		"name": "Hey You",
+		"band": "Pink Floyd",
+		"year": 1979,
+		"rate": 4.9,
 	}
+
 	c, err := config.New(m)
 	assert.NoError(t, err)
 
@@ -54,25 +55,29 @@ func Test_Config_Feed_With_Map_Repo(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, 1979, year)
 
-	_, err = c.GetString("year")
-	assert.Error(t, err)
-
 	year, err = c.GetInt("year")
 	assert.NoError(t, err)
 	assert.Equal(t, 1979, year)
 
-	duration, err := c.Get("duration")
+	year, err = c.GetFloat("year")
 	assert.NoError(t, err)
-	assert.Equal(t, 4.6, duration)
+	assert.Equal(t, float64(1979), year)
 
-	_, err = c.GetBool("duration")
+	_, err = c.GetString("year")
 	assert.Error(t, err)
 
-	duration, err = c.GetFloat("duration")
+	rate, err := c.Get("rate")
 	assert.NoError(t, err)
-	assert.Equal(t, 4.6, duration)
+	assert.Equal(t, 4.9, rate)
 
-	_, err = c.GetStrictBool("duration")
+	rate, err = c.GetFloat("rate")
+	assert.NoError(t, err)
+	assert.Equal(t, 4.9, rate)
+
+	_, err = c.GetBool("rate")
+	assert.Error(t, err)
+
+	_, err = c.GetStrictBool("rate")
 	assert.Error(t, err)
 
 	_, err = c.Get("wrong")
@@ -189,9 +194,12 @@ func Test_Config_Feed_It_Should_Get_Env_From_OS(t *testing.T) {
 		panic(err)
 	}
 
-	c, err := config.New(feeder.Map{
-		"url": "going to be overrided by next feeder",
-	}, &feeder.Env{Path: "feeder/test/.env"})
+	c, err := config.New(
+		&feeder.Map{
+			"url": "going to be overridden by the next feeder",
+		},
+		&feeder.Env{Path: "feeder/test/.env"},
+	)
 	assert.NoError(t, err)
 
 	v, err := c.Get("url")
@@ -206,9 +214,12 @@ func Test_Config_Feed_It_Should_Get_Env_From_OS_With_Default_Value(t *testing.T)
 		panic(err)
 	}
 
-	c, err := config.New(feeder.Map{
-		"url": "going to be overrided by next feeder",
-	}, &feeder.Env{Path: "feeder/test/.env"})
+	c, err := config.New(
+		&feeder.Map{
+			"url": "going to be overridden by the next feeder",
+		},
+		&feeder.Env{Path: "feeder/test/.env"},
+	)
 	assert.NoError(t, err)
 
 	v, err := c.Get("url")
@@ -223,9 +234,12 @@ func Test_Config_Feed_It_Should_Get_Env_Default_When_Not_In_OS(t *testing.T) {
 		panic(err)
 	}
 
-	c, err := config.New(feeder.Map{
-		"empty": "http://localhost",
-	}, &feeder.Env{Keys: []string{"EMPTY"}})
+	c, err := config.New(
+		&feeder.Map{
+			"empty": "http://localhost",
+		},
+		&feeder.Env{Keys: []string{"EMPTY"}},
+	)
 	assert.NoError(t, err)
 
 	v, err := c.Get("empty")
@@ -253,8 +267,10 @@ func Test_Config_Feed_JSON_Directory(t *testing.T) {
 		panic(err)
 	}
 
-	c, err := config.New(feeder.JsonDirectory{Path: "feeder/test/json"},
-		&feeder.Env{Keys: []string{"APP_OS"}})
+	c, err := config.New(
+		&feeder.JsonDirectory{Path: "feeder/test/json"},
+		&feeder.Env{Keys: []string{"APP_OS"}},
+	)
 	assert.NoError(t, err)
 
 	v, err := c.Get("app.name")
@@ -356,23 +372,19 @@ func Test_Config_Reload_It_Should_Reload_The_Feeders(t *testing.T) {
 	assert.Equal(t, "new-value", v)
 }
 
-// https://github.com/golobby/config/issues/8
-func Test_GetInt_From_JSON(t *testing.T) {
-	c, err := config.New(feeder.Json{Path: "feeder/test/issue8.json"})
+func Test_Config_GetInt_Non_Int_Values(t *testing.T) {
+	c, err := config.New(feeder.Json{Path: "feeder/test/numbers.json"})
 	assert.NoError(t, err)
 
-	keys := []string{
-		"int",
-		"strInt",
-	}
+	v, err := c.GetInt("int")
+	assert.NoError(t, err)
+	assert.Equal(t, 13, v)
 
-	for _, key := range keys {
-		v, err := c.GetInt(key)
-		if err != nil {
-			t.Errorf(
-				"\nkey: %v \nv: %v \nerr: %v",
-				key, v, err.Error(),
-			)
-		}
-	}
+	v, err = c.GetInt("string")
+	assert.NoError(t, err)
+	assert.Equal(t, 13, v)
+
+	v, err = c.GetInt("float")
+	assert.NoError(t, err)
+	assert.Equal(t, 13, v)
 }
