@@ -18,7 +18,7 @@ type Feeder interface {
 	Feed() (map[string]interface{}, error)
 }
 
-//NotFoundError happens when you try to access a key which is not defined in the configuration files.
+// NotFoundError happens when it cannot find the requested key.
 type NotFoundError struct {
 	key string
 }
@@ -27,7 +27,7 @@ func (n *NotFoundError) Error() string {
 	return fmt.Sprintf("value not found for the key %s", n.key)
 }
 
-//TypeError happens when you try to access a key using a helper function that casts value to a type which can't be done.
+// TypeError happens when it cannot cast a value to the requested type.
 type TypeError struct {
 	value  interface{}
 	wanted string
@@ -40,11 +40,11 @@ func (t *TypeError) Error() string {
 // Config keeps all the Config instance data.
 type Config struct {
 	feeders []Feeder               // It keeps all the added feeders
-	items   map[string]interface{} // It keeps all the key/value items (excluding environment ones).
+	items   map[string]interface{} // It keeps all the key/value items
 	sync    sync.RWMutex           // It's responsible for (un)locking the items
 }
 
-// StartListener makes the Config instance to listen to the SIGHUP signal and reload the feeders and environment files.
+// StartListener makes the instance to listen to the SIGHUP and reload the feeders.
 func (c *Config) StartListener() {
 	s := make(chan os.Signal, 1)
 
@@ -58,8 +58,8 @@ func (c *Config) StartListener() {
 	}()
 }
 
-// Feed takes a feeder and feeds the Config instance with it.
-// The built-in feeders are in the feeder subpackage.
+// Feed takes a feeder and feeds the instance with it.
+// The built-in feeders are in the feeder sub-package.
 func (c *Config) Feed(f Feeder) error {
 	err := c.feedItems(f)
 	if err != nil {
@@ -126,9 +126,7 @@ func (c *Config) Get(key string) (interface{}, error) {
 		return nil, &NotFoundError{key: key}
 	}
 
-	v, err := lookup(c.items, key)
-
-	return v, err
+	return lookup(c.items, key)
 }
 
 // GetAll returns all the configuration items (key/values).
