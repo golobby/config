@@ -350,9 +350,8 @@ To get your application process id you can use the `ps` shell command.
 ### Strict Type Values
 
 When you use the `Get()` method you have to cast the returned value type before using it.
-You can use the following methods instead.
+You can use the following methods, instead.
 
-List of strict type methods:
 * `GetString()` returns only string values
 * `GetInt()` returns only int and float values (pruning the floating part)
 * `GetFloat()` returns only float and int values (in float64 type)
