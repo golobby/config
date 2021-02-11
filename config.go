@@ -188,11 +188,11 @@ func (c *Config) GetFloat(key string) (float64, error) {
 	case int:
 		return float64(val), nil
 	case string:
-		i, err := strconv.Atoi(val)
+		i, err := strconv.ParseFloat(val, 64)
 		if err != nil {
 			return 0, &TypeError{value: v, wanted: "float64"}
 		}
-		return float64(i), nil
+		return i, nil
 	}
 
 	return 0, &TypeError{value: v, wanted: "float64"}
