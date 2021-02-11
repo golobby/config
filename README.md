@@ -127,30 +127,30 @@ Sample project config directory:
 - - db.json
 ```
 
-JSON directory files: [path/to/config](https://github.com/golobby/config/tree/v2/feeder/test/json)
+JSON directory: https://github.com/golobby/config/tree/v2/feeder/test/json
 
 Go code:
 
 ```go
 c, err := config.New(feeder.JsonDirectory{Path: "path/to/config"})
 
-v, err := c.Get("app.version") // 3.14
-v, err := c.Get("db.mysql.host") // localhost
+v, err := c.GetFloat("app.version")     // 3.14
+v, err := c.GetString("db.mysql.host")  // localhost
 ```
 
 #### Feeding using Yaml
 
 YAML files are a trend these days, so why not store configurations in them?
 
-YAML file: [path/to/config.yaml](https://github.com/golobby/config/blob/v2/feeder/test/config.yaml)
+YAML file: https://github.com/golobby/config/blob/v2/feeder/test/config.yaml
 
 Go code:
 
 ```go
 c, err := config.New(feeder.Yaml{Path: "path/to/config.yaml"})
 
-v, err := c.Get("version") // 3.14
-v, err := c.Get("numbers.2") // 3
+v, err := c.GetFloat("version")         // 3.14
+v, err := c.GetInt("numbers.2")         // 3
 v, err := c.Get("users.0.address.city") // Delfan
 ```
 
@@ -168,15 +168,15 @@ Sample project config directory:
 - - db.yaml
 ```
 
-Yaml directory files: [path/to/config](https://github.com/golobby/config/tree/v2/feeder/test/yaml)
+Yaml directory: https://github.com/golobby/config/tree/v2/feeder/test/yaml
 
 Go code:
 
 ```go
 c, err := config.New(feeder.YamlDirectory{Path: "path/to/config"})
 
-v, err := c.Get("app.version") // 3.14
-v, err := c.Get("db.mysql.host") // localhost
+v, err := c.GetFloat("app.version")     // 3.14
+v, err := c.GetString("db.mysql.host")  // localhost
 ```
 
 #### Feeding using Env
@@ -188,20 +188,20 @@ Because of different key names in env files, their names would be updated this w
 * `APP_NAME` => `app.name`
 * `DB_MYSQL_HOST` => `db.mysql.host`
 
-ENV file: [path/to/.env](https://github.com/golobby/config/blob/v2/feeder/test/.env)
+ENV file: https://github.com/golobby/config/blob/v2/feeder/test/.env
 
 Go code:
 
 ```go
 c, err := config.New(feeder.Env{Path: "path/to/.env"})
 
-v, err := c.Get("url") // https://example.com (Original Key: URL)
-v, err := c.Get("db.host") // 127.0.0.1 (Original Key: DB_HOST)
+v, err := c.GetString("url")     // https://example.com (Original Key: URL)
+v, err := c.GetString("db.host") // 127.0.0.1 (Original Key: DB_HOST)
 ```
 
 Env feeder fetches operating system variables when the value is empty.
 
-ENV file: [path/to/.env](https://github.com/golobby/config/blob/v2/feeder/test/.env)
+ENV file: https://github.com/golobby/config/blob/v2/feeder/test/.env
 
 Go code:
 
