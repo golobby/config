@@ -111,27 +111,6 @@ func TestConfig_Get(t *testing.T) {
 	assert.Equal(t, "value not found for the key `wrong`", err.Error())
 }
 
-func TestConfig_Get2(t *testing.T) {
-	c, err := config.New(feeder.Map{
-		"string": "String",
-		"int":    13,
-		"float":  3.14,
-		"true":   true,
-		"false":  false,
-		"map": map[interface{}]interface{}{
-			"item": "value",
-		},
-		"strings": []string{"abc", "xyz"},
-		"numbers": []int{13, 666},
-		"booleans": []bool{true, false},
-	})
-	assert.NoError(t, err)
-
-	v, err := c.Get("texts.0")
-	assert.NoError(t, err)
-	assert.Equal(t, "abc", v)
-}
-
 func TestConfig_GetBool(t *testing.T) {
 	c, err := config.New(feeder.Map{
 		"true":        true,
