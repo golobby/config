@@ -33,11 +33,7 @@ func (e *Env) Feed() (map[string]interface{}, error) {
 
 // load reads the given env file and extracts the variables as a string map
 func (e *Env) load(filename string) (map[string]string, error) {
-	path, err := filepath.Abs(filename)
-	if err != nil {
-		return nil, err
-	}
-
+	path, _ := filepath.Abs(filename)
 	file, err := os.Open(filepath.Clean(path))
 	if err != nil {
 		return nil, err
