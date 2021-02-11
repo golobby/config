@@ -33,7 +33,7 @@ type TypeError struct {
 }
 
 func (t *TypeError) Error() string {
-	return fmt.Sprintf("value `%s` (`%T`) is not `%s`", t.value, t.value, t.wanted)
+	return fmt.Sprintf("value `%v` (`%T`) is not `%s`", t.value, t.value, t.wanted)
 }
 
 // Config keeps all the Config instance data.
