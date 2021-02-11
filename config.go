@@ -107,27 +107,6 @@ func (c *Config) Set(key string, value interface{}) {
 	c.items[key] = value
 }
 
-// Get returns the value of the given key.
-// The return type is "interface{}".
-// It probably needs to be cast to the related data type.
-// It returns an error if there is no value for the given key.
-func (c *Config) Get(key string) (interface{}, error) {
-	c.sync.RLock()
-	defer c.sync.RUnlock()
-
-	v, ok := c.items[key]
-
-	if ok {
-		return v, nil
-	}
-
-	if strings.Contains(key, ".") == false {
-		return nil, &NotFoundError{key: key}
-	}
-
-	return lookup(c.items, key)
-}
-
 // GetAll returns all the configuration items (key/values).
 func (c *Config) GetAll() map[string]interface{} {
 	return c.items
@@ -250,6 +229,27 @@ func (c *Config) GetStrictBool(key string) (bool, error) {
 	return false, &TypeError{value: v, wanted: "bool"}
 }
 
+// Get returns the value of the given key.
+// The return type is "interface{}".
+// It probably needs to be cast to the related data type.
+// It returns an error if there is no value for the given key.
+func (c *Config) Get(key string) (interface{}, error) {
+	c.sync.RLock()
+	defer c.sync.RUnlock()
+
+	v, ok := c.items[key]
+
+	if ok {
+		return v, nil
+	}
+
+	if strings.Contains(key, ".") == false {
+		return nil, &NotFoundError{key: key}
+	}
+
+	return lookup(c.items, key)
+}
+
 // lookup searches for the given key in deep and returns related value if exist.
 func lookup(collection interface{}, key string) (interface{}, error) {
 	keys := strings.Split(key, ".")
@@ -277,10 +277,36 @@ func find(collection interface{}, key string) (interface{}, error) {
 		if v, ok := collection.(map[string]interface{})[key]; ok {
 			return v, nil
 		}
+	case map[int]interface{}:
+		if k, err := strconv.Atoi(key); err == nil {
+			if v, ok := collection.(map[int]interface{})[k]; ok {
+				return v, nil
+			}
+		}
 	case []interface{}:
 		k, err := strconv.Atoi(key)
 		if err == nil && len(collection.([]interface{})) > k {
 			return collection.([]interface{})[k], nil
+		}
+	case []string:
+		k, err := strconv.Atoi(key)
+		if err == nil && len(collection.([]string)) > k {
+			return collection.([]string)[k], nil
+		}
+	case []int:
+		k, err := strconv.Atoi(key)
+		if err == nil && len(collection.([]int)) > k {
+			return collection.([]int)[k], nil
+		}
+	case []float64:
+		k, err := strconv.Atoi(key)
+		if err == nil && len(collection.([]float64)) > k {
+			return collection.([]float64)[k], nil
+		}
+	case []bool:
+		k, err := strconv.Atoi(key)
+		if err == nil && len(collection.([]bool)) > k {
+			return collection.([]bool)[k], nil
 		}
 	}
 
