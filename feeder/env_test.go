@@ -6,38 +6,45 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func Test_Load_It_Should_Return_Error_When_File_Not_Found(t *testing.T) {
-	vs, err := Load("test/.404")
-	assert.Nil(t, vs)
+func TestEnv_Feed_With_Invalid_File_Path_It_Should_Fail(t *testing.T) {
+	e := Env{Path: "test/.404"}
+
+	_, err := e.Feed()
 	assert.Error(t, err)
 }
 
-func Test_Load_It_Should_Read_Empty_File_And_Return_Empty_Map(t *testing.T) {
-	vs, err := Load("test/.empty.env")
+func TestEnv_Feed_With_Empty_File_It_Should_Hold_No_Item(t *testing.T) {
+	e := Env{Path: "test/.empty.env"}
+
+	items, err := e.Feed()
 	assert.NoError(t, err)
-	assert.Empty(t, vs)
+	assert.Empty(t, items)
 }
 
-func Test_Load_It_Should_Return_Error_When_File_Is_Invalid(t *testing.T) {
-	vs, err := Load("test/.buggy.env")
-	assert.Nil(t, vs)
+func TestEnv_Feed_With_Buggy_File_It_Should_Fail(t *testing.T) {
+	e := Env{Path: "test/.buggy.env"}
+
+	_, err := e.Feed()
 	assert.Error(t, err)
 }
 
-func Test_Load_It_Should_Read_The_Sample_Env_File(t *testing.T) {
-	vs, err := Load("test/.env")
-	l := len(vs)
+func TestEnv_Feed_It_Should_Read_The_Sample_Env_File(t *testing.T) {
+	e := Env{Path: "test/.env"}
+
+	items, err := e.Feed()
+	l := len(items)
 
 	assert.NoError(t, err)
 	assert.Equalf(t, 10, l, "Expected %v got %v", 10, l)
 
-	// Read
-	assert.Equal(t, "127.0.0.1", vs["DB_HOST"])
-	assert.Equal(t, "App", vs["DB_NAME"])
-	assert.Equal(t, "3306", vs["DB_PORT"])
-	assert.Equal(t, "MySQL", vs["DB_TYPE"])
-	assert.Equal(t, "", vs["APP_NAME"])
-	assert.Equal(t, "https://example.com", vs["APP_URL"])
-	assert.Equal(t, "true", vs["DEBUG"])
-	assert.Equal(t, "#VALUE!", vs["NOT_COMMENT"])
+	assert.Equal(t, "https://example.com", items["url"])
+	assert.Equal(t, "127.0.0.1", items["db.host"])
+	assert.Equal(t, "NewApp", items["db.name"])
+	assert.Equal(t, "3306", items["db.port"])
+	assert.Equal(t, "MySQL", items["db.type"])
+	assert.Equal(t, "", items["app.name"])
+	assert.Equal(t, "https://app.url", items["app.url"])
+	assert.Equal(t, "true", items["debug"])
+	assert.Equal(t, "#VALUE!", items["not.comment"])
+	assert.Equal(t, "", items["name"])
 }

@@ -9,40 +9,34 @@ import (
 	"strings"
 )
 
+// Env is a feeder that feeds using a single env file.
 type Env struct {
 	Path string
-	//List of keys to always load from OS
-	Keys []string
 }
 
-func makeKeyCompatible(k string) string {
-	return strings.Replace(strings.ToLower(k), "_", ".", -1)
-}
+// Feed returns all the content.
 func (e *Env) Feed() (map[string]interface{}, error) {
 	m := make(map[string]interface{})
-	if e.Path != "" {
-		values, err := Load(e.Path)
-		if err != nil {
-			return nil, err
-		}
-		for k, v := range values {
-			m[makeKeyCompatible(k)] = getEnv(k, v)
-		}
+
+	values, err := load(e.Path)
+	if err != nil {
+		return nil, err
 	}
-	if e.Keys != nil {
-		for _, k := range e.Keys {
-			v := os.Getenv(k)
-			if v == "" {
-				continue
-			}
-			m[makeKeyCompatible(k)] = v
-		}
+
+	for k, v := range values {
+		m[standardize(k)] = get(k, v)
 	}
+
 	return m, nil
 }
 
-// Load reads the given env file and extracts the variables as a string map
-func Load(filename string) (map[string]string, error) {
+// standardize updates config key (e.g. APP_NAME to  app.name)
+func standardize(k string) string {
+	return strings.Replace(strings.ToLower(k), "_", ".", -1)
+}
+
+// load reads the given env file and extracts the variables as a string map
+func load(filename string) (map[string]string, error) {
 	path, err := filepath.Abs(filename)
 	if err != nil {
 		return nil, err
@@ -107,9 +101,12 @@ func parse(line string) (string, string, error) {
 
 	return k, v, nil
 }
-func getEnv(key, fallbak string) string {
+
+// get fetches variable from OS if exist and return fallback otherwise.
+func get(key, fallback string) string {
 	if v := os.Getenv(key); v != "" {
 		return v
 	}
-	return fallbak
+
+	return fallback
 }

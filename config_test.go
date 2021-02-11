@@ -189,7 +189,7 @@ func Test_Config_Feed_With_Map_Repo_Includes_A_Slice(t *testing.T) {
 }
 
 func Test_Config_Feed_It_Should_Get_Env_From_OS(t *testing.T) {
-	err := os.Setenv("URL", "https://miladrahimi.com")
+	err := os.Setenv("URL", "https://github.com/golobby/config")
 	if err != nil {
 		panic(err)
 	}
@@ -198,7 +198,7 @@ func Test_Config_Feed_It_Should_Get_Env_From_OS(t *testing.T) {
 		&feeder.Map{
 			"url": "going to be overridden by the next feeder",
 		},
-		&feeder.Env{Path: "feeder/test/.env"},
+		&feeder.OS{Keys: []string{"URL"}},
 	)
 	assert.NoError(t, err)
 
@@ -209,7 +209,7 @@ func Test_Config_Feed_It_Should_Get_Env_From_OS(t *testing.T) {
 }
 
 func Test_Config_Feed_It_Should_Get_Env_From_OS_With_Default_Value(t *testing.T) {
-	err := os.Setenv("URL", "https://miladrahimi.com")
+	err := os.Setenv("URL", "https://github.com/golobby/config")
 	if err != nil {
 		panic(err)
 	}
@@ -218,7 +218,7 @@ func Test_Config_Feed_It_Should_Get_Env_From_OS_With_Default_Value(t *testing.T)
 		&feeder.Map{
 			"url": "going to be overridden by the next feeder",
 		},
-		&feeder.Env{Path: "feeder/test/.env"},
+		&feeder.OS{Keys: []string{"URL"}},
 	)
 	assert.NoError(t, err)
 
@@ -236,16 +236,16 @@ func Test_Config_Feed_It_Should_Get_Env_Default_When_Not_In_OS(t *testing.T) {
 
 	c, err := config.New(
 		&feeder.Map{
-			"empty": "http://localhost",
+			"empty": "https://github.com/golobby/config",
 		},
-		&feeder.Env{Keys: []string{"EMPTY"}},
+		&feeder.OS{Keys: []string{"EMPTY"}},
 	)
 	assert.NoError(t, err)
 
 	v, err := c.Get("empty")
 	assert.NoError(t, err)
 
-	assert.Equal(t, "http://localhost", v)
+	assert.Equal(t, "https://github.com/golobby/config", v)
 }
 
 func Test_Config_Feed_JSON(t *testing.T) {
@@ -269,7 +269,7 @@ func Test_Config_Feed_JSON_Directory(t *testing.T) {
 
 	c, err := config.New(
 		&feeder.JsonDirectory{Path: "feeder/test/json"},
-		&feeder.Env{Keys: []string{"APP_OS"}},
+		&feeder.OS{Keys: []string{"APP_OS"}},
 	)
 	assert.NoError(t, err)
 

@@ -3,7 +3,6 @@
 package config
 
 import (
-	"errors"
 	"fmt"
 	"os"
 	"os/signal"
@@ -78,7 +77,7 @@ func (c *Config) feedItems(f Feeder) error {
 	}
 
 	for k, v := range items {
-		c.Set(k, c.parse(v))
+		c.Set(k, v)
 	}
 
 	return nil
@@ -243,26 +242,7 @@ func (c *Config) GetStrictBool(key string) (bool, error) {
 	return false, &TypeError{value: v, wanted: "bool"}
 }
 
-// parse replaces the placeholders with environment and OS variables.
-func (c *Config) parse(value interface{}) interface{} {
-	if collection, ok := value.(map[string]interface{}); ok {
-		for k, v := range collection {
-			collection[k] = c.parse(v)
-		}
-
-		return collection
-	} else if collection, ok := value.(map[interface{}]interface{}); ok {
-		for k, v := range collection {
-			collection[k] = c.parse(v)
-		}
-
-		return collection
-	}
-
-	return value
-}
-
-// lookup searches for the given key in deep and returns related value.
+// lookup searches for the given key in deep and returns related value if exist.
 func lookup(collection interface{}, key string) (interface{}, error) {
 	keys := strings.Split(key, ".")
 
@@ -296,7 +276,7 @@ func find(collection interface{}, key string) (interface{}, error) {
 		}
 	}
 
-	return nil, errors.New("value not found for the key " + key)
+	return nil, &NotFoundError{key: key}
 }
 
 // dig returns the sub-collection of the given collection by the given key.
@@ -312,10 +292,10 @@ func dig(collection interface{}, key string) (interface{}, error) {
 		}
 	}
 
-	return nil, errors.New("value not found for the key " + key)
+	return nil, &NotFoundError{key: key}
 }
 
-// New returns a brand new instance of Config with the given options.
+// New makes a brand new instance of Config with the given feeders.
 func New(feeders ...Feeder) (*Config, error) {
 	c := &Config{}
 
