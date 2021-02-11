@@ -169,7 +169,7 @@ func TestConfig_GetFloat(t *testing.T) {
 	assert.Error(t, err)
 	assert.Equal(t, "value `String` (`string`) is not `float64`", err.Error())
 
-	_, err = c.GetInt("bool")
+	_, err = c.GetFloat("bool")
 	assert.Error(t, err)
 	assert.Equal(t, "value `false` (`bool`) is not `float64`", err.Error())
 
