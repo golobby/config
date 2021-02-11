@@ -38,28 +38,43 @@ name, err := c.Get("name")
 
 ### Feeders
 
-Feeders provide content of the application configuration. Currently, these feeders exist out of the box:
+Feeders provide the configuration contents.
+The Config package supports the following feeders out of the box.
 
-* `Map` Feeds a simple `map[string]interface{}`.
-* `Json` Feeds a JSON file.
-* `JsonDirectory` Feeds a directory of JSON files.
-* `Yaml` Feeds a YAML file.
-* `YamlDirectory` Feeds a directory of YAML files.
-* `Env` Feeds a environment file.
-* `OS` Feeds a list of OS variables.
+* `Map` Feeds using a simple `map[string]interface{}`.
+* `Json` Feeds using a JSON file.
+* `JsonDirectory` Feeds using a directory of JSON files.
+* `Yaml` Feeds using a YAML file.
+* `YamlDirectory` Feeds using a directory of YAML files.
+* `Env` Feeds using an environment file.
+* `OS` Feeds using a list of OS variables.
 
-Of course, you are able to implement your own feeders by implementing the `Feeder` interface.
+Of course, you can implement your custom feeders by implementing the `Feeder` interface.
 
-You can pass the feeders to the `New()` method like the following example.
+Pass feeders to the `New()` method like the following example.
 
 ```go
 f := feeder.Map{"name": "Pink Floyd"}
+
 c, err := config.New(f)
+name, err := c.Get("name") // "Pink Floyd"
+```
+
+Or you can pass multiple feeders like this example:
+
+```go
+f1 := feeder.Map{"name": "Divison Bell"}
+f2 := feeder.Map{"year": 1994}
+
+c, err := config.New(f1, f2)
+name, err := c.Get("name") // "Pink Floyd"
+name, err := c.Get("year") // 1994
 ```
 
 #### Feeding using Map
 
-You don't like config files!? It's OK you can pass a `Map` feeder to the Config initializer like this example:
+You don't like config files!?
+It's OK you can use the Map feeder like this example:
 
 ```go
 c, err := config.New(feeder.Map{
@@ -93,8 +108,8 @@ Go code:
 ```go
 c, err := config.New(feeder.Json{Path: "path/to/config.json"})
 
-v, err := c.Get("version") // 3.14
-v, err := c.Get("numbers.2") // 3
+v, err := c.GetFloat("version")         // 3.14
+v, err := c.GetInt("numbers.2")         // 3
 v, err := c.Get("users.0.address.city") // Delfan
 ```
 
