@@ -20,32 +20,36 @@ To install this package run the following command in the root of your project
 go get github.com/golobby/config
 ```
 
-### A simple example
-The following example demonstrates how to set and get a simple key/value.
+### Getting Started
+
+The following example demonstrates how to set and get a simple configuration key/value.
 
 ```go
 c, err := config.New()
 // Check error...
 
-c.Set("name", "John Doe")
+c.Set("name", "Pink Floyd")
 
 name, err := c.Get("name")
 ```
 
 ### Feeders
-Feeders provide content of the configuration. Currently, these feeders exist out of the box:
+
+Feeders provide content of the application configuration. Currently, these feeders exist out of the box:
 * `Map`: Feeds a simple `map[string]interface{}`.
 * `Json`: Feeds a JSON file.
 * `JsonDirectory`: Feeds a directory of JSON files.
-* `Yaml`: Feeds a Yaml file.
+* `Yaml`: Feeds a YAML file.
+* `YamlDirectory`: Feeds a directory of YAML files.
+* `Env`: Feeds a environment file.
+* `OS`: Feeds a list of OS variables.
 
-Of course, you are free to implement your feeders by implementing the `Feeder` interface.
+Of course, you are able to implement your own feeders by implementing the `Feeder` interface.
 
-You can pass your desired feeder through Options to the `New()` function this way:
+You can pass the feeders to the `New()` method like the following example.
+
 ```go
-c, err := config.New(config.Options{
-    Feeder: TheFeederGoesHere,
-})
+c, err := config.New()
 ```
 
 #### Feeding using Map feeder
