@@ -1,0 +1,11 @@
+{
+  "default": "mysql",
+  "sqlite": {
+    "path": "app.db"
+  },
+  "mysql": {
+    "host": "localhost",
+    "user": "root",
+    "pass": "secret"
+  }
+}

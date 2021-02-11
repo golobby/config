@@ -12,8 +12,8 @@ func TestYamlDirectory_Feed(t *testing.T) {
 	m, err := j.Feed()
 
 	assert.NoError(t, err)
-	assert.Equal(t, m["app"].(map[string]interface{})["name"], "MyAppUsingGoLobbyConfig")
-	assert.Equal(t, m["app"].(map[string]interface{})["version"], 3.14)
+	assert.Equal(t, "MyAppUsingGoLobbyConfig", m["app"].(map[string]interface{})["name"])
+	assert.Equal(t, 3.14, m["app"].(map[string]interface{})["version"])
 }
 
 func TestYamlDirectory_Feed_With_Invalid_Dir_Path_It_Should_Fail(t *testing.T) {

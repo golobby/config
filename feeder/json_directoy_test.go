@@ -12,8 +12,9 @@ func TestJsonDirectory_Feed(t *testing.T) {
 	m, err := j.Feed()
 
 	assert.NoError(t, err)
-	assert.Equal(t, m["app"].(map[string]interface{})["name"], "MyAppUsingConfig")
-	assert.Equal(t, m["app"].(map[string]interface{})["version"], 3.14)
+	assert.Equal(t, "MyAppUsingConfig", m["app"].(map[string]interface{})["name"])
+	assert.Equal(t, 3.14, m["app"].(map[string]interface{})["version"])
+	assert.Equal(t, "mysql", m["db"].(map[string]interface{})["default"])
 }
 
 func TestJsonDirectory_Feed_With_Invalid_Dir_Path_It_Should_Fail(t *testing.T) {
