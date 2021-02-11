@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestOS_Feed_It_Should_Return_Non_Empty_OS_Variables(t *testing.T) {
+func TestOS_Feed(t *testing.T) {
 	_ = os.Setenv("APP_NAME", "Config")
 	_ = os.Setenv("APP_URL", "https://github.com/golobby/config")
 	_ = os.Setenv("APP_VERSION", "2.0")
