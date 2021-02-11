@@ -2,18 +2,21 @@
 [![Build Status](https://travis-ci.org/golobby/config.svg?branch=master)](https://travis-ci.org/golobby/config)
 [![Go Report Card](https://goreportcard.com/badge/github.com/golobby/config)](https://goreportcard.com/report/github.com/golobby/config)
 [![Coverage Status](https://coveralls.io/repos/github/golobby/config/badge.svg?branch=master)](https://coveralls.io/github/golobby/config?branch=master)
-[![Awesome](https://cdn.rawgit.com/sindresorhus/awesome/d7305f38d29fed78fa85652e3a63e154dd8e8829/media/badge.svg)](https://github.com/sindresorhus/awesome) 
+[![Awesome](https://cdn.rawgit.com/sindresorhus/awesome/d7305f38d29fed78fa85652e3a63e154dd8e8829/media/badge.svg)](https://github.com/sindresorhus/awesome)
 
 # Config
-GoLobby Config is a lightweight yet powerful config package for Go projects. 
-It takes advantage of env files and OS variables alongside config files to be your ultimate requirement.
+
+GoLobby Config is a lightweight yet powerful config package for Go projects. It takes advantage of env files and OS
+variables alongside config files to be your ultimate requirement.
 
 ## Documentation
 
 ### Required Go Version
+
 It requires Go `v1.11` or newer versions.
 
 ### Installation
+
 To install this package run the following command in the root of your project
 
 ```bash
@@ -36,20 +39,22 @@ name, err := c.Get("name")
 ### Feeders
 
 Feeders provide content of the application configuration. Currently, these feeders exist out of the box:
-* `Map`: Feeds a simple `map[string]interface{}`.
-* `Json`: Feeds a JSON file.
-* `JsonDirectory`: Feeds a directory of JSON files.
-* `Yaml`: Feeds a YAML file.
-* `YamlDirectory`: Feeds a directory of YAML files.
-* `Env`: Feeds a environment file.
-* `OS`: Feeds a list of OS variables.
+
+* `Map` Feeds a simple `map[string]interface{}`.
+* `Json` Feeds a JSON file.
+* `JsonDirectory` Feeds a directory of JSON files.
+* `Yaml` Feeds a YAML file.
+* `YamlDirectory` Feeds a directory of YAML files.
+* `Env` Feeds a environment file.
+* `OS` Feeds a list of OS variables.
 
 Of course, you are able to implement your own feeders by implementing the `Feeder` interface.
 
 You can pass the feeders to the `New()` method like the following example.
 
 ```go
-c, err := config.New()
+f := feeder.Map{"name": "Pink Floyd"}
+c, err := config.New(f)
 ```
 
 #### Feeding using Map feeder
@@ -57,17 +62,12 @@ c, err := config.New()
 You don't like config files!? It's OK you can pass a `Map` feeder to the Config initializer like this example:
 
 ```go
-c, err := config.New(config.Options{
-    Feeder: feeder.Map{
-        "name":     "Hey You",
-        "band":     "Pink Floyd",
-        "year":     1979,
-        "duration": 4.6,
-    },
+c, err := config.New(feeder.Map{
+    "name": "Hey You",
+    "band": "Pink Floyd",
+    "year": 1979,
+    "rate": 4.6,
 })
-if err != nil {
-    panic(err)
-}
 
 name, err := c.Get("name")
 // OR
@@ -77,14 +77,15 @@ year, err := c.Get("year")
 // OR
 year, err := c.GetInt("year")
 
-year, err := c.Get("duration")
+year, err := c.Get("rate")
 // OR
-duration, err := c.GetFloat("duration")
+duration, err := c.GetFloat("rate")
 ```
 
 #### Feeding using Json feeder
 
-Storing configuration data in a JSON file could be a brilliant idea. The example below shows how to use the Json feeder.
+Storing configuration data in a JSON file could be a brilliant idea.
+The example below shows how to use the Json feeder.
 
 `config.json`:
 
@@ -124,7 +125,7 @@ Go code:
 
 ```go
 c, err := config.New(config.Options{
-    Feeder: feeder.Json{Path: "path/to/config.json"},
+Feeder: feeder.Json{Path: "path/to/config.json"},
 })
 
 v, err := c.Get("version") // 3.14
@@ -133,6 +134,7 @@ v, err := c.Get("numbers.2") // 3
 
 v, err := c.Get("users.0.address.city") // Delfan
 ```
+
 #### Feeding using Yaml feeder
 
 Yaml files are a trend these days, so why not store configurations in them ?
@@ -142,14 +144,14 @@ Yaml files are a trend these days, so why not store configurations in them ?
 ```yaml
 name: MyAppUsingGoLobbyConfig
 version: 3.14
-numbers: 
+numbers:
   - 1
   - 2
   - 3
 users:
   - name: Milad Rahimi
     year: 1993
-    address: 
+    address:
       country: Iran
       state: Lorestan
       city: Delfan
@@ -165,7 +167,7 @@ Go code:
 
 ```go
 c, err := config.New(config.Options{
-    Feeder: feeder.Yaml{Path: "path/to/config.yaml"},
+Feeder: feeder.Yaml{Path: "path/to/config.yaml"},
 })
 
 v, err := c.Get("version") // 3.14
@@ -177,8 +179,8 @@ v, err := c.Get("users.0.address.city") // Delfan
 
 #### Feeding using JsonDirectory
 
-If you have many configuration data and it doesn't fit in a single JSON file.
-In this case, you can use multiple JSON files and feed them using JsonDirectory feeder like this example:
+If you have many configuration data and it doesn't fit in a single JSON file. In this case, you can use multiple JSON
+files and feed them using JsonDirectory feeder like this example:
 
 Sample project directory structure:
 
@@ -202,8 +204,14 @@ Sample project directory structure:
 
 ```json
 {
-  "sqlite": { "path": "app.db" },
-  "mysql": { "host": "localhost", "user": "root", "pass": "secret" }
+  "sqlite": {
+    "path": "app.db"
+  },
+  "mysql": {
+    "host": "localhost",
+    "user": "root",
+    "pass": "secret"
+  }
 }
 ```
 
@@ -211,7 +219,7 @@ Go code:
 
 ```go
 c, err := config.New(config.Options{
-    Feeder: feeder.JsonDirectory{Path: "config"},
+Feeder: feeder.JsonDirectory{Path: "config"},
 })
 
 v, err := c.Get("app.version") // 3.14
@@ -220,8 +228,8 @@ v, err := c.Get("db.mysql.host") // localhost
 
 #### Feeding using YamlDirectory
 
-If you have many configuration data and it doesn't fit in a single YAML file.
-In this case, you can use multiple YAML files and feed them using YamlDirectory feeder like this example:
+If you have many configuration data and it doesn't fit in a single YAML file. In this case, you can use multiple YAML
+files and feed them using YamlDirectory feeder like this example:
 
 Sample project directory structure:
 
@@ -256,31 +264,35 @@ Go code:
 
 ```go
 c, err := config.New(config.Options{
-    Feeder: feeder.YamlDirectory{Path: "config"},
+Feeder: feeder.YamlDirectory{Path: "config"},
 })
 
 v, err := c.Get("app.version") // 3.14
 v, err := c.Get("db.mysql.host") // localhost
 ```
+
 ### OS variables and environment files
 
 #### OS variables
 
-Sometimes you need to use environment variables stored in OS alongside your configuration data.
-You can refer to OS variables using a simple syntax, `${ VARIABLE }`, in the config values.
-This example demonstrates how to use OS variables.
+Sometimes you need to use environment variables stored in OS alongside your configuration data. You can refer to OS
+variables using a simple syntax, `${ VARIABLE }`, in the config values. This example demonstrates how to use OS
+variables.
 
 `db.json`:
 
 ```json
-{"name": "MyApp", "port": "${ APP_PORT }"}
+{
+  "name": "MyApp",
+  "port": "${ APP_PORT }"
+}
 ```
 
 Go code:
 
 ```go
 c, err := config.New(config.Options{
-    Feeder: feeder.Json{Path: "db.json"},
+Feeder: feeder.Json{Path: "db.json"},
 })
 
 v, err := c.Get("name") // MyApp
@@ -296,13 +308,16 @@ ${ VARIABLE | DEFAULT }
 Example of JSON file using OS variable:
 
 ```json
-{"name": "MyApp", "port": "${ APP_PORT | 3306 }"}
+{
+  "name": "MyApp",
+  "port": "${ APP_PORT | 3306 }"
+}
 ```
 
 #### environment files
 
-You maybe want to use ".env" files. Good news! It's so easy to work with environment files.
-You can pass an environment file path alongside your config feeder when you initialize a new instance of Config.
+You maybe want to use ".env" files. Good news! It's so easy to work with environment files. You can pass an environment
+file path alongside your config feeder when you initialize a new instance of Config.
 
 Sample project directory structure:
 
@@ -315,7 +330,11 @@ Sample project directory structure:
 `config.json`:
 
 ```json
-{"name": "MyApp", "key": "${ APP_KEY }", "port": "${ APP_PORT | 3306 }"}
+{
+  "name": "MyApp",
+  "key": "${ APP_KEY }",
+  "port": "${ APP_PORT | 3306 }"
+}
 ```
 
 `.env`:
@@ -329,8 +348,8 @@ Go code:
 
 ```go
 c, err := config.New(config.Options{
-    Feeder: feeder.Json{Path: "config.json"},
-    Env: ".env",
+Feeder: feeder.Json{Path: "config.json"},
+Env: ".env",
 })
 
 v, err := c.Get("name") // MyApp (from config.json)
@@ -341,8 +360,8 @@ v, err := c.Get("port") // 3306 (from config.json, the default value)
 ### Reload the config and env files
 
 One of the benefits of using config management tools is the ability to change the configurations without redeployment.
-The Config package takes advantage of OS signals to handle this need.
-It listens to the "SIGHUP" signal and reloads the env and config files on receive.
+The Config package takes advantage of OS signals to handle this need. It listens to the "SIGHUP" signal and reloads the
+env and config files on receive.
 
 You can send this signal to your application with following shell command:
 
@@ -382,7 +401,7 @@ Sample project directory structure:
   "sqlite": {
     "path": "app.db"
   },
-  "mysql": { 
+  "mysql": {
     "host": "${ DB_HOST | localhost }",
     "user": "${ DB_USER | root }",
     "pass": "${ DB_PASS | secret }"
@@ -405,27 +424,27 @@ Go code:
 _ := os.Setenv("DB_HOST", "192.168.0.13")
 
 c, err := config.New(config.Options{
-    Feeder: feeder.JsonDirectory{Path: "config"},
-    Env: ".env",
+Feeder: feeder.JsonDirectory{Path: "config"},
+Env: ".env",
 })
 
 v, err := c.Get("app.name") // MyApp (from app.json)
-v, err := c.Get("app.key")  // theKey (from .env)
-v, err := c.Get("db.mysql.host")  // 192.168.0.13 (from OS variables)
-v, err := c.Get("db.mysql.user")  // root (from app.json, the default value)
-v, err := c.Get("db.mysql.pass")  // something (from .env)
+v, err := c.Get("app.key") // theKey (from .env)
+v, err := c.Get("db.mysql.host") // 192.168.0.13 (from OS variables)
+v, err := c.Get("db.mysql.user") // root (from app.json, the default value)
+v, err := c.Get("db.mysql.pass") // something (from .env)
 ```
 
-You may ask what would happen if the value existed in the config file, the environment file, and the OS variables?
-It's the order of the Config priorities:
+You may ask what would happen if the value existed in the config file, the environment file, and the OS variables? It's
+the order of the Config priorities:
 
 1. OS Variables
 1. Environment (.env) files
 1. Default Value
 
-So if the value was defined is OS variables, the Config would return it.
-If it wasn't in OS variables, the Config would return the value stored in the environment file.
-If it also wasn't in the environment file, it'd eventually return the value stored in the config file as default value.
+So if the value was defined is OS variables, the Config would return it. If it wasn't in OS variables, the Config would
+return the value stored in the environment file. If it also wasn't in the environment file, it'd eventually return the
+value stored in the config file as default value.
 
 ## License
 
