@@ -200,7 +200,7 @@ func (c *Config) GetFloat(key string) (float64, error) {
 
 // GetBool returns the value of the given key.
 // It also casts the value type to bool internally.
-// It converts the "true" and "false" string values to related boolean values.
+// It converts the "true", "false", 1 and 0 values to related boolean values.
 // It returns an error if the related value is not a bool.
 // It returns an error if there is no value for the given key.
 func (c *Config) GetBool(key string) (bool, error) {
@@ -209,22 +209,18 @@ func (c *Config) GetBool(key string) (bool, error) {
 		return false, err
 	}
 
-	if v, ok := v.(bool); ok {
-		return v, nil
-	}
-
-	if v, ok := v.(string); ok {
-		if v == "true" {
+	if b, ok := v.(bool); ok {
+		return b, nil
+	} else if b, ok := v.(string); ok {
+		if b == "true" {
 			return true, nil
-		} else if v == "false" {
+		} else if b == "false" {
 			return false, nil
 		}
-	}
-
-	if v, ok := v.(int); ok {
-		if v == 1 {
+	} else if b, ok := v.(int); ok {
+		if b == 1 {
 			return true, nil
-		} else if v == 0 {
+		} else if b == 0 {
 			return false, nil
 		}
 	}
