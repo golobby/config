@@ -221,6 +221,14 @@ func (c *Config) GetBool(key string) (bool, error) {
 		}
 	}
 
+	if v, ok := v.(int); ok {
+		if v == 1 {
+			return true, nil
+		} else if v == 0 {
+			return false, nil
+		}
+	}
+
 	return false, &TypeError{value: v, wanted: "bool"}
 }
 
