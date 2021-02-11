@@ -101,7 +101,7 @@ duration, err := c.GetFloat("rate")
 
 Storing configuration data in a JSON file could be a brilliant idea. The example below shows how to use the Json feeder.
 
-JSON file: [path/to/config.json](https://github.com/golobby/config/blob/v2/feeder/test/config.json)
+JSON file: https://github.com/golobby/config/blob/v2/feeder/test/config.json
 
 Go code:
 
