@@ -1,6 +1,7 @@
 package config_test
 
 import (
+	"os"
 	"testing"
 
 	"github.com/golobby/config"
@@ -368,6 +369,11 @@ func TestConfig_Reload_With_An_Invalidated_Feeder(t *testing.T) {
 	assert.Error(t, err)
 }
 
+func TestConfig_Feed_Invalid(t *testing.T) {
+	_, err := config.New(feeder.Json{Path: "/path/to/invalid"})
+	assert.Error(t, err)
+}
+
 func TestConfig_Feed_Multiple(t *testing.T) {
 	c, err := config.New(
 		feeder.Map{
@@ -383,11 +389,27 @@ func TestConfig_Feed_Multiple(t *testing.T) {
 	assert.NoError(t, err)
 
 	v, err := c.Get("url")
-	assert.Equal(t, "https://github.com/golobby/config", v)
 	assert.NoError(t, err)
+	assert.Equal(t, "https://github.com/golobby/config", v)
 }
 
-func TestConfig_Feed_Invalid(t *testing.T) {
-	_, err := config.New(feeder.Json{Path: "/path/to/invalid"})
-	assert.Error(t, err)
+func TestConfig_Feed_Multiple_With_OS(t *testing.T) {
+	_ = os.Setenv("URL", "https://os")
+
+	c, err := config.New(
+		&feeder.Map{
+			"url": "going to be overridden by the next feeders",
+			"ver": 3.14,
+		},
+		&feeder.OS{Keys: []string{"URL", "VER"}},
+	)
+	assert.NoError(t, err)
+
+	v, err := c.Get("url")
+	assert.NoError(t, err)
+	assert.Equal(t, "https://os", v)
+
+	v, err = c.Get("ver")
+	assert.NoError(t, err)
+	assert.Equal(t, 3.14, v)
 }
