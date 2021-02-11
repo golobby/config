@@ -25,6 +25,10 @@ func (yd YamlDirectory) Feed() (map[string]interface{}, error) {
 			continue
 		}
 
+		if filepath.Ext(f.Name()) != ".yml" && filepath.Ext(f.Name()) != ".yaml" {
+			continue
+		}
+
 		j := Yaml{Path: filepath.Join(yd.Path, f.Name())}
 
 		items, err := j.Feed()

@@ -3,7 +3,6 @@ package feeder_test
 import (
 	"github.com/golobby/config/feeder"
 	"github.com/stretchr/testify/assert"
-	"os"
 	"testing"
 )
 
@@ -25,8 +24,6 @@ func Test_YamlDirectory_Feed_Invalid_JSON_Dir_It_Should_Return_Error(t *testing.
 
 func Test_YamlDirectory_Feed_Sample1(t *testing.T) {
 	j := feeder.YamlDirectory{Path: "test/yaml"}
-
-	_ = os.Mkdir("test/yaml/empty", os.ModePerm)
 
 	m, err := j.Feed()
 
