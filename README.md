@@ -181,7 +181,7 @@ v, err := c.GetString("db.mysql.host")  // localhost
 
 #### Feeding using Env
 
-An environment file could be a main or a secondary feeder.
+An environment file could be a main or a secondary feeder to override other feeder values.
 
 Because of different key names in env files, their names would be updated this way:
 
@@ -200,8 +200,6 @@ v, err := c.GetString("db.host") // 127.0.0.1 (Original Key: DB_HOST)
 ```
 
 Env feeder fetches operating system variables when the value is empty.
-
-ENV file: https://github.com/golobby/config/blob/v2/feeder/test/.env
 
 Go code:
 
