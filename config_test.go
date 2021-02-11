@@ -291,3 +291,8 @@ func TestConfig_Feed_Multiple(t *testing.T) {
 	assert.Equal(t, "https://github.com/golobby/config", v)
 	assert.NoError(t, err)
 }
+
+func TestConfig_Feed_Invalid(t *testing.T) {
+	_, err := config.New(feeder.Json{Path: "/path/to/invalid"})
+	assert.Error(t, err)
+}
