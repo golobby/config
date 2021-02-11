@@ -45,9 +45,12 @@ func TestConfig_Get(t *testing.T) {
 		"float":  3.14,
 		"true":   true,
 		"false":  false,
-		"slice": map[string]interface{}{
+		"map": map[interface{}]interface{}{
 			"item": "value",
 		},
+		"strings": []string{"abc", "xyz"},
+		"numbers": []int{13, 666},
+		"booleans": []bool{true, false},
 	})
 	assert.NoError(t, err)
 
@@ -71,13 +74,33 @@ func TestConfig_Get(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, false, v)
 
-	v, err = c.Get("slice.item")
+	v, err = c.Get("map.item")
 	assert.NoError(t, err)
 	assert.Equal(t, "value", v)
 
-	_, err = c.Get("slice.wrong")
+	_, err = c.Get("map.wrong")
 	assert.Error(t, err)
 	assert.Equal(t, "value not found for the key `wrong`", err.Error())
+
+	v, err = c.Get("strings")
+	assert.NoError(t, err)
+	assert.Equal(t, []string{"abc", "xyz"}, v)
+
+	v, err = c.Get("strings.0")
+	assert.NoError(t, err)
+	assert.Equal(t, "abc", v)
+
+	v, err = c.Get("strings.0")
+	assert.NoError(t, err)
+	assert.Equal(t, "abc", v)
+
+	v, err = c.Get("numbers.1")
+	assert.NoError(t, err)
+	assert.Equal(t, 666, v)
+
+	v, err = c.Get("booleans.0")
+	assert.NoError(t, err)
+	assert.Equal(t, true, v)
 
 	_, err = c.Get("wrong")
 	assert.Error(t, err)
@@ -86,6 +109,27 @@ func TestConfig_Get(t *testing.T) {
 	_, err = c.Get("wrong.wrong")
 	assert.Error(t, err)
 	assert.Equal(t, "value not found for the key `wrong`", err.Error())
+}
+
+func TestConfig_Get2(t *testing.T) {
+	c, err := config.New(feeder.Map{
+		"string": "String",
+		"int":    13,
+		"float":  3.14,
+		"true":   true,
+		"false":  false,
+		"map": map[interface{}]interface{}{
+			"item": "value",
+		},
+		"strings": []string{"abc", "xyz"},
+		"numbers": []int{13, 666},
+		"booleans": []bool{true, false},
+	})
+	assert.NoError(t, err)
+
+	v, err := c.Get("texts.0")
+	assert.NoError(t, err)
+	assert.Equal(t, "abc", v)
 }
 
 func TestConfig_GetBool(t *testing.T) {
