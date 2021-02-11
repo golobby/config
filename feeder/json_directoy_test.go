@@ -3,30 +3,25 @@ package feeder_test
 import (
 	"github.com/golobby/config/feeder"
 	"github.com/stretchr/testify/assert"
-	"os"
 	"testing"
 )
 
-func Test_JsonDirectory_Feed_Not_Existing_Dir_It_Should_Return_Error(t *testing.T) {
+func TestJsonDirectory_Feed_With_Invalid_Dir_Path_It_Should_Fail(t *testing.T) {
 	j := feeder.JsonDirectory{Path: "/404"}
 
 	_, err := j.Feed()
-
 	assert.Error(t, err)
 }
 
-func Test_JsonDirectory_Feed_Invalid_JSON_Dir_It_Should_Return_Error(t *testing.T) {
+func TestJsonDirectory_Feed_With_Invalid_Dir_File_It_Should_Fail(t *testing.T) {
 	j := feeder.JsonDirectory{Path: "test/invalid-json"}
 
 	_, err := j.Feed()
-
 	assert.Error(t, err)
 }
 
-func Test_JsonDirectory_Feed_Sample1(t *testing.T) {
+func TestJsonDirectory_Feed_With_Sample_Dir(t *testing.T) {
 	j := feeder.JsonDirectory{Path: "test/json"}
-
-	_ = os.Mkdir("test/json/empty", os.ModePerm)
 
 	m, err := j.Feed()
 

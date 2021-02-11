@@ -21,7 +21,7 @@ func (jd JsonDirectory) Feed() (map[string]interface{}, error) {
 	all := map[string]interface{}{}
 
 	for _, f := range files {
-		if f.IsDir() {
+		if f.IsDir() || filepath.Ext(f.Name()) != ".json" {
 			continue
 		}
 
