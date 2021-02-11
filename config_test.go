@@ -1,9 +1,6 @@
 package config_test
 
 import (
-	json2 "encoding/json"
-	"io/ioutil"
-	"os"
 	"testing"
 
 	"github.com/golobby/config"
@@ -11,7 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func Test_Config_Set_Get_With_A_Simple_Key_String_Value(t *testing.T) {
+func TestConfig_Set(t *testing.T) {
 	c, err := config.New()
 	assert.NoError(t, err)
 
@@ -22,372 +19,275 @@ func Test_Config_Set_Get_With_A_Simple_Key_String_Value(t *testing.T) {
 	assert.Equal(t, "v", v)
 }
 
-func Test_Config_Feed_With_Map_Repo(t *testing.T) {
+func TestConfig_GetAll(t *testing.T) {
 	m := feeder.Map{
-		"name": "Hey You",
-		"band": "Pink Floyd",
-		"year": 1979,
-		"rate": 4.9,
+		"singer": "Pink Floyd",
+		"albums": []struct {
+			Name string
+			Year int
+		}{
+			{Name: "Division Bell", Year: 1994},
+			{Name: "The Wall", Year: 1979},
+		},
 	}
 
 	c, err := config.New(m)
 	assert.NoError(t, err)
 
-	v, err := c.Get("name")
-	assert.NoError(t, err)
-	assert.Equal(t, "Hey You", v)
+	v := c.GetAll()
+	assert.Equal(t, map[string]interface{}(m), v)
+}
 
-	v, err = c.GetString("name")
+func TestConfig_Get(t *testing.T) {
+	c, err := config.New(feeder.Map{
+		"string": "String",
+		"int":    13,
+		"float":  3.14,
+		"true":   true,
+		"false":  false,
+		"slice": map[string]interface{}{
+			"item": "value",
+		},
+	})
 	assert.NoError(t, err)
-	assert.Equal(t, "Hey You", v)
 
-	_, err = c.GetInt("name")
+	v, err := c.Get("string")
+	assert.NoError(t, err)
+	assert.Equal(t, "String", v)
+
+	v, err = c.Get("int")
+	assert.NoError(t, err)
+	assert.Equal(t, 13, v)
+
+	v, err = c.Get("float")
+	assert.NoError(t, err)
+	assert.Equal(t, 3.14, v)
+
+	v, err = c.Get("true")
+	assert.NoError(t, err)
+	assert.Equal(t, true, v)
+
+	v, err = c.Get("false")
+	assert.NoError(t, err)
+	assert.Equal(t, false, v)
+
+	v, err = c.Get("slice.item")
+	assert.NoError(t, err)
+	assert.Equal(t, "value", v)
+
+	_, err = c.Get("slice.wrong")
 	assert.Error(t, err)
-
-	band, err := c.Get("band")
-	assert.NoError(t, err)
-	assert.Equal(t, "Pink Floyd", band)
-
-	_, err = c.GetFloat("band")
-	assert.Error(t, err)
-	assert.Equal(t, "value `Pink Floyd` (`string`) is not `float64`", err.Error())
-
-	year, err := c.Get("year")
-	assert.NoError(t, err)
-	assert.Equal(t, 1979, year)
-
-	year, err = c.GetInt("year")
-	assert.NoError(t, err)
-	assert.Equal(t, 1979, year)
-
-	year, err = c.GetFloat("year")
-	assert.NoError(t, err)
-	assert.Equal(t, float64(1979), year)
-
-	_, err = c.GetString("year")
-	assert.Error(t, err)
-
-	rate, err := c.Get("rate")
-	assert.NoError(t, err)
-	assert.Equal(t, 4.9, rate)
-
-	rate, err = c.GetFloat("rate")
-	assert.NoError(t, err)
-	assert.Equal(t, 4.9, rate)
-
-	_, err = c.GetBool("rate")
-	assert.Error(t, err)
-
-	_, err = c.GetStrictBool("rate")
-	assert.Error(t, err)
+	assert.Equal(t, "value not found for the key `wrong`", err.Error())
 
 	_, err = c.Get("wrong")
 	assert.Error(t, err)
 	assert.Equal(t, "value not found for the key `wrong`", err.Error())
 
-	_, err = c.GetString("wrong")
-	assert.Error(t, err)
-
-	_, err = c.GetInt("wrong")
-	assert.Error(t, err)
-
-	_, err = c.GetFloat("wrong")
-	assert.Error(t, err)
-
-	_, err = c.GetBool("wrong")
-	assert.Error(t, err)
-
-	_, err = c.GetStrictBool("wrong")
-	assert.Error(t, err)
-
-	_, err = c.Get("wrong.nested")
+	_, err = c.Get("wrong.wrong")
 	assert.Error(t, err)
 	assert.Equal(t, "value not found for the key `wrong`", err.Error())
-
-	assert.Equal(t, map[string]interface{}(m), c.GetAll())
 }
 
-func Test_Config_GetBool(t *testing.T) {
-	c, err := config.New(
-		feeder.Map{
-			"a": true,
-			"b": "true",
-			"c": false,
-			"d": "false",
-			"e": "error",
-		},
-	)
-	assert.NoError(t, err)
-
-	v, err := c.GetBool("a")
-	assert.NoError(t, err)
-	assert.Equal(t, true, v)
-
-	v, err = c.GetBool("b")
-	assert.NoError(t, err)
-	assert.Equal(t, true, v)
-
-	v, err = c.GetBool("c")
-	assert.NoError(t, err)
-	assert.Equal(t, false, v)
-
-	v, err = c.GetBool("d")
-	assert.NoError(t, err)
-	assert.Equal(t, false, v)
-
-	_, err = c.GetBool("e")
-	assert.Error(t, err)
-}
-
-func Test_Config_GetStrictBool(t *testing.T) {
-	c, err := config.New(
-		feeder.Map{
-			"a": true,
-			"b": "true",
-			"c": false,
-			"d": "false",
-			"e": "error",
-		},
-	)
-	assert.NoError(t, err)
-
-	v, err := c.GetStrictBool("a")
-	assert.NoError(t, err)
-	assert.Equal(t, true, v)
-
-	_, err = c.GetStrictBool("b")
-	assert.Error(t, err)
-
-	v, err = c.GetStrictBool("c")
-	assert.NoError(t, err)
-	assert.Equal(t, false, v)
-
-	_, err = c.GetStrictBool("d")
-	assert.Error(t, err)
-
-	_, err = c.GetStrictBool("e")
-	assert.Error(t, err)
-}
-
-func Test_Config_Feed_With_Map_Repo_Includes_A_Slice(t *testing.T) {
+func TestConfig_GetBool(t *testing.T) {
 	c, err := config.New(feeder.Map{
-		"scores": map[string]interface{}{
-			"A": 1,
-			"B": 2,
-			"C": 3,
-		},
+		"true":        true,
+		"false":       false,
+		"trueString":  "true",
+		"falseString": "false",
+		"trueInt":     1,
+		"falseInt":    0,
+		"string":      "String",
+		"number":      13,
 	})
 	assert.NoError(t, err)
 
-	v, err := c.Get("scores.A")
+	v, err := c.GetBool("true")
 	assert.NoError(t, err)
-	assert.Equal(t, 1, v)
+	assert.Equal(t, true, v)
 
-	v, err = c.Get("scores.B")
+	v, err = c.GetBool("false")
 	assert.NoError(t, err)
-	assert.Equal(t, 2, v)
+	assert.Equal(t, false, v)
 
-	_, err = c.Get("scores.Wrong")
+	v, err = c.GetBool("trueString")
+	assert.NoError(t, err)
+	assert.Equal(t, true, v)
+
+	v, err = c.GetBool("falseString")
+	assert.NoError(t, err)
+	assert.Equal(t, false, v)
+
+	v, err = c.GetBool("trueInt")
+	assert.NoError(t, err)
+	assert.Equal(t, true, v)
+
+	v, err = c.GetBool("falseInt")
+	assert.NoError(t, err)
+	assert.Equal(t, false, v)
+
+	_, err = c.GetBool("string")
 	assert.Error(t, err)
+	assert.Equal(t, "value `String` (`string`) is not `bool`", err.Error())
+
+	_, err = c.GetBool("number")
+	assert.Error(t, err)
+	assert.Equal(t, "value `13` (`int`) is not `bool`", err.Error())
 }
 
-func Test_Config_Feed_It_Should_Get_Env_From_OS(t *testing.T) {
-	err := os.Setenv("URL", "https://github.com/golobby/config")
-	if err != nil {
-		panic(err)
-	}
-
-	c, err := config.New(
-		&feeder.Map{
-			"url": "going to be overridden by the next feeder",
-		},
-		&feeder.OS{Keys: []string{"URL"}},
-	)
+func TestConfig_GetFloat(t *testing.T) {
+	c, err := config.New(feeder.Map{
+		"float":       3.14,
+		"int":         13,
+		"floatString": "3.14",
+		"intString":   "13",
+		"string":      "String",
+	})
 	assert.NoError(t, err)
 
-	v, err := c.Get("url")
-	assert.NoError(t, err)
-
-	assert.Equal(t, os.Getenv("URL"), v)
-}
-
-func Test_Config_Feed_It_Should_Get_Env_From_OS_With_Default_Value(t *testing.T) {
-	err := os.Setenv("URL", "https://github.com/golobby/config")
-	if err != nil {
-		panic(err)
-	}
-
-	c, err := config.New(
-		&feeder.Map{
-			"url": "going to be overridden by the next feeder",
-		},
-		&feeder.OS{Keys: []string{"URL"}},
-	)
-	assert.NoError(t, err)
-
-	v, err := c.Get("url")
-	assert.NoError(t, err)
-
-	assert.Equal(t, os.Getenv("URL"), v)
-}
-
-func Test_Config_Feed_It_Should_Get_Env_Default_When_Not_In_OS(t *testing.T) {
-	err := os.Setenv("EMPTY", "")
-	if err != nil {
-		panic(err)
-	}
-
-	c, err := config.New(
-		&feeder.Map{
-			"empty": "https://github.com/golobby/config",
-		},
-		&feeder.OS{Keys: []string{"EMPTY"}},
-	)
-	assert.NoError(t, err)
-
-	v, err := c.Get("empty")
-	assert.NoError(t, err)
-
-	assert.Equal(t, "https://github.com/golobby/config", v)
-}
-
-func Test_Config_Feed_JSON(t *testing.T) {
-	c, err := config.New(feeder.Json{Path: "feeder/test/config.json"})
-	assert.NoError(t, err)
-
-	v, err := c.Get("numbers.2")
-	assert.NoError(t, err)
-	assert.Equal(t, float64(3), v)
-
-	v, err = c.Get("users.0.address.city")
-	assert.NoError(t, err)
-	assert.Equal(t, "Delfan", v)
-}
-
-func Test_Config_Feed_JSON_Directory(t *testing.T) {
-	err := os.Setenv("APP_OS", "Linux")
-	if err != nil {
-		panic(err)
-	}
-
-	c, err := config.New(
-		&feeder.JsonDirectory{Path: "feeder/test/json"},
-		&feeder.OS{Keys: []string{"APP_OS"}},
-	)
-	assert.NoError(t, err)
-
-	v, err := c.Get("app.name")
-	assert.NoError(t, err)
-	assert.Equal(t, "MyAppUsingConfig", v)
-
-	v, err = c.Get("app.version")
+	v, err := c.GetFloat("float")
 	assert.NoError(t, err)
 	assert.Equal(t, 3.14, v)
 
-	v, err = c.Get("app.os")
+	v, err = c.GetFloat("int")
 	assert.NoError(t, err)
-	assert.Equal(t, "Linux", v)
-}
+	assert.Equal(t, float64(13), v)
 
-func Test_Config_Feed_Invalid_JSON(t *testing.T) {
-	_, err := config.New(feeder.Json{Path: "feeder/test/invalid-json"})
+	v, err = c.GetFloat("floatString")
+	assert.NoError(t, err)
+	assert.Equal(t, 3.14, v)
+
+	v, err = c.GetFloat("intString")
+	assert.NoError(t, err)
+	assert.Equal(t, float64(13), v)
+
+	_, err = c.GetFloat("string")
 	assert.Error(t, err)
+	assert.Equal(t, "value `String` (`string`) is not `float64`", err.Error())
 }
 
-func Test_Config_Env_With_Sample_Env_File(t *testing.T) {
-	err := os.Setenv("URL", "")
-	if err != nil {
-		panic(err)
-	}
+func TestConfig_GetInt(t *testing.T) {
 	c, err := config.New(feeder.Map{
-		"url": "",
-	}, &feeder.Env{Path: "feeder/test/.env"})
-	assert.NoError(t, err)
-
-	v, err := c.Get("url")
-	assert.NoError(t, err)
-	assert.Equal(t, "https://example.com", v)
-}
-
-func Test_Config_Env_With_Empty_Env_It_Should_Use_OS_Vars(t *testing.T) {
-	err := os.Setenv("NAME", "MyApp")
-	if err != nil {
-		panic(err)
-	}
-
-	c, err := config.New(feeder.Map{
-		"name": "",
-	}, &feeder.Env{Path: "feeder/test/.env"},
-	)
-	assert.NoError(t, err)
-
-	v, err := c.Get("name")
-	assert.NoError(t, err)
-	assert.Equal(t, "MyApp", v)
-}
-
-func Test_Config_Env_With_Invalid_Env_It_Should_Raise_An_Error(t *testing.T) {
-	_, err := config.New(feeder.Map{},
-		&feeder.Env{Path: "env/test/.invalid.env"},
-	)
-	assert.Error(t, err)
-}
-
-func Test_Config_Reload_It_Should_Reload_The_Feeders(t *testing.T) {
-	path := "feeder/test/runtime.json"
-
-	json, err := json2.Marshal(map[string]interface{}{
-		"key": "value",
+		"int":         13,
+		"float":       3.14,
+		"intString":   "13",
+		"floatString": "3.14",
+		"string":      "String",
 	})
-	if err != nil {
-		panic(err)
-	}
-
-	err = ioutil.WriteFile(path, json, 0755)
-	if err != nil {
-		panic(err)
-	}
-
-	c, err := config.New(feeder.Json{Path: path})
-	assert.NoError(t, err)
-
-	v, err := c.Get("key")
-	assert.NoError(t, err)
-	assert.Equal(t, "value", v)
-
-	json, err = json2.Marshal(map[string]interface{}{
-		"key": "new-value",
-	})
-	if err != nil {
-		panic(err)
-	}
-
-	err = ioutil.WriteFile(path, json, 0755)
-	if err != nil {
-		panic(err)
-	}
-
-	err = c.Reload()
-	assert.NoError(t, err)
-
-	v, err = c.Get("key")
-	assert.NoError(t, err)
-	assert.Equal(t, "new-value", v)
-}
-
-func Test_Config_GetInt_Non_Int_Values(t *testing.T) {
-	c, err := config.New(feeder.Json{Path: "feeder/test/numbers.json"})
 	assert.NoError(t, err)
 
 	v, err := c.GetInt("int")
 	assert.NoError(t, err)
 	assert.Equal(t, 13, v)
 
-	v, err = c.GetInt("string")
+	v, err = c.GetInt("float")
+	assert.NoError(t, err)
+	assert.Equal(t, 3, v)
+
+	v, err = c.GetInt("intString")
 	assert.NoError(t, err)
 	assert.Equal(t, 13, v)
 
-	v, err = c.GetInt("float")
+	v, err = c.GetInt("floatString")
 	assert.NoError(t, err)
-	assert.Equal(t, 13, v)
+	assert.Equal(t, 3, v)
+
+	_, err = c.GetInt("string")
+	assert.Error(t, err)
+	assert.Equal(t, "value `String` (`string`) is not `int`", err.Error())
+}
+
+func TestConfig_GetString(t *testing.T) {
+	c, err := config.New(feeder.Map{
+		"int":    13,
+		"float":  3.14,
+		"false":  false,
+		"true":   true,
+		"string": "String",
+	})
+	assert.NoError(t, err)
+
+	v, err := c.GetString("int")
+	assert.Error(t, err)
+	assert.Equal(t, "value `13` (`int`) is not `string`", err.Error())
+
+	v, err = c.GetString("float")
+	assert.Error(t, err)
+	assert.Equal(t, "value `3.14` (`float64`) is not `string`", err.Error())
+
+	v, err = c.GetString("false")
+	assert.Error(t, err)
+	assert.Equal(t, "value `false` (`bool`) is not `string`", err.Error())
+
+	v, err = c.GetString("true")
+	assert.Error(t, err)
+	assert.Equal(t, "value `true` (`bool`) is not `string`", err.Error())
+
+	v, err = c.GetString("string")
+	assert.NoError(t, err)
+	assert.Equal(t, "String", v)
+}
+
+func TestConfig_GetStrictBool(t *testing.T) {
+	c, err := config.New(feeder.Map{
+		"true":        true,
+		"false":       false,
+		"trueString":  "true",
+		"falseString": "false",
+		"trueInt":     1,
+		"falseInt":    0,
+		"string":      "String",
+		"number":      13,
+	})
+	assert.NoError(t, err)
+
+	v, err := c.GetStrictBool("true")
+	assert.NoError(t, err)
+	assert.Equal(t, true, v)
+
+	v, err = c.GetStrictBool("false")
+	assert.NoError(t, err)
+	assert.Equal(t, false, v)
+
+	v, err = c.GetStrictBool("trueString")
+	assert.Error(t, err)
+	assert.Equal(t, "value `true` (`string`) is not `bool`", err.Error())
+
+	v, err = c.GetStrictBool("falseString")
+	assert.Error(t, err)
+	assert.Equal(t, "value `false` (`string`) is not `bool`", err.Error())
+
+	v, err = c.GetStrictBool("trueInt")
+	assert.Error(t, err)
+	assert.Equal(t, "value `1` (`int`) is not `bool`", err.Error())
+
+	v, err = c.GetStrictBool("falseInt")
+	assert.Error(t, err)
+	assert.Equal(t, "value `0` (`int`) is not `bool`", err.Error())
+
+	_, err = c.GetStrictBool("string")
+	assert.Error(t, err)
+	assert.Equal(t, "value `String` (`string`) is not `bool`", err.Error())
+
+	_, err = c.GetStrictBool("number")
+	assert.Error(t, err)
+	assert.Equal(t, "value `13` (`int`) is not `bool`", err.Error())
+}
+
+func TestConfig_Feed_Multiple(t *testing.T) {
+	c, err := config.New(
+		feeder.Map{
+			"url": "going to be overridden by the next feeders",
+		},
+		feeder.Map{
+			"url": "going to be overridden by the next feeder",
+		},
+		feeder.Map{
+			"url": "https://github.com/golobby/config",
+		},
+	)
+	assert.NoError(t, err)
+
+	v, err := c.Get("url")
+	assert.Equal(t, "https://github.com/golobby/config", v)
+	assert.NoError(t, err)
 }
