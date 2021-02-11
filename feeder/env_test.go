@@ -67,3 +67,14 @@ func TestEnv_Feed_It_Should_Use_OS_When_Key_Is_Empty_In_Env_File(t *testing.T) {
 
 	assert.Equal(t, "FROM_OS", items["app.name"])
 }
+
+func TestEnv_Feed_It_Should_Not_Use_OS_When_The_Feature_Is_Disabled(t *testing.T) {
+	_ = os.Setenv("APP_NAME", "FROM_OS")
+
+	e := Env{Path: "test/.env", DisableOSVariables: true}
+
+	items, err := e.Feed()
+	assert.NoError(t, err)
+
+	assert.Equal(t, "", items["app.name"])
+}

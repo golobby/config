@@ -9,34 +9,30 @@ import (
 	"strings"
 )
 
-// Env is a feeder that feeds using a single env file.
+// Env is a feeder that feeds using a single environment file.
 type Env struct {
-	Path string
+	Path               string
+	DisableOSVariables bool
 }
 
 // Feed returns all the content.
 func (e *Env) Feed() (map[string]interface{}, error) {
 	m := make(map[string]interface{})
 
-	values, err := load(e.Path)
+	values, err := e.load(e.Path)
 	if err != nil {
 		return nil, err
 	}
 
 	for k, v := range values {
-		m[standardize(k)] = get(k, v)
+		m[standardize(k)] = e.get(k, v)
 	}
 
 	return m, nil
 }
 
-// standardize updates config key (e.g. APP_NAME to  app.name)
-func standardize(k string) string {
-	return strings.Replace(strings.ToLower(k), "_", ".", -1)
-}
-
 // load reads the given env file and extracts the variables as a string map
-func load(filename string) (map[string]string, error) {
+func (e *Env) load(filename string) (map[string]string, error) {
 	path, err := filepath.Abs(filename)
 	if err != nil {
 		return nil, err
@@ -48,7 +44,7 @@ func load(filename string) (map[string]string, error) {
 	}
 	defer file.Close()
 
-	variables, err := read(file)
+	variables, err := e.read(file)
 	if err != nil {
 		return nil, err
 	}
@@ -57,12 +53,12 @@ func load(filename string) (map[string]string, error) {
 }
 
 // read opens the given env file and extracts the variables as a string map
-func read(file io.Reader) (map[string]string, error) {
+func (e *Env) read(file io.Reader) (map[string]string, error) {
 	items := map[string]string{}
 	scanner := bufio.NewScanner(file)
 
 	for scanner.Scan() {
-		key, value, err := parse(scanner.Text())
+		key, value, err := e.parse(scanner.Text())
 		if err != nil {
 			return nil, err
 		}
@@ -80,7 +76,7 @@ func read(file io.Reader) (map[string]string, error) {
 }
 
 // parse extracts the key/value from the given line
-func parse(line string) (string, string, error) {
+func (e *Env) parse(line string) (string, string, error) {
 	ln := strings.TrimSpace(line)
 
 	if len(ln) == 0 {
@@ -103,10 +99,17 @@ func parse(line string) (string, string, error) {
 }
 
 // get fetches variable from OS if exist and return fallback otherwise.
-func get(key, fallback string) string {
-	if v := os.Getenv(key); v != "" {
-		return v
+func (e *Env) get(key, fallback string) string {
+	if !e.DisableOSVariables {
+		if v := os.Getenv(key); v != "" {
+			return v
+		}
 	}
 
 	return fallback
+}
+
+// standardize updates config key (e.g. APP_NAME to  app.name)
+func standardize(k string) string {
+	return strings.Replace(strings.ToLower(k), "_", ".", -1)
 }
