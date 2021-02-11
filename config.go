@@ -277,36 +277,10 @@ func find(collection interface{}, key string) (interface{}, error) {
 		if v, ok := collection.(map[string]interface{})[key]; ok {
 			return v, nil
 		}
-	case map[int]interface{}:
-		if k, err := strconv.Atoi(key); err == nil {
-			if v, ok := collection.(map[int]interface{})[k]; ok {
-				return v, nil
-			}
-		}
 	case []interface{}:
 		k, err := strconv.Atoi(key)
 		if err == nil && len(collection.([]interface{})) > k {
 			return collection.([]interface{})[k], nil
-		}
-	case []string:
-		k, err := strconv.Atoi(key)
-		if err == nil && len(collection.([]string)) > k {
-			return collection.([]string)[k], nil
-		}
-	case []int:
-		k, err := strconv.Atoi(key)
-		if err == nil && len(collection.([]int)) > k {
-			return collection.([]int)[k], nil
-		}
-	case []float64:
-		k, err := strconv.Atoi(key)
-		if err == nil && len(collection.([]float64)) > k {
-			return collection.([]float64)[k], nil
-		}
-	case []bool:
-		k, err := strconv.Atoi(key)
-		if err == nil && len(collection.([]bool)) > k {
-			return collection.([]bool)[k], nil
 		}
 	}
 

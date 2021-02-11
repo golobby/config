@@ -48,9 +48,7 @@ func TestConfig_Get(t *testing.T) {
 		"map": map[interface{}]interface{}{
 			"item": "value",
 		},
-		"strings": []string{"abc", "xyz"},
-		"numbers": []int{13, 666},
-		"booleans": []bool{true, false},
+		"array": []interface{}{"abc", "xyz", 666},
 	})
 	assert.NoError(t, err)
 
@@ -82,25 +80,21 @@ func TestConfig_Get(t *testing.T) {
 	assert.Error(t, err)
 	assert.Equal(t, "value not found for the key `wrong`", err.Error())
 
-	v, err = c.Get("strings")
+	v, err = c.Get("array")
 	assert.NoError(t, err)
-	assert.Equal(t, []string{"abc", "xyz"}, v)
+	assert.Equal(t, []interface{}{"abc", "xyz", 666}, v)
 
-	v, err = c.Get("strings.0")
-	assert.NoError(t, err)
-	assert.Equal(t, "abc", v)
-
-	v, err = c.Get("strings.0")
+	v, err = c.Get("array.0")
 	assert.NoError(t, err)
 	assert.Equal(t, "abc", v)
 
-	v, err = c.Get("numbers.1")
+	v, err = c.Get("array.1")
+	assert.NoError(t, err)
+	assert.Equal(t, "xyz", v)
+
+	v, err = c.Get("array.2")
 	assert.NoError(t, err)
 	assert.Equal(t, 666, v)
-
-	v, err = c.Get("booleans.0")
-	assert.NoError(t, err)
-	assert.Equal(t, true, v)
 
 	_, err = c.Get("wrong")
 	assert.Error(t, err)
