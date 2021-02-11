@@ -49,6 +49,10 @@ func TestConfig_Get(t *testing.T) {
 			"item": "value",
 		},
 		"array": []interface{}{"abc", "xyz", 666},
+		"two": []interface{}{
+			[]interface{}{"a", "b", 1},
+			[]interface{}{"x", "y", 2},
+		},
 	})
 	assert.NoError(t, err)
 
@@ -95,6 +99,14 @@ func TestConfig_Get(t *testing.T) {
 	v, err = c.Get("array.2")
 	assert.NoError(t, err)
 	assert.Equal(t, 666, v)
+
+	v, err = c.Get("two.0.1")
+	assert.NoError(t, err)
+	assert.Equal(t, "b", v)
+
+	v, err = c.Get("two.1.2")
+	assert.NoError(t, err)
+	assert.Equal(t, 2, v)
 
 	_, err = c.Get("wrong")
 	assert.Error(t, err)
