@@ -347,6 +347,18 @@ KILL -SIGHUP [YOUR-APP-PROCESS-ID]
 
 To get your application process id you can use the `ps` shell command.
 
+### Strict Type Values
+
+When you use the `Get()` method you have to cast the returned value type before using it.
+You can use strict type methods like the following examples, instead.
+
+List of strict type methods:
+* `GetString()` returns only string values
+* `GetInt()` returns only int and float values (pruning the floating part)
+* `GetFloat()` returns only float and int values (in float64 type)
+* `GetBool()` returns true, "true" and 1 as true, and false, "false" and 0 as false
+* `GetStrictBool()` returns only boolean values (true and false)
+
 ## License
 
 GoLobby Config is released under the [MIT License](http://opensource.org/licenses/mit-license.php).
