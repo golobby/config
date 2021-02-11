@@ -297,6 +297,18 @@ func TestConfig_Reload(t *testing.T) {
 	assert.Equal(t, 2, v)
 }
 
+func TestConfig_Reload_With_An_Invalidated_Feeder(t *testing.T) {
+	json := &feeder.Json{Path: "feeder/test/config.json"}
+
+	c, err := config.New(json)
+	assert.NoError(t, err)
+
+	json.Path = "/path/to/invalid"
+
+	err = c.Reload()
+	assert.Error(t, err)
+}
+
 func TestConfig_Feed_Multiple(t *testing.T) {
 	c, err := config.New(
 		feeder.Map{
