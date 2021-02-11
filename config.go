@@ -23,7 +23,7 @@ type NotFoundError struct {
 }
 
 func (n *NotFoundError) Error() string {
-	return fmt.Sprintf("value not found for the key `%s`", n.key)
+	return fmt.Sprintf("value not found for the key `%v`", n.key)
 }
 
 // TypeError happens when it cannot cast a value to the requested type.
