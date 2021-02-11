@@ -23,7 +23,7 @@ type NotFoundError struct {
 }
 
 func (n *NotFoundError) Error() string {
-	return fmt.Sprintf("value not found for the key %s", n.key)
+	return fmt.Sprintf("value not found for the key `%s`", n.key)
 }
 
 // TypeError happens when it cannot cast a value to the requested type.
@@ -33,7 +33,7 @@ type TypeError struct {
 }
 
 func (t *TypeError) Error() string {
-	return fmt.Sprintf("value %s (%T) is not %s", t.value, t.value, t.wanted)
+	return fmt.Sprintf("value `%s` (`%T`) is not `%s`", t.value, t.value, t.wanted)
 }
 
 // Config keeps all the Config instance data.
@@ -190,12 +190,12 @@ func (c *Config) GetFloat(key string) (float64, error) {
 	case string:
 		i, err := strconv.Atoi(val)
 		if err != nil {
-			return 0, err
+			return 0, &TypeError{value: v, wanted: "float64"}
 		}
 		return float64(i), nil
 	}
 
-	return 0, &TypeError{value: v, wanted: "float"}
+	return 0, &TypeError{value: v, wanted: "float64"}
 }
 
 // GetBool returns the value of the given key.

@@ -50,6 +50,7 @@ func Test_Config_Feed_With_Map_Repo(t *testing.T) {
 
 	_, err = c.GetFloat("band")
 	assert.Error(t, err)
+	assert.Equal(t, "value `Pink Floyd` (`string`) is not `float64`", err.Error())
 
 	year, err := c.Get("year")
 	assert.NoError(t, err)
@@ -82,6 +83,7 @@ func Test_Config_Feed_With_Map_Repo(t *testing.T) {
 
 	_, err = c.Get("wrong")
 	assert.Error(t, err)
+	assert.Equal(t, "value not found for the key `wrong`", err.Error())
 
 	_, err = c.GetString("wrong")
 	assert.Error(t, err)
@@ -100,6 +102,7 @@ func Test_Config_Feed_With_Map_Repo(t *testing.T) {
 
 	_, err = c.Get("wrong.nested")
 	assert.Error(t, err)
+	assert.Equal(t, "value not found for the key `wrong`", err.Error())
 
 	assert.Equal(t, map[string]interface{}(m), c.GetAll())
 }
