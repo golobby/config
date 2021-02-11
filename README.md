@@ -235,10 +235,10 @@ _ = os.Setenv("APP_VERSION", "3.14")
 
 c, err := config.New(OS{Keys: []string{"APP_NAME", "APP_VERSION", "APP_EMPTY"}})
 
-v, err := c.Get("app.name") // MyAppUsingConfig
-v, err := c.Get("app.version") // 3.14
-v, err := c.Get("app.empty") // ""
-v, err := c.Get("app.new") // ERROR!
+v, err := c.Get("app.name")     // "MyAppUsingConfig"
+v, err := c.Get("app.version")  // 3.14
+v, err := c.Get("app.empty")    // ""
+v, err := c.Get("app.new")      // ERROR!
 ```
 
 ### Multiple Feeders
@@ -261,9 +261,9 @@ c, err := config.New(
     },
 )
 
-v, err := c.Get("name") // MyAppUsingConfig
-v, err := c.Get("version") // 3.14
-v, err := c.Get("url") // https://github.com/golobby/config
+v, err := c.Get("name")     // "MyAppUsingConfig"
+v, err := c.Get("version")  // 3.14
+v, err := c.Get("url")      // "https://github.com/golobby/config"
 ```
 
 ### A Sample using Json and Env feeders and OS variables
