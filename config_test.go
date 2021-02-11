@@ -145,6 +145,7 @@ func TestConfig_GetFloat(t *testing.T) {
 		"floatString": "3.14",
 		"intString":   "13",
 		"string":      "String",
+		"bool":        false,
 	})
 	assert.NoError(t, err)
 
@@ -168,6 +169,10 @@ func TestConfig_GetFloat(t *testing.T) {
 	assert.Error(t, err)
 	assert.Equal(t, "value `String` (`string`) is not `float64`", err.Error())
 
+	_, err = c.GetInt("bool")
+	assert.Error(t, err)
+	assert.Equal(t, "value `false` (`bool`) is not `float64`", err.Error())
+
 	_, err = c.GetFloat("wrong")
 	assert.Error(t, err)
 	assert.Equal(t, "value not found for the key `wrong`", err.Error())
@@ -180,6 +185,7 @@ func TestConfig_GetInt(t *testing.T) {
 		"intString":   "13",
 		"floatString": "3.14",
 		"string":      "String",
+		"bool":        false,
 	})
 	assert.NoError(t, err)
 
@@ -202,6 +208,10 @@ func TestConfig_GetInt(t *testing.T) {
 	_, err = c.GetInt("string")
 	assert.Error(t, err)
 	assert.Equal(t, "value `String` (`string`) is not `int`", err.Error())
+
+	_, err = c.GetInt("bool")
+	assert.Error(t, err)
+	assert.Equal(t, "value `false` (`bool`) is not `int`", err.Error())
 
 	_, err = c.GetInt("wrong")
 	assert.Error(t, err)
