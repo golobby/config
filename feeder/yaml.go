@@ -23,5 +23,6 @@ func (y *Yaml) Feed() (map[string]interface{}, error) {
 	if err := yaml.NewDecoder(fl).Decode(&items); err != nil {
 		return nil, err
 	}
+
 	return items, nil
 }
