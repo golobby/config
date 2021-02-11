@@ -273,6 +273,30 @@ func TestConfig_GetStrictBool(t *testing.T) {
 	assert.Equal(t, "value `13` (`int`) is not `bool`", err.Error())
 }
 
+func TestConfig_Reload(t *testing.T) {
+	m := feeder.Map{"Item1": 1}
+
+	c, err := config.New(m)
+	assert.NoError(t, err)
+
+	v, err := c.GetInt("Item1")
+	assert.NoError(t, err)
+	assert.Equal(t, 1, v)
+
+	m["Item2"] = 2
+
+	_, err = c.GetInt("Item2")
+	assert.Error(t, err)
+	assert.Equal(t, "value not found for the key `Item2`", err.Error())
+
+	err = c.Reload()
+	assert.NoError(t, err)
+
+	v, err = c.GetInt("Item2")
+	assert.NoError(t, err)
+	assert.Equal(t, 2, v)
+}
+
 func TestConfig_Feed_Multiple(t *testing.T) {
 	c, err := config.New(
 		feeder.Map{
