@@ -166,7 +166,11 @@ func (c *Config) GetInt(key string) (int, error) {
 	case float64:
 		return int(val), nil
 	case string:
-		return strconv.Atoi(val)
+		f, err := strconv.ParseFloat(val, 64)
+		if err != nil {
+			return 0, &TypeError{value: v, wanted: "int"}
+		}
+		return int(f), nil
 	}
 
 	return 0, &TypeError{value: v, wanted: "int"}
