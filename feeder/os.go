@@ -4,17 +4,18 @@ import "os"
 
 // OS is a feeder that feeds using a OS variables.
 type OS struct {
-	Keys []string
+	Variables []string // The variable names that should be imported
+	Strict    bool     // Set true to import empty variables
 }
 
 // Feed returns all the content.
 func (s *OS) Feed() (map[string]interface{}, error) {
 	m := make(map[string]interface{})
 
-	if s.Keys != nil {
-		for _, k := range s.Keys {
+	if s.Variables != nil {
+		for _, k := range s.Variables {
 			v := os.Getenv(k)
-			if v != "" {
+			if s.Strict || v != "" {
 				m[standardize(k)] = v
 			}
 		}

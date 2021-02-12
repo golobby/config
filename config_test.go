@@ -401,7 +401,7 @@ func TestConfig_Feed_Multiple_With_OS(t *testing.T) {
 			"url": "going to be overridden by the next feeders",
 			"ver": 3.14,
 		},
-		&feeder.OS{Keys: []string{"URL", "VER"}},
+		&feeder.OS{Variables: []string{"URL", "VER"}},
 	)
 	assert.NoError(t, err)
 
