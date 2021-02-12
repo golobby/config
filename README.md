@@ -233,7 +233,7 @@ feeders to override other feeders like Env, Json and Yaml feeders.
 _ = os.Setenv("APP_NAME", "MyAppUsingConfig")
 _ = os.Setenv("APP_VERSION", "3.14")
 
-c, err := config.New(OS{Keys: []string{"APP_NAME", "APP_VERSION", "APP_EMPTY"}})
+c, err := config.New(OS{Variables: []string{"APP_NAME", "APP_VERSION", "APP_EMPTY"}})
 
 v, err := c.Get("app.name")     // "MyAppUsingConfig"
 v, err := c.Get("app.version")  // 3.14
