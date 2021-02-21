@@ -1,4 +1,4 @@
-module github.com/golobby/config
+module github.com/golobby/config/v2
 
 go 1.11
 
