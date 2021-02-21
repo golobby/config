@@ -20,7 +20,7 @@ It requires Go `v1.11` or newer versions.
 To install this package run the following command in the root of your project
 
 ```bash
-go get github.com/golobby/config
+go get github.com/golobby/config/v2
 ```
 
 ### Getting Started
@@ -82,6 +82,7 @@ c, err := config.New(feeder.Map{
     "band": "Pink Floyd",
     "year": 1979,
     "rate": 4.6,
+    "like": true,
 })
 
 name, err := c.Get("name")
@@ -92,9 +93,15 @@ year, err := c.Get("year")
 // OR
 year, err := c.GetInt("year")
 
-year, err := c.Get("rate")
+rate, err := c.Get("rate")
 // OR
-duration, err := c.GetFloat("rate")
+rate, err := c.GetFloat("rate")
+
+rate, err := c.Get("like")
+// OR
+rate, err := c.GetBool("like")
+// OR
+rate, err := c.GetStrictBool("like")
 ```
 
 #### Feeding using Json
