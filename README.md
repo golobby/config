@@ -1,4 +1,4 @@
-[![GoDoc](https://godoc.org/github.com/golobby/config?status.svg)](https://godoc.org/github.com/golobby/config)
+[![GoDoc](https://godoc.org/github.com/golobby/config/v2?status.svg)](https://godoc.org/github.com/golobby/config/v2)
 [![Build Status](https://travis-ci.org/golobby/config.svg?branch=master)](https://travis-ci.org/golobby/config)
 [![Go Report Card](https://goreportcard.com/badge/github.com/golobby/config)](https://goreportcard.com/report/github.com/golobby/config)
 [![Coverage Status](https://coveralls.io/repos/github/golobby/config/badge.svg?branch=master)](https://coveralls.io/github/golobby/config?branch=master)
