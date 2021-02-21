@@ -3,7 +3,6 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/golobby/config)](https://goreportcard.com/report/github.com/golobby/config)
 [![Coverage Status](https://coveralls.io/repos/github/golobby/config/badge.svg?branch=master)](https://coveralls.io/github/golobby/config?branch=master)
 [![Awesome](https://cdn.rawgit.com/sindresorhus/awesome/d7305f38d29fed78fa85652e3a63e154dd8e8829/media/badge.svg)](https://github.com/sindresorhus/awesome)
-[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fgolobby%2Fconfig.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fgolobby%2Fconfig?ref=badge_shield)
 
 # Config
 
