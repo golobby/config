@@ -99,9 +99,9 @@ rate, err := c.GetFloat("rate")
 
 rate, err := c.Get("like")
 // OR
-rate, err := c.GetBool("rate")
+rate, err := c.GetBool("like")
 // OR
-rate, err := c.GetStrictBool("rate")
+rate, err := c.GetStrictBool("like")
 ```
 
 #### Feeding using Json
