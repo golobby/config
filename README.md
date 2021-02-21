@@ -20,7 +20,7 @@ It requires Go `v1.11` or newer versions.
 To install this package run the following command in the root of your project
 
 ```bash
-go get github.com/golobby/config
+go get github.com/golobby/config/v2
 ```
 
 ### Getting Started
