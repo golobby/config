@@ -273,6 +273,10 @@ func find(collection interface{}, key string) (interface{}, error) {
 		if v, ok := collection.(map[interface{}]interface{})[key]; ok {
 			return v, nil
 		}
+	case map[string]interface{}:
+		if v, ok := collection.(map[string]interface{})[key]; ok {
+			return v, nil
+		}
 	case []interface{}:
 		k, err := strconv.Atoi(key)
 		if err == nil && len(collection.([]interface{})) > k {
