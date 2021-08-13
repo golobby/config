@@ -4,8 +4,8 @@ import (
 	"os"
 	"testing"
 
-	"github.com/golobby/config/v2"
-	"github.com/golobby/config/v2/feeder"
+	"github.com/golobby/config/v3"
+	"github.com/golobby/config/v3/feeder"
 	"github.com/stretchr/testify/assert"
 )
 
