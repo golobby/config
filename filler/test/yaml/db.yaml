@@ -1,0 +1,7 @@
+default: mysql,
+sqlite:
+  - path: app.db
+mysql:
+  - name: localhost
+    user: root
+    pass: secret

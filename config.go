@@ -17,6 +17,10 @@ type Feeder interface {
 	Feed() (map[string]interface{}, error)
 }
 
+type Filler interface {
+	Fill(structure interface{}) error
+}
+
 // NotFoundError happens when it cannot find the requested key.
 type NotFoundError struct {
 	key string
@@ -316,4 +320,14 @@ func New(feeders ...Feeder) (*Config, error) {
 	c.StartListener()
 
 	return c, nil
+}
+
+func Fill(structure interface{}, fillers ...Filler) error {
+	for _, f := range fillers {
+		if err := f.Fill(structure); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
