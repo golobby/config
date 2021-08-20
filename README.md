@@ -241,6 +241,17 @@ One of the GoLobby Config features is the ability to update the configuration st
 It takes advantage of OS signals to handle this requirement.
 Config instances listen to the "SIGHUP" operating system signal and refresh structs like calling the `Refresh()` method.
 
+To enable the listener for a Config instance, you should call the `WithListener()` method.
+It gets a fallback function and calls it when the `Refresh()` method fails and returns an error.
+
+```go
+c := config.New(feeder).WithListener(func(err error) {
+    fmt.Println(err)
+})
+
+err := c.Feed(&myConfig)
+```
+
 You can send the `SIGHUP` signal to your running application with the following shell command.
 
 ```shell script
