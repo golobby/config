@@ -24,7 +24,7 @@ go get github.com/golobby/config/v3
 The following example demonstrates how to use the package using a JSON configuration file.
 
 ```go
-// My configuration structure
+// My configuration struct
 type MyConfig struct {
     App struct {
         Name string
@@ -38,10 +38,10 @@ type MyConfig struct {
 // An instance of my configuration struct
 myConfig := MyConfig{}
 
-// Create a feeder that provides the configuration data
+// Create a feeder that provides the configuration data from a JSON file
 jsonFeeder := feeder.Json{Path: "config.json"}
 
-// Create a Config instance, pass the feeder and feed my configuration structure
+// Create a Config instance, pass the feeder and feed the configuration struct
 err := config.New(jsonFeeder).Feed(&myConfig)
 
 // Use myConfig...
@@ -49,22 +49,22 @@ err := config.New(jsonFeeder).Feed(&myConfig)
 
 ### Feeders
 Feeders provide the configuration data.
-The Config package supports the following feeders out of the box.
+The GoLobby Config package supports the following feeders out of the box.
 
-* `Json` Feeds using a JSON file.
-* `Yaml` Feeds using a YAML file.
-* `DotEnv` Feeds using a dot env (.env) file.
-* `Env` Feeds using OS environment variables.
+* `Json`: It Feeds using a JSON file.
+* `Yaml`: It Feeds using a YAML file.
+* `DotEnv`: It Feeds using a dot env (.env) file.
+* `Env`: It Feeds using OS environment variables.
 
 You can also create your custom feeders by implementing the `Feeder` interface or use third-party feeders.
 
-#### Feeding using Json
+#### Json Feeder
 Storing configuration data in a JSON file could be a brilliant idea.
-The `Json` feeder uses Go built-in JSON package to read JSON files.
+The `Json` feeder uses Go built-in `json` package to load JSON files.
 
 The example below shows how to use the `Json` feeder.
 
-JSON file: https://github.com/golobby/config/blob/v3/assets/sample1.json
+The JSON file: https://github.com/golobby/config/blob/v3/assets/sample1.json
 
 ```go
 type MyConfig struct {
@@ -78,6 +78,7 @@ type MyConfig struct {
 }
 
 myConfig := MyConfig{}
+
 jsonFeeder := feeder.Json{Path: "sample1.json"}
 
 err := config.New(jsonFeeder).Feed(&myConfig)
@@ -85,12 +86,12 @@ err := config.New(jsonFeeder).Feed(&myConfig)
 // Use myConfig...
 ```
 
-#### Feeding using Yaml
+#### Yaml Feeder
 YAML files are also easy to use.
 They could be another candidate for your configuration file.
-The `Yaml` feeder uses the [YAML package](https://github.com/go-yaml/yaml) to read JSON files.
+The `Yaml` feeder uses the [YAML package](https://github.com/go-yaml/yaml) (v3) to load YAML files.
 
-YAML file: https://github.com/golobby/config/blob/v3/assets/sample1.yaml
+The YAML file: https://github.com/golobby/config/blob/v3/assets/sample1.yaml
 
 ```go
 type MyConfig struct {
@@ -104,6 +105,7 @@ type MyConfig struct {
 }
 
 myConfig := MyConfig{}
+
 yamlFeeder := feeder.Yaml{Path: "sample1.yaml"}
 
 err := config.New(yamlFeeder).Feed(&myConfig)
@@ -111,12 +113,12 @@ err := config.New(yamlFeeder).Feed(&myConfig)
 // Use myConfig...
 ```
 
-#### Feeding using DotEnv
+#### DotEnv Feeder
 Dot env (.env) files are popular configuration files.
-They are usually declared per environment (production, local, test, etc.).
-The `DotEnv` feeder uses the [GoLobby DotEnv](https://github.com/golobby/dotenv) package to read JSON files.
+They are usually declared per environment (production, local, test, etc.) differently.
+The `DotEnv` feeder uses the [GoLobby DotEnv](https://github.com/golobby/dotenv) package to load `.env` files.
 
-DotEnv file: https://github.com/golobby/config/blob/v3/assets/.env.sample1
+The `.env` file: https://github.com/golobby/config/blob/v3/assets/.env.sample1
 
 ```go
 type MyConfig struct {
@@ -130,6 +132,7 @@ type MyConfig struct {
 }
 
 myConfig := MyConfig{}
+
 dotEnvFeeder := feeder.DotEnv{Path: ".env"}
 
 err := config.New(dotEnvFeeder).Feed(&myConfig)
