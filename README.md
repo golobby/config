@@ -123,12 +123,12 @@ The `.env` file: https://github.com/golobby/config/blob/v3/assets/.env.sample1
 ```go
 type MyConfig struct {
     App struct {
-        Name string `dotenv:"APP_NAME"`
-        Port int    `dotenv:"APP_PORT"`
+        Name string `env:"APP_NAME"`
+        Port int    `env:"APP_PORT"`
     }
-    Debug      bool    `dotenv:"DEBUG"`
-    Production bool    `dotenv:"PRODUCTION"`
-    Pi         float64 `dotenv:"PI"`
+    Debug      bool    `env:"DEBUG"`
+    Production bool    `env:"PRODUCTION"`
+    Pi         float64 `env:"PI"`
 }
 
 myConfig := MyConfig{}
@@ -140,16 +140,16 @@ err := config.New(dotEnvFeeder).Feed(&myConfig)
 // Use myConfig...
 ```
 
-You must add a `dotenv` tag for each field that determines the related dot env key.
+You must add a `env` tag for each field that determines the related dot env key.
 If there isn't any value for a field in the related file, it ignores the struct field.
 
 You can read more about this feeder in the [GoLobby DotEnv](https://github.com/golobby/dotenv) package repository.
 
-#### Feeding using Env (OS Env Vars)
+#### Env Feeder
 You may keep it simple stupid with no configuration files at all!
 
 The `Env` feeder works fine in simple cases and cloud environments.
-It feeds your struct by OS environment variables.
+It feeds your structs by OS environment variables.
 This feeder is built on top of the [GoLobby Env](https://github.com/golobby/env) package.
 
 ```go
@@ -196,12 +196,12 @@ _ = os.Setenv("APP_PORT", "6969")
 
 type MyConfig struct {
     App struct {
-        Name string `dotenv:"APP_NAME" env:"APP_NAME"`
-        Port int    `dotenv:"APP_PORT" env:"APP_PORT"`
+        Name string `env:"APP_NAME"`
+        Port int    `env:"APP_PORT"`
     }
-    Debug      bool    `dotenv:"DEBUG" env:"DEBUG"`
-    Production bool    `dotenv:"PRODUCTION" env:"PRODUCTION"`
-    Pi         float64 `dotenv:"PI" env:"PI"`
+    Debug      bool    `env:"DEBUG"`
+    Production bool    `env:"PRODUCTION"`
+    Pi         float64 `env:"PI"`
 }
 
 myConfig := MyConfig{}
