@@ -7,7 +7,7 @@ type Feeder interface {
 	Feed(structure interface{}) error
 }
 
-func Load(structure interface{}, feeders ...Feeder) error {
+func Feed(structure interface{}, feeders ...Feeder) error {
 	for _, f := range feeders {
 		if err := f.Feed(structure); err != nil {
 			return err
