@@ -16,7 +16,6 @@ type Feeder interface {
 type Config struct {
 	Feeders    []Feeder
 	Structures []interface{}
-	Fallback   func(err error)
 }
 
 func New(feeders ...Feeder) *Config {
