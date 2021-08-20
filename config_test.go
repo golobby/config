@@ -413,3 +413,11 @@ func TestConfig_Feed_Multiple_With_OS(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, 3.14, v)
 }
+
+func TestConfig_StartListener(t *testing.T) {
+	c, err := config.New()
+	assert.NoError(t, err)
+
+	c.StartListener()
+	assert.True(t, true)
+}
