@@ -1,5 +1,5 @@
 // Package config is a lightweight yet powerful configuration management library.
-// It takes advantage of dot env files and OS variables alongside config files to be your only requirement.
+// It takes advantage of dot env files and OS variables alongside config files to be your ultimate requirement.
 package config
 
 import (
