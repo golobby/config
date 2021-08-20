@@ -16,7 +16,7 @@ type Feeder interface {
 type Config struct {
 	Feeders    []Feeder
 	Structures []interface{}
-	Fallback   *func(err error)
+	Fallback   func(err error)
 }
 
 func New(feeders ...Feeder) *Config {
@@ -39,7 +39,7 @@ func (c *Config) Refresh() error {
 }
 
 // WithListener makes the instance to listen to the SIGHUP and reload the Feeders.
-func (c *Config) WithListener() *Config {
+func (c *Config) WithListener(fallback func(err error)) *Config {
 	s := make(chan os.Signal, 1)
 
 	signal.Notify(s, syscall.SIGHUP)
@@ -48,9 +48,7 @@ func (c *Config) WithListener() *Config {
 		for {
 			<-s
 			if err := c.Refresh(); err != nil {
-				if c.Fallback != nil {
-					(*c.Fallback)(err)
-				}
+				fallback(err)
 			}
 		}
 	}()

@@ -5,7 +5,9 @@ import (
 	"github.com/golobby/config/v3/pkg/feeder"
 	"github.com/stretchr/testify/assert"
 	"os"
+	"syscall"
 	"testing"
+	"time"
 )
 
 func TestFeed(t *testing.T) {
@@ -51,7 +53,7 @@ func TestFeed_WithMultiple_Feeders(t *testing.T) {
 func TestConfig_Refresh(t *testing.T) {
 	_ = os.Setenv("NAME", "One")
 
-	s := &struct{
+	s := &struct {
 		Name string `env:"NAME"`
 	}{}
 
@@ -67,4 +69,41 @@ func TestConfig_Refresh(t *testing.T) {
 	assert.NoError(t, err)
 
 	assert.Equal(t, "Two", s.Name)
+}
+
+func TestConfig_WithListener(t *testing.T) {
+	_ = os.Setenv("PI", "3.14")
+
+	s := &struct {
+		Pi float64 `env:"PI"`
+	}{}
+
+	fallbackTested := false
+	c := config.New(feeder.Env{}).WithListener(func(err error) {
+		fallbackTested = true
+	})
+
+	err := c.Feed(s)
+	assert.NoError(t, err)
+
+	assert.Equal(t, 3.14, s.Pi)
+
+	_ = os.Setenv("PI", "3.666")
+
+	err = syscall.Kill(syscall.Getpid(), syscall.SIGHUP)
+	assert.NoError(t, err)
+
+	time.Sleep(10 * time.Millisecond)
+
+	assert.Equal(t, 3.666, s.Pi)
+
+	_ = os.Setenv("PI", "INVALID!")
+
+	err = syscall.Kill(syscall.Getpid(), syscall.SIGHUP)
+	assert.NoError(t, err)
+
+	time.Sleep(10 * time.Millisecond)
+
+	assert.Equal(t, true, fallbackTested)
+	assert.Equal(t, 3.666, s.Pi)
 }
