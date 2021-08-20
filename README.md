@@ -243,7 +243,7 @@ err = c.Refresh()
 ### Listener
 One of the GoLobby Config features is the ability to update the configuration structs without redeployment.
 It takes advantage of OS signals to handle this requirement.
-Config instances listen to the "SIGHUP" operating system signal and refresh structs like calling the `Refresh()` method.
+Config instances listen to the "SIGHUP" operating system signal and refresh structs (call the `Refresh()` method).
 
 To enable the listener for a Config instance, you should call the `WithListener()` method.
 It gets a fallback function and calls it when the `Refresh()` method fails and returns an error.
