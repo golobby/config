@@ -9,9 +9,9 @@ import (
 	"syscall"
 )
 
-// Feeder is an interface for config Feeders that provide content of config instances.
+// Feeder is an interface for configuration Feeders that provide configuration data.
 type Feeder interface {
-	// Feed gets a struct and feeds it using configuration content.
+	// Feed gets a struct and feeds it using configuration data.
 	Feed(structure interface{}) error
 }
 
@@ -19,7 +19,7 @@ type Feeder interface {
 // To use the package facilities, there should be at least one instance of it.
 // It holds the configuration feeders and structures that it is going to feed them.
 type Config struct {
-	Feeders    []Feeder      // Feeders is the list of configuration feeders
+	Feeders    []Feeder      // Feeders is the list of configuration feeders that provides configuration data.
 	Structures []interface{} // Structures is the list of structures that are going to be fed.
 }
 
