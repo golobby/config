@@ -10,13 +10,13 @@ import (
 
 func TestFeed(t *testing.T) {
 	c := &struct{}{}
-	err := config.Feed(c, feeder.Env{})
+	err := config.New(feeder.Env{}).Feed(c)
 	assert.NoError(t, err)
 }
 
 func TestFeed_With_Invalid_File_It_Should_Fail(t *testing.T) {
 	c := &struct{}{}
-	err := config.Feed(c, feeder.Json{})
+	err := config.New(feeder.Json{}).Feed(c)
 	assert.Error(t, err)
 }
 
@@ -38,7 +38,7 @@ func TestFeed_WithMultiple_Feeders(t *testing.T) {
 	f2 := feeder.DotEnv{Path: "assets/.env.sample2"}
 	f3 := feeder.Env{}
 
-	err := config.Feed(c, f1, f2, f3)
+	err := config.New(f1, f2, f3).Feed(c)
 	assert.NoError(t, err)
 
 	assert.Equal(t, "Blog", c.App.Name)
