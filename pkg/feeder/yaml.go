@@ -7,6 +7,8 @@ import (
 	"path/filepath"
 )
 
+// Yaml is a feeder.
+// It feeds using a YAML file.
 type Yaml struct {
 	Path string
 }

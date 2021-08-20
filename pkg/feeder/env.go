@@ -5,6 +5,8 @@ import (
 	"github.com/golobby/env/v2"
 )
 
+// Env is a feeder.
+// It feeds using OS environment variables.
 type Env struct{}
 
 func (f Env) Feed(structure interface{}) error {

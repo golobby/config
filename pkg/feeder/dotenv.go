@@ -7,6 +7,8 @@ import (
 	"path/filepath"
 )
 
+// DotEnv is a feeder.
+// It feeds using dot env (.env) files.
 type DotEnv struct {
 	Path string
 }

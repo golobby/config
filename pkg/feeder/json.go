@@ -7,6 +7,8 @@ import (
 	"path/filepath"
 )
 
+// Json is a feeder.
+// It feeds using a JSON file.
 type Json struct {
 	Path string
 }
