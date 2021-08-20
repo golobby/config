@@ -1,0 +1,9 @@
+{
+  "app": {
+    "name": "Shop",
+    "port": 8585
+  },
+  "debug": true,
+  "production": false,
+  "pi": 3.14
+}
