@@ -38,8 +38,8 @@ func (c *Config) Refresh() error {
 	return nil
 }
 
-// StartListener makes the instance to listen to the SIGHUP and reload the Feeders.
-func (c *Config) StartListener() {
+// WithListener makes the instance to listen to the SIGHUP and reload the Feeders.
+func (c *Config) WithListener() *Config {
 	s := make(chan os.Signal, 1)
 
 	signal.Notify(s, syscall.SIGHUP)
@@ -54,6 +54,8 @@ func (c *Config) StartListener() {
 			}
 		}
 	}()
+
+	return c
 }
 
 func (c *Config) feedStructure(structure interface{}) error {

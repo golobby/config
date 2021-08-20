@@ -47,3 +47,24 @@ func TestFeed_WithMultiple_Feeders(t *testing.T) {
 	assert.Equal(t, true, c.Production)
 	assert.Equal(t, 3.14, c.Pi)
 }
+
+func TestConfig_Refresh(t *testing.T) {
+	_ = os.Setenv("NAME", "One")
+
+	s := &struct{
+		Name string `env:"NAME"`
+	}{}
+
+	c := config.New(feeder.Env{})
+	err := c.Feed(s)
+	assert.NoError(t, err)
+
+	assert.Equal(t, "One", s.Name)
+
+	_ = os.Setenv("NAME", "Two")
+
+	err = c.Refresh()
+	assert.NoError(t, err)
+
+	assert.Equal(t, "Two", s.Name)
+}
