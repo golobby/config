@@ -2,8 +2,8 @@ github.com/davecgh/go-spew v1.1.0 h1:ZDRjVQ15GmhC3fiQ8ni8+OwkZQO4DARzQgrnXU1Liz8
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/golobby/cast v1.1.4 h1:AJ5mNMUOnbha2XWpQIPwnAcahBRB3/ENugWsDM69VgU=
 github.com/golobby/cast v1.1.4/go.mod h1:WCusT3z1fzp4XVBUGbWy61insoQS8CPJHNTQwlW8qnM=
-github.com/golobby/dotenv v1.1.0 h1:SzrKTEkIQqKwm1+4zfvKIZF0ugfLDgyhoRX8iKvFwH0=
-github.com/golobby/dotenv v1.1.0/go.mod h1:iEIqJeTeQQ8BwujHnTCGf4mO21OKObYFe6MsHs9fIPM=
+github.com/golobby/dotenv v1.2.0 h1:kDA2zKOf9byk040lju6hcm7ma5KRPvPCiSZiSgeVcys=
+github.com/golobby/dotenv v1.2.0/go.mod h1:iEIqJeTeQQ8BwujHnTCGf4mO21OKObYFe6MsHs9fIPM=
 github.com/golobby/env/v2 v2.1.0 h1:szUrj5lC+WsnAEbcBzWXyRE0O3fOAI2lgI0SRwtQI9Q=
 github.com/golobby/env/v2 v2.1.0/go.mod h1:UM4kv1vShjJQcC54Au2GZsQ8fauFygf+BOJpCcgy1W8=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
