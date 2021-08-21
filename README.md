@@ -61,86 +61,34 @@ You can also create your custom feeders by implementing the `Feeder` interface o
 
 #### Json Feeder
 The `Json` feeder uses Go built-in `json` package to load JSON files.
-The example below shows how to use the `Json` feeder.
-
-The JSON file: https://github.com/golobby/config/blob/v3/assets/sample1.json
+The snippet below shows how to use the `Json` feeder.
 
 ```go
-type MyConfig struct {
-    App struct {
-        Name string
-        Port int
-    }
-    Debug      bool
-    Production bool
-    Pi         float64
-}
-
-myConfig := MyConfig{}
-
 jsonFeeder := feeder.Json{Path: "sample1.json"}
-
 err := config.New(jsonFeeder).Feed(&myConfig)
-
-// Use myConfig...
 ```
 
 #### Yaml Feeder
 The `Yaml` feeder uses the [YAML package](https://github.com/go-yaml/yaml) (v3) to load YAML files.
-The example below shows how to use the `Yaml` feeder.
-
-The YAML file: https://github.com/golobby/config/blob/v3/assets/sample1.yaml
+The snippet below shows how to use the `Yaml` feeder.
 
 ```go
-type MyConfig struct {
-    App struct {
-        Name string
-        Port int
-    }
-    Debug      bool
-    Production bool
-    Pi         float64
-}
-
-myConfig := MyConfig{}
-
 yamlFeeder := feeder.Yaml{Path: "sample1.yaml"}
-
 err := config.New(yamlFeeder).Feed(&myConfig)
-
-// Use myConfig...
 ```
 
 #### Toml Feeder
 The `Toml` feeder uses the [BurntSushi TOML package](https://github.com/BurntSushi/toml) to load TOML files.
-The example below shows how to use the `Toml` feeder.
-
-The TOML file: https://github.com/golobby/config/blob/v3/assets/sample1.toml
+The snippet below shows how to use the `Toml` feeder.
 
 ```go
-type MyConfig struct {
-    App struct {
-        Name string
-        Port int
-    }
-    Debug      bool
-    Production bool
-    Pi         float64
-}
-
-myConfig := MyConfig{}
-
 tomlFeeder := feeder.Toml{Path: "sample1.toml"}
-
 err := config.New(tomlFeeder).Feed(&myConfig)
-
-// Use myConfig...
 ```
 
 #### DotEnv Feeder
-Dot env (.env) files are popular configuration files.
-They are usually declared per environment (production, local, test, etc.) differently.
 The `DotEnv` feeder uses the [GoLobby DotEnv](https://github.com/golobby/dotenv) package to load `.env` files.
+The example below shows how to use the `DotEnv` feeder.
 
 The `.env` file: https://github.com/golobby/config/blob/v3/assets/.env.sample1
 
@@ -156,25 +104,17 @@ type MyConfig struct {
 }
 
 myConfig := MyConfig{}
-
 dotEnvFeeder := feeder.DotEnv{Path: ".env"}
-
 err := config.New(dotEnvFeeder).Feed(&myConfig)
-
-// Use myConfig...
 ```
 
-You must add a `env` tag for each field that determines the related dot env key.
+You must add a `env` tag for each field that determines the related dot env variable.
 If there isn't any value for a field in the related file, it ignores the struct field.
-
 You can read more about this feeder in the [GoLobby DotEnv](https://github.com/golobby/dotenv) package repository.
 
 #### Env Feeder
-You may keep it simple stupid with no configuration files at all!
-
-The `Env` feeder works fine in simple cases and cloud environments.
-It feeds your structs by OS environment variables.
-This feeder is built on top of the [GoLobby Env](https://github.com/golobby/env) package.
+The `Env` feeder is built on top of the [GoLobby Env](https://github.com/golobby/env) package.
+The example below shows how to use the `Env` feeder.
 
 ```go
 _ = os.Setenv("APP_NAME", "Shop")
@@ -195,15 +135,11 @@ type MyConfig struct {
 
 myConfig := MyConfig{}
 envFeeder := feeder.DotEnv{}
-
 err := config.New(envFeeder).Feed(&myConfig)
-
-// Use myConfig...
 ```
 
 You must add a `env` tag for each field that determines the related OS environment variable name.
 If there isn't any value for a field in OS environment variables, it ignores the struct field.
-
 You can read more about this feeder in the [GoLobby Env](https://github.com/golobby/env) package repository.
 
 ### Multiple Feeders
