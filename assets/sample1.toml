@@ -1,0 +1,7 @@
+debug = true
+production = false
+pi = 3.14
+
+[app]
+name = "Shop"
+port = 8585
