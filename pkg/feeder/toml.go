@@ -2,29 +2,26 @@ package feeder
 
 import (
 	"fmt"
-	"io/ioutil"
-	"path/filepath"
-
 	"github.com/BurntSushi/toml"
+	"os"
+	"path/filepath"
 )
 
-// Yaml is a feeder.
-// It feeds using a YAML file.
+// Toml is a feeder.
+// It feeds using a TOML file.
 type Toml struct {
 	Path string
 }
 
 func (f Toml) Feed(structure interface{}) error {
-	tomlContent, err := ioutil.ReadFile(filepath.Clean(f.Path))
+	file, err := os.Open(filepath.Clean(f.Path))
 	if err != nil {
-		return fmt.Errorf("config: cannot read toml file; err: %v", err)
+		return fmt.Errorf("config: cannot open json file; err: %v", err)
 	}
 
-	tomlString := string(tomlContent)
-
-	if _, err = toml.Decode(tomlString, structure); err != nil {
+	if _, err = toml.NewDecoder(file).Decode(structure); err != nil {
 		return fmt.Errorf("config: cannot feed struct; err: %v", err)
 	}
 
-	return nil
+	return file.Close()
 }
