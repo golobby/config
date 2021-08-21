@@ -9,12 +9,12 @@ import (
 func TestDotEnv_Feed(t *testing.T) {
 	type config struct {
 		App struct {
-			Name string `dotenv:"APP_NAME"`
-			Port int    `dotenv:"APP_PORT"`
+			Name string `env:"APP_NAME"`
+			Port int    `env:"APP_PORT"`
 		}
-		Debug      bool    `dotenv:"DEBUG"`
-		Production bool    `dotenv:"PRODUCTION"`
-		Pi         float64 `dotenv:"PI"`
+		Debug      bool    `env:"DEBUG"`
+		Production bool    `env:"PRODUCTION"`
+		Pi         float64 `env:"PI"`
 	}
 
 	c := config{}
@@ -41,7 +41,7 @@ func TestDotEnv_Feed_With_Invalid_File_It_Should_Fail(t *testing.T) {
 func TestDotEnv_Feed_With_Invalid_Struct_It_Should_Fail(t *testing.T) {
 	c := struct {
 		App struct {
-			Name float64 `dotenv:"APP_NAME"`
+			Name float64 `env:"APP_NAME"`
 		}
 	}{}
 	f := feeder.DotEnv{Path: "./../../assets/.env.sample1"}

@@ -28,12 +28,12 @@ func TestFeed_WithMultiple_Feeders(t *testing.T) {
 
 	c := &struct {
 		App struct {
-			Name string `dotenv:"APP_NAME" env:"APP_NAME"`
-			Port int    `dotenv:"APP_PORT" env:"APP_PORT"`
+			Name string `env:"APP_NAME"`
+			Port int    `env:"APP_PORT"`
 		}
-		Debug      bool    `dotenv:"DEBUG" env:"DEBUG"`
-		Production bool    `dotenv:"PRODUCTION" env:"PRODUCTION"`
-		Pi         float64 `dotenv:"PI" env:"PI"`
+		Debug      bool    `env:"DEBUG"`
+		Production bool    `env:"PRODUCTION"`
+		Pi         float64 `env:"PI"`
 	}{}
 
 	f1 := feeder.Json{Path: "assets/sample1.json"}
