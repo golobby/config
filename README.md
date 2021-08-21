@@ -21,7 +21,7 @@ go get github.com/golobby/config/v3
 ```
 
 ### Quick Start
-The following example demonstrates how to use the package using a JSON configuration file.
+The following example demonstrates how to use the package and a JSON configuration file.
 
 ```go
 // My configuration struct
@@ -53,15 +53,14 @@ The GoLobby Config package supports the following feeders out of the box.
 
 * `Json`: It Feeds using a JSON file.
 * `Yaml`: It Feeds using a YAML file.
+* `Toml`: It Feeds using a TOML file.
 * `DotEnv`: It Feeds using a dot env (.env) file.
 * `Env`: It Feeds using OS environment variables.
 
 You can also create your custom feeders by implementing the `Feeder` interface or use third-party feeders.
 
 #### Json Feeder
-Storing configuration data in a JSON file could be a brilliant idea.
 The `Json` feeder uses Go built-in `json` package to load JSON files.
-
 The example below shows how to use the `Json` feeder.
 
 The JSON file: https://github.com/golobby/config/blob/v3/assets/sample1.json
@@ -87,9 +86,8 @@ err := config.New(jsonFeeder).Feed(&myConfig)
 ```
 
 #### Yaml Feeder
-YAML files are also easy to use.
-They could be another candidate for your configuration file.
 The `Yaml` feeder uses the [YAML package](https://github.com/go-yaml/yaml) (v3) to load YAML files.
+The example below shows how to use the `Yaml` feeder.
 
 The YAML file: https://github.com/golobby/config/blob/v3/assets/sample1.yaml
 
@@ -109,6 +107,31 @@ myConfig := MyConfig{}
 yamlFeeder := feeder.Yaml{Path: "sample1.yaml"}
 
 err := config.New(yamlFeeder).Feed(&myConfig)
+
+// Use myConfig...
+```
+
+#### Toml Feeder
+The `Toml` feeder uses the [BurntSushi TOML package](https://github.com/BurntSushi/toml) to load TOML files.
+
+The TOML file: https://github.com/golobby/config/blob/v3/assets/sample1.toml
+
+```go
+type MyConfig struct {
+    App struct {
+        Name string
+        Port int
+    }
+    Debug      bool
+    Production bool
+    Pi         float64
+}
+
+myConfig := MyConfig{}
+
+tomlFeeder := feeder.Toml{Path: "sample1.toml"}
+
+err := config.New(tomlFeeder).Feed(&myConfig)
 
 // Use myConfig...
 ```
