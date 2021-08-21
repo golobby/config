@@ -295,5 +295,4 @@ To get your application process ID, you can use the `ps` shell command.
   A lightweight package for loading OS environment variables into structs for Go projects
 
 ## License
-
 GoLobby Config is released under the [MIT License](http://opensource.org/licenses/mit-license.php).
