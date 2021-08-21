@@ -21,7 +21,7 @@ go get github.com/golobby/config/v3
 ```
 
 ### Quick Start
-The following example demonstrates how to use the package and a JSON configuration file.
+The following example demonstrates how to use a JSON configuration file.
 
 ```go
 // My configuration struct
