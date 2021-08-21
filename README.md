@@ -113,6 +113,7 @@ err := config.New(yamlFeeder).Feed(&myConfig)
 
 #### Toml Feeder
 The `Toml` feeder uses the [BurntSushi TOML package](https://github.com/BurntSushi/toml) to load TOML files.
+The example below shows how to use the `Toml` feeder.
 
 The TOML file: https://github.com/golobby/config/blob/v3/assets/sample1.toml
 
