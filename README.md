@@ -207,7 +207,7 @@ c := config.New().AddFeeder(feeder).AddStruct(&myConfig)
 err := c.Feed()
 
 // Is it time to re-feed?
-err := c.Feed()
+err = c.Feed()
 
 // Use `myConfig` with updated data!
 ```
