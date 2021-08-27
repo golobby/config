@@ -43,8 +43,8 @@ jsonFeeder := feeder.Json{Path: "config.json"}
 
 // Create a Config instance and feed `myConfig` using  `jsonFeeder`
 c := config.New()
-c = c.AddFeeder(jsonFeeder)
-c = c.AddStruct(&myConfig)
+c.AddFeeder(jsonFeeder)
+c.AddStruct(&myConfig)
 err := c.Feed()
 
 // Or use method chaining:
