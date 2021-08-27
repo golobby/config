@@ -12,13 +12,13 @@ import (
 
 func TestFeed(t *testing.T) {
 	c := &struct{}{}
-	err := config.New(feeder.Env{}).Feed(c)
+	err := config.New().AddFeeder(feeder.Env{}).AddStruct(c).Feed()
 	assert.NoError(t, err)
 }
 
 func TestFeed_With_Invalid_File_It_Should_Fail(t *testing.T) {
 	c := &struct{}{}
-	err := config.New(feeder.Json{}).Feed(c)
+	err := config.New().AddFeeder(feeder.Json{}).AddStruct(c).Feed()
 	assert.Error(t, err)
 }
 
@@ -40,7 +40,7 @@ func TestFeed_WithMultiple_Feeders(t *testing.T) {
 	f2 := feeder.DotEnv{Path: "assets/.env.sample2"}
 	f3 := feeder.Env{}
 
-	err := config.New(f1, f2, f3).Feed(c)
+	err := config.New().AddFeeder(f1).AddFeeder(f2).AddFeeder(f3).AddStruct(c).Feed()
 	assert.NoError(t, err)
 
 	assert.Equal(t, "Blog", c.App.Name)
@@ -57,15 +57,15 @@ func TestConfig_Refresh(t *testing.T) {
 		Name string `env:"NAME"`
 	}{}
 
-	c := config.New(feeder.Env{})
-	err := c.Feed(s)
+	c := config.New().AddFeeder(feeder.Env{}).AddStruct(s)
+	err := c.Feed()
 	assert.NoError(t, err)
 
 	assert.Equal(t, "One", s.Name)
 
 	_ = os.Setenv("NAME", "Two")
 
-	err = c.Refresh()
+	err = c.Feed()
 	assert.NoError(t, err)
 
 	assert.Equal(t, "Two", s.Name)
@@ -79,11 +79,11 @@ func TestConfig_WithListener(t *testing.T) {
 	}{}
 
 	fallbackTested := false
-	c := config.New(feeder.Env{}).WithListener(func(err error) {
+	c := config.New().AddFeeder(feeder.Env{}).AddStruct(s).WithListener(func(err error) {
 		fallbackTested = true
 	})
 
-	err := c.Feed(s)
+	err := c.Feed()
 	assert.NoError(t, err)
 
 	assert.Equal(t, 3.14, s.Pi)
