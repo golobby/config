@@ -74,7 +74,7 @@ func TestConfig_Feed_For_Refreshing(t *testing.T) {
 	assert.Equal(t, "Two", s.Name)
 }
 
-func TestConfig_SetListener(t *testing.T) {
+func TestConfig_SetupListener(t *testing.T) {
 	_ = os.Setenv("PI", "3.14")
 
 	s := &struct {
@@ -82,7 +82,7 @@ func TestConfig_SetListener(t *testing.T) {
 	}{}
 
 	fallbackTested := false
-	c := config.New().AddFeeder(feeder.Env{}).AddStruct(s).SetListener(func(err error) {
+	c := config.New().AddFeeder(feeder.Env{}).AddStruct(s).SetupListener(func(err error) {
 		fallbackTested = true
 	})
 
