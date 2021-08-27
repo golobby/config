@@ -24,7 +24,7 @@ go get github.com/golobby/config/v3
 The following example demonstrates how to use a JSON configuration file.
 
 ```go
-// My configuration struct
+// The configuration struct
 type MyConfig struct {
     App struct {
         Name string
@@ -35,16 +35,22 @@ type MyConfig struct {
     Pi         float64
 }
 
-// An instance of my configuration struct
+// Create an instance of the configuration struct
 myConfig := MyConfig{}
 
 // Create a feeder that provides the configuration data from a JSON file
 jsonFeeder := feeder.Json{Path: "config.json"}
 
-// Create a Config instance, pass the feeder and feed the configuration struct
-err := config.New(jsonFeeder).Feed(&myConfig)
+// Create a Config instance and feed `myConfig` using  `jsonFeeder`
+c := config.New()
+c = c.AddFeeder(jsonFeeder)
+c = c.AddStruct(&myConfig)
+err := c.Feed()
 
-// Use myConfig...
+// Or use method chaining:
+// err := config.New().AddFeeder(jsonFeeder).AddStruct(&myConfig).Feed()
+
+// Use `myConfig`...
 ```
 
 ### Feeders
@@ -65,7 +71,7 @@ The snippet below shows how to use the `Json` feeder.
 
 ```go
 jsonFeeder := feeder.Json{Path: "sample1.json"}
-err := config.New(jsonFeeder).Feed(&myConfig)
+c := config.New().AddFeeder(jsonFeeder)
 ```
 
 #### Yaml Feeder
@@ -74,7 +80,7 @@ The snippet below shows how to use the `Yaml` feeder.
 
 ```go
 yamlFeeder := feeder.Yaml{Path: "sample1.yaml"}
-err := config.New(yamlFeeder).Feed(&myConfig)
+c := config.New().AddFeeder(yamlFeeder)
 ```
 
 #### Toml Feeder
@@ -83,7 +89,7 @@ The snippet below shows how to use the `Toml` feeder.
 
 ```go
 tomlFeeder := feeder.Toml{Path: "sample1.toml"}
-err := config.New(tomlFeeder).Feed(&myConfig)
+c := config.New().AddFeeder(tomlFeeder)
 ```
 
 #### DotEnv Feeder
@@ -105,7 +111,7 @@ type MyConfig struct {
 
 myConfig := MyConfig{}
 dotEnvFeeder := feeder.DotEnv{Path: ".env"}
-err := config.New(dotEnvFeeder).Feed(&myConfig)
+err := config.New().AddFeeder(dotEnvFeeder).AddStruct(&myConfig).Feed()
 ```
 
 You must add a `env` tag for each field that determines the related dot env variable.
@@ -135,7 +141,7 @@ type MyConfig struct {
 
 myConfig := MyConfig{}
 envFeeder := feeder.DotEnv{}
-err := config.New(envFeeder).Feed(&myConfig)
+err := config.New().AddFeeder(envFeeder).AddStruct(&myConfig).Feed()
 ```
 
 You must add a `env` tag for each field that determines the related OS environment variable name.
@@ -170,7 +176,12 @@ feeder1 := feeder.Json{Path: "sample1.json"}
 feeder2 := feeder.DotEnv{Path: ".env.sample2"}
 feeder3 := feeder.Env{}
 
-err := config.New(feeder1, feeder2, feeder3).Feed(&myConfig)
+err := config.New()
+        .AddFeeder(feeder1)
+        .AddFeeder(feeder2)
+        .AddFeeder(feeder3)
+        .AddStruct(&myConfig)
+        .Feed()
 
 fmt.Println(c.App.Name)   // Blog  [from DotEnv]
 fmt.Println(c.App.Port)   // 6969  [from Env]
@@ -187,33 +198,35 @@ What happened?
 * The `Env` feeder as the last feeder overrides existing variables in the OS environment.
   The `APP_PORT` and `PRODUCTION` fields are defined.
 
-### Refresh
-The `Refresh()` method re-feeds the structs using the provided feeders.
-It makes each feeder reload configuration data and feed the given structs again.
+### Re-feed
+You can re-feed the structs every time you need to.
+Just call the `Feed()` method again.
 
 ```go
-c := config.New(feeder1, feeder2, feeder3)
-err := c.Feed(&myConfig)
+c := config.New().AddFeeder(feeder).AddStruct(&myConfig)
+err := c.Feed()
 
-err = c.Refresh()
+// Is it time to re-feed?
+err := c.Feed()
 
-// myConfig fields are updated!
+// Use `myConfig` with updated data!
 ```
 
 ### Listener
 One of the GoLobby Config features is the ability to update the configuration structs without redeployment.
 It takes advantage of OS signals to handle this requirement.
-Config instances listen to the "SIGHUP" operating system signal and refresh structs (call the `Refresh()` method).
+Config instances listen to the "SIGHUP" operating system signal and refresh structs (call the `Feed()` method).
 
 To enable the listener for a Config instance, you should call the `WithListener()` method.
-It gets a fallback function and calls it when the `Refresh()` method fails and returns an error.
+It gets a fallback function and calls it when the `Feed()` method fails and returns an error.
 
 ```go
-c := config.New(feeder).WithListener(func(err error) {
+c := config.New().AddFeeder(feeder).AddStruct(&myConfig)
+c = c.WithListener(func(err error) {
     fmt.Println(err)
 })
 
-err := c.Feed(&myConfig)
+err := c.Feed()
 ```
 
 You can send the `SIGHUP` signal to your running application with the following shell command.
