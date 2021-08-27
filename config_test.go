@@ -17,8 +17,11 @@ func TestFeed(t *testing.T) {
 }
 
 func TestFeed_With_Invalid_File_It_Should_Fail(t *testing.T) {
-	c := &struct{}{}
-	err := config.New().AddFeeder(feeder.Json{}).AddStruct(c).Feed()
+	s := struct{}{}
+	c := config.New()
+	c.AddFeeder(feeder.Json{})
+	c.AddStruct(&s)
+	err := c.Feed()
 	assert.Error(t, err)
 }
 
@@ -50,7 +53,7 @@ func TestFeed_WithMultiple_Feeders(t *testing.T) {
 	assert.Equal(t, 3.14, c.Pi)
 }
 
-func TestConfig_Refresh(t *testing.T) {
+func TestConfig_Feed_For_Refreshing(t *testing.T) {
 	_ = os.Setenv("NAME", "One")
 
 	s := &struct {
@@ -71,7 +74,7 @@ func TestConfig_Refresh(t *testing.T) {
 	assert.Equal(t, "Two", s.Name)
 }
 
-func TestConfig_WithListener(t *testing.T) {
+func TestConfig_SetListener(t *testing.T) {
 	_ = os.Setenv("PI", "3.14")
 
 	s := &struct {
@@ -79,7 +82,7 @@ func TestConfig_WithListener(t *testing.T) {
 	}{}
 
 	fallbackTested := false
-	c := config.New().AddFeeder(feeder.Env{}).AddStruct(s).WithListener(func(err error) {
+	c := config.New().AddFeeder(feeder.Env{}).AddStruct(s).SetListener(func(err error) {
 		fallbackTested = true
 	})
 
