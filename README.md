@@ -207,7 +207,7 @@ c := config.New().AddFeeder(feeder).AddStruct(&myConfig)
 err := c.Feed()
 
 // Is it time to re-feed?
-err := c.Feed()
+err = c.Feed()
 
 // Use `myConfig` with updated data!
 ```
@@ -217,12 +217,12 @@ One of the GoLobby Config features is the ability to update the configuration st
 It takes advantage of OS signals to handle this requirement.
 Config instances listen to the "SIGHUP" operating system signal and refresh structs (call the `Feed()` method).
 
-To enable the listener for a Config instance, you should call the `WithListener()` method.
+To enable the listener for a Config instance, you should call the `SetupListener()` method.
 It gets a fallback function and calls it when the `Feed()` method fails and returns an error.
 
 ```go
 c := config.New().AddFeeder(feeder).AddStruct(&myConfig)
-c = c.WithListener(func(err error) {
+c.SetupListener(func(err error) {
     fmt.Println(err)
 })
 
