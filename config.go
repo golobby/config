@@ -53,10 +53,10 @@ func (c *Config) Feed() error {
 	return nil
 }
 
-// WithListener adds an OS signal listener to the Config instance.
+// SetupListener adds an OS signal listener to the Config instance.
 // The listener listens to the `SIGHUP` signal and refreshes the Config instance.
 // It would call the provided fallback if the refresh process failed.
-func (c *Config) WithListener(fallback func(err error)) *Config {
+func (c *Config) SetupListener(fallback func(err error)) *Config {
 	s := make(chan os.Signal, 1)
 
 	signal.Notify(s, syscall.SIGHUP)
