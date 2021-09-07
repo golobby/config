@@ -197,8 +197,8 @@ What happened?
 * The `Json` feeder as the first feeder sets all the struct fields from the JSON file.
 * The `DotEnv` feeder as the second feeder overrides existing fields.
   The `APP_NAME` and `DEBUG` fields exist in the `.env.sample2` file.
-* The `Env` feeder as the last feeder overrides existing variables in the OS environment.
-  The `APP_PORT` and `PRODUCTION` fields are defined.
+* The `Env` feeder as the last feeder overrides existing fields, as well.
+  The `APP_PORT` and `PRODUCTION` fields are defined in the OS environment.
 
 ### Re-feed
 You can re-feed the structs every time you need to.
