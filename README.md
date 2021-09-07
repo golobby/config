@@ -152,6 +152,8 @@ You can read more about this feeder in the [GoLobby Env](https://github.com/golo
 One of the key features in the GoLobby Config package is feeding using multiple feeders.
 Lately added feeders overrides early added ones.
 
+The example below demonstrates how to use a JSON file as the main configuration feeder and override the configurations with dot env and os variables.
+
 * JSON file: https://github.com/golobby/config/blob/v3/assets/sample1.json
 * DotEnv file: https://github.com/golobby/config/blob/v3/assets/.env.sample2
 * Env (OS) variables: Defined in the Go code!
