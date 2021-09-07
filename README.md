@@ -6,7 +6,7 @@
 [![Awesome](https://cdn.rawgit.com/sindresorhus/awesome/d7305f38d29fed78fa85652e3a63e154dd8e8829/media/badge.svg)](https://github.com/sindresorhus/awesome) 
 
 # Config
-GoLobby Config is lightweight yet powerful configuration management for Go projects.
+GoLobby Config is a lightweight yet powerful configuration management for Go projects.
 It takes advantage of dot env files and OS variables alongside config files to be your ultimate requirement.
 
 ## Documentation
@@ -41,7 +41,7 @@ myConfig := MyConfig{}
 // Create a feeder that provides the configuration data from a JSON file
 jsonFeeder := feeder.Json{Path: "config.json"}
 
-// Create a Config instance and feed `myConfig` using  `jsonFeeder`
+// Create a Config instance and feed `myConfig` using `jsonFeeder`
 c := config.New()
 c.AddFeeder(jsonFeeder)
 c.AddStruct(&myConfig)
