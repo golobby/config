@@ -107,6 +107,7 @@ type MyConfig struct {
     Debug      bool    `env:"DEBUG"`
     Production bool    `env:"PRODUCTION"`
     Pi         float64 `env:"PI"`
+    IDs        []int   `env:"IDS"`
 }
 
 myConfig := MyConfig{}
@@ -128,15 +129,19 @@ _ = os.Setenv("APP_PORT", "8585")
 _ = os.Setenv("DEBUG", "true")
 _ = os.Setenv("PRODUCTION", "false")
 _ = os.Setenv("PI", "3.14")
+_ = os.Setenv("IPS", "192.168.0.1", "192.168.0.2")
+_ = os.Setenv("IDS", "10, 11, 12, 13")
 
 type MyConfig struct {
     App struct {
         Name string `env:"APP_NAME"`
         Port int    `env:"APP_PORT"`
     }
-    Debug      bool    `env:"DEBUG"`
-    Production bool    `env:"PRODUCTION"`
-    Pi         float64 `env:"PI"`
+    Debug      bool     `env:"DEBUG"`
+    Production bool     `env:"PRODUCTION"`
+    Pi         float64  `env:"PI"`
+    IPs        []string `env:"IPS"`
+    IDs        []int16  `env:"IDS"`
 }
 
 myConfig := MyConfig{}
@@ -161,6 +166,7 @@ The example below demonstrates how to use a JSON file as the main configuration 
 ```go
 _ = os.Setenv("PRODUCTION", "true")
 _ = os.Setenv("APP_PORT", "6969")
+_ = os.Setenv("IDs", "6, 9")
 
 type MyConfig struct {
     App struct {
@@ -170,6 +176,7 @@ type MyConfig struct {
     Debug      bool    `env:"DEBUG"`
     Production bool    `env:"PRODUCTION"`
     Pi         float64 `env:"PI"`
+    IDs        []int32 `env:"IDS"`
 }
 
 myConfig := MyConfig{}
@@ -190,6 +197,7 @@ fmt.Println(c.App.Port)   // 6969  [from Env]
 fmt.Println(c.Debug)      // false [from DotEnv]
 fmt.Println(c.Production) // true  [from Env]
 fmt.Println(c.Pi)         // 3.14  [from Json]
+fmt.Println(c.IDs)        // 6, 9  [from Env]
 ```
 
 What happened?
