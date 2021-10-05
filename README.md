@@ -6,7 +6,7 @@
 [![Awesome](https://cdn.rawgit.com/sindresorhus/awesome/d7305f38d29fed78fa85652e3a63e154dd8e8829/media/badge.svg)](https://github.com/sindresorhus/awesome) 
 
 # Config
-GoLobby Config is lightweight yet powerful configuration management for Go projects.
+GoLobby Config is a lightweight yet powerful configuration manager for Go projects.
 It takes advantage of dot env files and OS variables alongside config files to be your ultimate requirement.
 
 ## Documentation
@@ -41,7 +41,7 @@ myConfig := MyConfig{}
 // Create a feeder that provides the configuration data from a JSON file
 jsonFeeder := feeder.Json{Path: "config.json"}
 
-// Create a Config instance and feed `myConfig` using  `jsonFeeder`
+// Create a Config instance and feed `myConfig` using `jsonFeeder`
 c := config.New()
 c.AddFeeder(jsonFeeder)
 c.AddStruct(&myConfig)
@@ -152,6 +152,8 @@ You can read more about this feeder in the [GoLobby Env](https://github.com/golo
 One of the key features in the GoLobby Config package is feeding using multiple feeders.
 Lately added feeders overrides early added ones.
 
+The example below demonstrates how to use a JSON file as the main configuration feeder and override the configurations with dot env and os variables.
+
 * JSON file: https://github.com/golobby/config/blob/v3/assets/sample1.json
 * DotEnv file: https://github.com/golobby/config/blob/v3/assets/.env.sample2
 * Env (OS) variables: Defined in the Go code!
@@ -195,8 +197,8 @@ What happened?
 * The `Json` feeder as the first feeder sets all the struct fields from the JSON file.
 * The `DotEnv` feeder as the second feeder overrides existing fields.
   The `APP_NAME` and `DEBUG` fields exist in the `.env.sample2` file.
-* The `Env` feeder as the last feeder overrides existing variables in the OS environment.
-  The `APP_PORT` and `PRODUCTION` fields are defined.
+* The `Env` feeder as the last feeder overrides existing fields, as well.
+  The `APP_PORT` and `PRODUCTION` fields are defined in the OS environment.
 
 ### Re-feed
 You can re-feed the structs every time you need to.
