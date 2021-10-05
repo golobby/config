@@ -38,6 +38,7 @@ func TestFeed_WithMultiple_Feeders(t *testing.T) {
 		Production bool     `env:"PRODUCTION"`
 		Pi         float64  `env:"PI"`
 		IPs        []string `env:"IPS"`
+		IDs        []int16  `env:"IDS"`
 	}{}
 
 	f1 := feeder.Json{Path: "assets/sample1.json"}
@@ -53,6 +54,7 @@ func TestFeed_WithMultiple_Feeders(t *testing.T) {
 	assert.Equal(t, true, c.Production)
 	assert.Equal(t, 3.14, c.Pi)
 	assert.Equal(t, []string{"192.168.0.1", "192.168.0.2"}, c.IPs)
+	assert.Equal(t, []int16{10, 11, 12, 13}, c.IDs)
 }
 
 func TestConfig_Feed_For_Refreshing(t *testing.T) {
