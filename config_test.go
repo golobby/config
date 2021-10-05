@@ -34,9 +34,10 @@ func TestFeed_WithMultiple_Feeders(t *testing.T) {
 			Name string `env:"APP_NAME"`
 			Port int    `env:"APP_PORT"`
 		}
-		Debug      bool    `env:"DEBUG"`
-		Production bool    `env:"PRODUCTION"`
-		Pi         float64 `env:"PI"`
+		Debug      bool     `env:"DEBUG"`
+		Production bool     `env:"PRODUCTION"`
+		Pi         float64  `env:"PI"`
+		IPs        []string `env:"IPS"`
 	}{}
 
 	f1 := feeder.Json{Path: "assets/sample1.json"}
@@ -51,6 +52,7 @@ func TestFeed_WithMultiple_Feeders(t *testing.T) {
 	assert.Equal(t, false, c.Debug)
 	assert.Equal(t, true, c.Production)
 	assert.Equal(t, 3.14, c.Pi)
+	assert.Equal(t, []string{"192.168.0.1", "192.168.0.2"}, c.IPs)
 }
 
 func TestConfig_Feed_For_Refreshing(t *testing.T) {
