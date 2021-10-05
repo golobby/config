@@ -6,7 +6,7 @@
 [![Awesome](https://cdn.rawgit.com/sindresorhus/awesome/d7305f38d29fed78fa85652e3a63e154dd8e8829/media/badge.svg)](https://github.com/sindresorhus/awesome) 
 
 # Config
-GoLobby Config is lightweight yet powerful configuration management for Go projects.
+GoLobby Config is a lightweight yet powerful configuration manager for Go projects.
 It takes advantage of dot env files and OS variables alongside config files to be your ultimate requirement.
 
 ## Documentation
@@ -21,10 +21,10 @@ go get github.com/golobby/config/v3
 ```
 
 ### Quick Start
-The following example demonstrates how to use the package and a JSON configuration file.
+The following example demonstrates how to use a JSON configuration file.
 
 ```go
-// My configuration struct
+// The configuration struct
 type MyConfig struct {
     App struct {
         Name string
@@ -35,16 +35,22 @@ type MyConfig struct {
     Pi         float64
 }
 
-// An instance of my configuration struct
+// Create an instance of the configuration struct
 myConfig := MyConfig{}
 
 // Create a feeder that provides the configuration data from a JSON file
 jsonFeeder := feeder.Json{Path: "config.json"}
 
-// Create a Config instance, pass the feeder and feed the configuration struct
-err := config.New(jsonFeeder).Feed(&myConfig)
+// Create a Config instance and feed `myConfig` using `jsonFeeder`
+c := config.New()
+c.AddFeeder(jsonFeeder)
+c.AddStruct(&myConfig)
+err := c.Feed()
 
-// Use myConfig...
+// Or use method chaining:
+// err := config.New().AddFeeder(jsonFeeder).AddStruct(&myConfig).Feed()
+
+// Use `myConfig`...
 ```
 
 ### Feeders
@@ -61,85 +67,34 @@ You can also create your custom feeders by implementing the `Feeder` interface o
 
 #### Json Feeder
 The `Json` feeder uses Go built-in `json` package to load JSON files.
-The example below shows how to use the `Json` feeder.
-
-The JSON file: https://github.com/golobby/config/blob/v3/assets/sample1.json
+The snippet below shows how to use the `Json` feeder.
 
 ```go
-type MyConfig struct {
-    App struct {
-        Name string
-        Port int
-    }
-    Debug      bool
-    Production bool
-    Pi         float64
-}
-
-myConfig := MyConfig{}
-
 jsonFeeder := feeder.Json{Path: "sample1.json"}
-
-err := config.New(jsonFeeder).Feed(&myConfig)
-
-// Use myConfig...
+c := config.New().AddFeeder(jsonFeeder)
 ```
 
 #### Yaml Feeder
 The `Yaml` feeder uses the [YAML package](https://github.com/go-yaml/yaml) (v3) to load YAML files.
-The example below shows how to use the `Yaml` feeder.
-
-The YAML file: https://github.com/golobby/config/blob/v3/assets/sample1.yaml
+The snippet below shows how to use the `Yaml` feeder.
 
 ```go
-type MyConfig struct {
-    App struct {
-        Name string
-        Port int
-    }
-    Debug      bool
-    Production bool
-    Pi         float64
-}
-
-myConfig := MyConfig{}
-
 yamlFeeder := feeder.Yaml{Path: "sample1.yaml"}
-
-err := config.New(yamlFeeder).Feed(&myConfig)
-
-// Use myConfig...
+c := config.New().AddFeeder(yamlFeeder)
 ```
 
 #### Toml Feeder
 The `Toml` feeder uses the [BurntSushi TOML package](https://github.com/BurntSushi/toml) to load TOML files.
-
-The TOML file: https://github.com/golobby/config/blob/v3/assets/sample1.toml
+The snippet below shows how to use the `Toml` feeder.
 
 ```go
-type MyConfig struct {
-    App struct {
-        Name string
-        Port int
-    }
-    Debug      bool
-    Production bool
-    Pi         float64
-}
-
-myConfig := MyConfig{}
-
 tomlFeeder := feeder.Toml{Path: "sample1.toml"}
-
-err := config.New(tomlFeeder).Feed(&myConfig)
-
-// Use myConfig...
+c := config.New().AddFeeder(tomlFeeder)
 ```
 
 #### DotEnv Feeder
-Dot env (.env) files are popular configuration files.
-They are usually declared per environment (production, local, test, etc.) differently.
 The `DotEnv` feeder uses the [GoLobby DotEnv](https://github.com/golobby/dotenv) package to load `.env` files.
+The example below shows how to use the `DotEnv` feeder.
 
 The `.env` file: https://github.com/golobby/config/blob/v3/assets/.env.sample1
 
@@ -152,28 +107,21 @@ type MyConfig struct {
     Debug      bool    `env:"DEBUG"`
     Production bool    `env:"PRODUCTION"`
     Pi         float64 `env:"PI"`
+    IDs        []int   `env:"IDS"`
 }
 
 myConfig := MyConfig{}
-
 dotEnvFeeder := feeder.DotEnv{Path: ".env"}
-
-err := config.New(dotEnvFeeder).Feed(&myConfig)
-
-// Use myConfig...
+err := config.New().AddFeeder(dotEnvFeeder).AddStruct(&myConfig).Feed()
 ```
 
-You must add a `env` tag for each field that determines the related dot env key.
+You must add a `env` tag for each field that determines the related dot env variable.
 If there isn't any value for a field in the related file, it ignores the struct field.
-
 You can read more about this feeder in the [GoLobby DotEnv](https://github.com/golobby/dotenv) package repository.
 
 #### Env Feeder
-You may keep it simple stupid with no configuration files at all!
-
-The `Env` feeder works fine in simple cases and cloud environments.
-It feeds your structs by OS environment variables.
-This feeder is built on top of the [GoLobby Env](https://github.com/golobby/env) package.
+The `Env` feeder is built on top of the [GoLobby Env](https://github.com/golobby/env) package.
+The example below shows how to use the `Env` feeder.
 
 ```go
 _ = os.Setenv("APP_NAME", "Shop")
@@ -181,33 +129,35 @@ _ = os.Setenv("APP_PORT", "8585")
 _ = os.Setenv("DEBUG", "true")
 _ = os.Setenv("PRODUCTION", "false")
 _ = os.Setenv("PI", "3.14")
+_ = os.Setenv("IPS", "192.168.0.1", "192.168.0.2")
+_ = os.Setenv("IDS", "10, 11, 12, 13")
 
 type MyConfig struct {
     App struct {
         Name string `env:"APP_NAME"`
         Port int    `env:"APP_PORT"`
     }
-    Debug      bool    `env:"DEBUG"`
-    Production bool    `env:"PRODUCTION"`
-    Pi         float64 `env:"PI"`
+    Debug      bool     `env:"DEBUG"`
+    Production bool     `env:"PRODUCTION"`
+    Pi         float64  `env:"PI"`
+    IPs        []string `env:"IPS"`
+    IDs        []int16  `env:"IDS"`
 }
 
 myConfig := MyConfig{}
 envFeeder := feeder.DotEnv{}
-
-err := config.New(envFeeder).Feed(&myConfig)
-
-// Use myConfig...
+err := config.New().AddFeeder(envFeeder).AddStruct(&myConfig).Feed()
 ```
 
 You must add a `env` tag for each field that determines the related OS environment variable name.
 If there isn't any value for a field in OS environment variables, it ignores the struct field.
-
 You can read more about this feeder in the [GoLobby Env](https://github.com/golobby/env) package repository.
 
 ### Multiple Feeders
 One of the key features in the GoLobby Config package is feeding using multiple feeders.
 Lately added feeders overrides early added ones.
+
+The example below demonstrates how to use a JSON file as the main configuration feeder and override the configurations with dot env and os variables.
 
 * JSON file: https://github.com/golobby/config/blob/v3/assets/sample1.json
 * DotEnv file: https://github.com/golobby/config/blob/v3/assets/.env.sample2
@@ -216,6 +166,7 @@ Lately added feeders overrides early added ones.
 ```go
 _ = os.Setenv("PRODUCTION", "true")
 _ = os.Setenv("APP_PORT", "6969")
+_ = os.Setenv("IDs", "6, 9")
 
 type MyConfig struct {
     App struct {
@@ -225,6 +176,7 @@ type MyConfig struct {
     Debug      bool    `env:"DEBUG"`
     Production bool    `env:"PRODUCTION"`
     Pi         float64 `env:"PI"`
+    IDs        []int32 `env:"IDS"`
 }
 
 myConfig := MyConfig{}
@@ -233,13 +185,19 @@ feeder1 := feeder.Json{Path: "sample1.json"}
 feeder2 := feeder.DotEnv{Path: ".env.sample2"}
 feeder3 := feeder.Env{}
 
-err := config.New(feeder1, feeder2, feeder3).Feed(&myConfig)
+err := config.New()
+        .AddFeeder(feeder1)
+        .AddFeeder(feeder2)
+        .AddFeeder(feeder3)
+        .AddStruct(&myConfig)
+        .Feed()
 
 fmt.Println(c.App.Name)   // Blog  [from DotEnv]
 fmt.Println(c.App.Port)   // 6969  [from Env]
 fmt.Println(c.Debug)      // false [from DotEnv]
 fmt.Println(c.Production) // true  [from Env]
 fmt.Println(c.Pi)         // 3.14  [from Json]
+fmt.Println(c.IDs)        // 6, 9  [from Env]
 ```
 
 What happened?
@@ -247,36 +205,38 @@ What happened?
 * The `Json` feeder as the first feeder sets all the struct fields from the JSON file.
 * The `DotEnv` feeder as the second feeder overrides existing fields.
   The `APP_NAME` and `DEBUG` fields exist in the `.env.sample2` file.
-* The `Env` feeder as the last feeder overrides existing variables in the OS environment.
-  The `APP_PORT` and `PRODUCTION` fields are defined.
+* The `Env` feeder as the last feeder overrides existing fields, as well.
+  The `APP_PORT` and `PRODUCTION` fields are defined in the OS environment.
 
-### Refresh
-The `Refresh()` method re-feeds the structs using the provided feeders.
-It makes each feeder reload configuration data and feed the given structs again.
+### Re-feed
+You can re-feed the structs every time you need to.
+Just call the `Feed()` method again.
 
 ```go
-c := config.New(feeder1, feeder2, feeder3)
-err := c.Feed(&myConfig)
+c := config.New().AddFeeder(feeder).AddStruct(&myConfig)
+err := c.Feed()
 
-err = c.Refresh()
+// Is it time to re-feed?
+err = c.Feed()
 
-// myConfig fields are updated!
+// Use `myConfig` with updated data!
 ```
 
 ### Listener
 One of the GoLobby Config features is the ability to update the configuration structs without redeployment.
 It takes advantage of OS signals to handle this requirement.
-Config instances listen to the "SIGHUP" operating system signal and refresh structs (call the `Refresh()` method).
+Config instances listen to the "SIGHUP" operating system signal and refresh structs (call the `Feed()` method).
 
-To enable the listener for a Config instance, you should call the `WithListener()` method.
-It gets a fallback function and calls it when the `Refresh()` method fails and returns an error.
+To enable the listener for a Config instance, you should call the `SetupListener()` method.
+It gets a fallback function and calls it when the `Feed()` method fails and returns an error.
 
 ```go
-c := config.New(feeder).WithListener(func(err error) {
+c := config.New().AddFeeder(feeder).AddStruct(&myConfig)
+c.SetupListener(func(err error) {
     fmt.Println(err)
 })
 
-err := c.Feed(&myConfig)
+err := c.Feed()
 ```
 
 You can send the `SIGHUP` signal to your running application with the following shell command.
@@ -294,5 +254,4 @@ To get your application process ID, you can use the `ps` shell command.
   A lightweight package for loading OS environment variables into structs for Go projects
 
 ## License
-
 GoLobby Config is released under the [MIT License](http://opensource.org/licenses/mit-license.php).
