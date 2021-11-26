@@ -245,7 +245,7 @@ You can send the `SIGHUP` signal to your running application with the following 
 KILL -SIGHUP [YOUR-APP-PROCESS-ID]
 ```
 
-To get your application process ID, you can use the `ps` shell command.
+You can get your application process ID using the `ps` command.
 
 ## See Also
 * [GoLobby/DotEnv](https://github.com/golobby/dotenv):
