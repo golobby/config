@@ -57,11 +57,11 @@ err := c.Feed()
 Feeders provide the configuration data.
 The GoLobby Config package supports the following feeders out of the box.
 
-* `Json`: It Feeds using a JSON file.
-* `Yaml`: It Feeds using a YAML file.
-* `Toml`: It Feeds using a TOML file.
-* `DotEnv`: It Feeds using a dot env (.env) file.
-* `Env`: It Feeds using OS environment variables.
+* `Json`: It feeds using a JSON file.
+* `Yaml`: It feeds using a YAML file.
+* `Toml`: It feeds using a TOML file.
+* `DotEnv`: It feeds using a dot env (.env) file.
+* `Env`: It feeds using OS environment variables.
 
 You can also create your custom feeders by implementing the `Feeder` interface or use third-party feeders.
 
