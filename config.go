@@ -76,7 +76,7 @@ func (c *Config) SetupListener(fallback func(err error)) *Config {
 // feedStruct feeds a struct using given feeder.
 func (c *Config) feedStruct(f Feeder, s interface{}) error {
 	if err := f.Feed(s); err != nil {
-		return fmt.Errorf("config: faild to feed struct; err %v", err)
+		return fmt.Errorf("config: failed to feed struct; err %v", err)
 	}
 
 	return nil
