@@ -16,7 +16,7 @@ type Yaml struct {
 func (f Yaml) Feed(structure interface{}) error {
 	file, err := os.Open(filepath.Clean(f.Path))
 	if err != nil {
-		return fmt.Errorf("config: cannot open json file; err: %v", err)
+		return fmt.Errorf("config: cannot open yaml file; err: %v", err)
 	}
 
 	if err = yaml.NewDecoder(file).Decode(structure); err != nil {
