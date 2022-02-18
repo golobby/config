@@ -252,6 +252,8 @@ You can get your application process ID using the `ps` command.
   A lightweight package for loading dot env (.env) files into structs for Go projects
 * [GoLobby/Env](https://github.com/golobby/env):
   A lightweight package for loading OS environment variables into structs for Go projects
+* [GoLobby/Container](https://github.com/golobby/container):
+  A lightweight yet powerful IoC dependency injection container for Go projects
 
 ## License
 GoLobby Config is released under the [MIT License](http://opensource.org/licenses/mit-license.php).
