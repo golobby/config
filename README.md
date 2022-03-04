@@ -7,7 +7,7 @@
 
 # Config
 GoLobby Config is a lightweight yet powerful configuration manager for Go projects.
-It takes advantage of Dot-env (.env) files and OS environment variables alongside config files to meet all of your requirements.
+It takes advantage of Dot-env (.env) files and OS environment variables alongside config files (JSON, YAML, and TOML) to meet all of your requirements.
 
 ## Documentation
 ### Required Go Version
