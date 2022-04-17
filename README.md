@@ -1,4 +1,4 @@
-[![GoDoc](https://godoc.org/github.com/golobby/config/v3?status.svg)](https://godoc.org/github.com/golobby/config/v3)
+[![Go Reference](https://pkg.go.dev/badge/github.com/golobby/config.svg)](https://pkg.go.dev/github.com/golobby/config)
 [![CI](https://github.com/golobby/config/actions/workflows/ci.yml/badge.svg)](https://github.com/golobby/config/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/golobby/config/workflows/CodeQL/badge.svg)](https://github.com/golobby/config/actions?query=workflow%3ACodeQL)
 [![Go Report Card](https://goreportcard.com/badge/github.com/golobby/config)](https://goreportcard.com/report/github.com/golobby/config)
