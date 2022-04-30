@@ -57,6 +57,40 @@ func TestFeed_WithMultiple_Feeders(t *testing.T) {
 	assert.Equal(t, []int16{10, 11, 12, 13}, c.IDs)
 }
 
+func TestFeed_DefaultValue(t *testing.T) {
+	c := &struct {
+		App struct {
+			Name string `env:"APP_NAME"`
+			Port int    `env:"APP_PORT" default:"3333"`
+		}
+		Debug bool `env:"DEBUG"`
+	}{}
+
+	err := config.New().AddStruct(c).Feed()
+	assert.NoError(t, err)
+
+	assert.Equal(t, 3333, c.App.Port)
+}
+
+func TestFeed_DefaultValueOverride(t *testing.T) {
+	_ = os.Setenv("APP_PORT", "1234")
+
+	c := &struct {
+		App struct {
+			Name string `env:"APP_NAME"`
+			Port int    `env:"APP_PORT" default:"3333"`
+		}
+		Debug bool `env:"DEBUG"`
+	}{}
+
+	f1 := feeder.Env{}
+
+	err := config.New().AddFeeder(f1).AddStruct(c).Feed()
+	assert.NoError(t, err)
+
+	assert.Equal(t, 1234, c.App.Port)
+}
+
 func TestConfig_Feed_For_Refreshing(t *testing.T) {
 	_ = os.Setenv("NAME", "One")
 

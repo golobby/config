@@ -4,6 +4,7 @@ package config
 
 import (
 	"fmt"
+	"github.com/golobby/config/v3/pkg/feeder"
 	"os"
 	"os/signal"
 	"syscall"
@@ -25,7 +26,10 @@ type Config struct {
 
 // New creates a brand new instance of Config to use the package facilities.
 func New() *Config {
-	return &Config{}
+	c := &Config{}
+	c.AddFeeder(&feeder.Default{})
+
+	return c
 }
 
 // AddFeeder adds a feeder that provides configuration data.
