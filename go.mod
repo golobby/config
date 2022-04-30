@@ -4,6 +4,7 @@ go 1.11
 
 require (
 	github.com/BurntSushi/toml v0.4.1
+	github.com/golobby/cast v1.3.0 // indirect
 	github.com/golobby/dotenv v1.3.1
 	github.com/golobby/env/v2 v2.2.0
 	github.com/stretchr/testify v1.7.0
