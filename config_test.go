@@ -1,6 +1,7 @@
 package config_test
 
 import (
+    "errors"
     "github.com/golobby/config/v3"
     "github.com/golobby/config/v3/pkg/feeder"
     "github.com/stretchr/testify/assert"
@@ -27,16 +28,20 @@ type FullConfig struct {
     Pi         float64  `env:"PI"`
     IPs        []string `env:"IPS"`
     IDs        []int16  `env:"IDS"`
-    SexRaw     int      `env:"Sex"`
+    SexRaw     int      `env:"SEX"`
     Sex        Sex
 }
 
-func (fc *FullConfig) Setup() {
+func (fc *FullConfig) Setup() error {
     if fc.SexRaw == 0 {
         fc.Sex = Male
-    } else {
+    } else if fc.SexRaw == 1 {
         fc.Sex = Female
+    } else {
+        return errors.New("app: invalid sex")
     }
+
+    return nil
 }
 
 func TestConfig_Feed_With_No_Data(t *testing.T) {
@@ -74,6 +79,18 @@ func TestConfig_Feed(t *testing.T) {
     assert.Equal(t, []int16{10, 11, 12, 13}, c.IDs)
 
     assert.Equal(t, Male, c.Sex)
+}
+
+func TestConfig_Feed_With_Setup_Returning_Error(t *testing.T) {
+    _ = os.Setenv("SEX", "3")
+
+    c := &FullConfig{}
+
+    f1 := feeder.Json{Path: "assets/sample1.json"}
+    f2 := feeder.Env{}
+
+    err := config.New().AddFeeder(f1, f2).AddStruct(c).Feed()
+    assert.Error(t, err, "app: invalid sex")
 }
 
 func TestConfig_ReFeeding(t *testing.T) {

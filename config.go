@@ -82,10 +82,18 @@ func (c *Config) setupStruct(s interface{}) error {
     sType := reflect.TypeOf(s)
     if sType != nil && sType.Kind() == reflect.Ptr {
         if elem := sType.Elem(); elem.Kind() == reflect.Struct {
-            if m := reflect.ValueOf(s).MethodByName("Setup"); m.IsValid() {
-                m.Call([]reflect.Value{})
+            if _, ok := reflect.TypeOf(s).MethodByName("Setup"); ok {
+                v := reflect.ValueOf(s).MethodByName("Setup").Call([]reflect.Value{})
+                if len(v) > 0 && v[0].CanInterface() {
+                    if v[0].IsNil() {
+                        return nil
+                    } else {
+                        return v[0].Interface().(error)
+                    }
+                }
             }
         }
     }
+
     return nil
 }
