@@ -58,6 +58,7 @@ func (c *Config) Feed() error {
             return err
         }
     }
+
     return nil
 }
 
@@ -66,7 +67,9 @@ func (c *Config) Feed() error {
 // It would call the provided fallback if the refresh process failed.
 func (c *Config) SetupListener(fallback func(err error)) *Config {
     s := make(chan os.Signal, 1)
+
     signal.Notify(s, syscall.SIGHUP)
+
     go func() {
         for {
             <-s
@@ -75,6 +78,7 @@ func (c *Config) SetupListener(fallback func(err error)) *Config {
             }
         }
     }()
+
     return c
 }
 
@@ -82,9 +86,9 @@ func (c *Config) setupStruct(s interface{}) error {
     sType := reflect.TypeOf(s)
     if sType != nil && sType.Kind() == reflect.Ptr {
         if elem := sType.Elem(); elem.Kind() == reflect.Struct {
-            if _, ok := reflect.TypeOf(s).MethodByName("Setup"); ok {
-                v := reflect.ValueOf(s).MethodByName("Setup").Call([]reflect.Value{})
-                if len(v) > 0 && v[0].CanInterface() {
+            if m := reflect.ValueOf(s).MethodByName("Setup"); m.IsValid() {
+                v := m.Call([]reflect.Value{})
+                if len(v) == 1 && v[0].CanInterface() {
                     if v[0].IsNil() {
                         return nil
                     } else {
