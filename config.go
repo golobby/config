@@ -86,7 +86,7 @@ func (c *Config) setupStruct(s interface{}) error {
     sType := reflect.TypeOf(s)
     if sType != nil && sType.Kind() == reflect.Ptr {
         if elem := sType.Elem(); elem.Kind() == reflect.Struct {
-            if m := reflect.ValueOf(s).MethodByName("setup"); m.IsValid() {
+            if m := reflect.ValueOf(s).MethodByName("Setup"); m.IsValid() {
                 v := m.Call([]reflect.Value{})
                 if len(v) == 1 && v[0].CanInterface() {
                     if v[0].IsNil() {

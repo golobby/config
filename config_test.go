@@ -32,13 +32,13 @@ type FullConfig struct {
     Sex        Sex
 }
 
-func (fc *FullConfig) setup() error {
+func (fc *FullConfig) Setup() error {
     if fc.SexRaw == 0 {
         fc.Sex = Male
     } else if fc.SexRaw == 1 {
         fc.Sex = Female
     } else {
-        return errors.New("app: invalid sex")
+        return errors.New("invalid sex")
     }
 
     return nil
@@ -90,7 +90,7 @@ func TestConfig_Feed_With_Setup_Returning_Error(t *testing.T) {
     f2 := feeder.Env{}
 
     err := config.New().AddFeeder(f1, f2).AddStruct(c).Feed()
-    assert.Error(t, err, "app: invalid sex")
+    assert.Error(t, err, "invalid sex")
 }
 
 func TestConfig_ReFeeding(t *testing.T) {
