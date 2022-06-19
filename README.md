@@ -208,7 +208,7 @@ What happened?
 The Setup method runs automatically after feeding.
 You can use this method for post-processing logic.
 
-‍‍‍```go
+```go
 _ = os.Setenv("SEX", "0")
 
 type Sex int
