@@ -205,7 +205,7 @@ What happened?
   
 ### Setup Method
 
-The Setup method runs automatically after feeding.
+The `Setup()` method runs automatically after feeding.
 You can use this method for post-processing logic.
 
 ```go
@@ -222,7 +222,7 @@ type Config struct {
     Sex    Sex
 }
 
-func (c *Config) setup() error {
+func (c *Config) Setup() error {
     if c.sexRaw == 0 {
         c.Sex = Male
     } else if c.sexRaw == 1 {
