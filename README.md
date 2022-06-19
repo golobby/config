@@ -202,6 +202,44 @@ What happened?
   The `APP_NAME` and `DEBUG` fields exist in the `.env.sample2` file.
 * The `Env` feeder as the last feeder overrides existing fields, as well.
   The `APP_PORT` and `PRODUCTION` fields are defined in the OS environment.
+  
+### Setup Method
+
+The Setup method runs automatically after feeding.
+You can use this method for post-processing logic.
+
+‍‍‍```go
+_ = os.Setenv("SEX", "0")
+
+type Sex int
+const (
+    Male Sex = iota
+    Female
+)
+
+type Config struct {
+    sexRaw int `env:"SEX"`
+    Sex    Sex
+}
+
+func (c *Config) setup() error {
+    if c.sexRaw == 0 {
+        c.Sex = Male
+    } else if c.sexRaw == 1 {
+        c.Sex = Female
+    } else {
+        return errors.New("invalid sex")
+    }
+    return nil
+}
+
+myConfig := Config{}
+f := feeder.Env{}
+
+err := config.New().AddFeeder(f).AddStruct(&myConfig).Feed()
+
+fmt.Println(c.Sex)
+```
 
 ### Re-feed
 You can re-feed the structs every time you need to.
