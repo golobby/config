@@ -32,7 +32,7 @@ type FullConfig struct {
     Sex        Sex
 }
 
-func (fc *FullConfig) Setup() error {
+func (fc *FullConfig) setup() error {
     if fc.SexRaw == 0 {
         fc.Sex = Male
     } else if fc.SexRaw == 1 {
