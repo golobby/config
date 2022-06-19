@@ -6,6 +6,7 @@ import (
     "fmt"
     "os"
     "os/signal"
+    "reflect"
     "syscall"
 )
 
@@ -48,12 +49,15 @@ func (c *Config) AddStruct(ss ...interface{}) *Config {
 func (c *Config) Feed() error {
     for _, s := range c.Structs {
         for _, f := range c.Feeders {
-            if err := c.feedStruct(f, s); err != nil {
-                return err
+            if err := f.Feed(s); err != nil {
+                return fmt.Errorf("config: feeder error: %v", err)
             }
         }
-    }
 
+        if err := c.setupStruct(s); err != nil {
+            return err
+        }
+    }
     return nil
 }
 
@@ -62,9 +66,7 @@ func (c *Config) Feed() error {
 // It would call the provided fallback if the refresh process failed.
 func (c *Config) SetupListener(fallback func(err error)) *Config {
     s := make(chan os.Signal, 1)
-
     signal.Notify(s, syscall.SIGHUP)
-
     go func() {
         for {
             <-s
@@ -73,14 +75,24 @@ func (c *Config) SetupListener(fallback func(err error)) *Config {
             }
         }
     }()
-
     return c
 }
 
-// feedStruct feeds a struct using given feeder.
-func (c *Config) feedStruct(f Feeder, s interface{}) error {
-    if err := f.Feed(s); err != nil {
-        return fmt.Errorf("config: failed to feed struct; err %v", err)
+func (c *Config) setupStruct(s interface{}) error {
+    sType := reflect.TypeOf(s)
+    if sType != nil && sType.Kind() == reflect.Ptr {
+        if elem := sType.Elem(); elem.Kind() == reflect.Struct {
+            if _, ok := reflect.TypeOf(s).MethodByName("Setup"); ok {
+                v := reflect.ValueOf(s).MethodByName("Setup").Call([]reflect.Value{})
+                if len(v) > 0 && v[0].CanInterface() {
+                    if v[0].IsNil() {
+                        return nil
+                    } else {
+                        return v[0].Interface().(error)
+                    }
+                }
+            }
+        }
     }
 
     return nil

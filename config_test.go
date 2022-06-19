@@ -1,6 +1,7 @@
 package config_test
 
 import (
+    "errors"
     "github.com/golobby/config/v3"
     "github.com/golobby/config/v3/pkg/feeder"
     "github.com/stretchr/testify/assert"
@@ -10,68 +11,57 @@ import (
     "time"
 )
 
-func TestFeed(t *testing.T) {
+type Sex int
+
+const (
+    Male Sex = iota
+    Female
+)
+
+type FullConfig struct {
+    App struct {
+        Name string `env:"APP_NAME"`
+        Port int    `env:"APP_PORT"`
+    }
+    Debug      bool     `env:"DEBUG"`
+    Production bool     `env:"PRODUCTION"`
+    Pi         float64  `env:"PI"`
+    IPs        []string `env:"IPS"`
+    IDs        []int16  `env:"IDS"`
+    SexRaw     int      `env:"SEX"`
+    Sex        Sex
+}
+
+func (fc *FullConfig) Setup() error {
+    if fc.SexRaw == 0 {
+        fc.Sex = Male
+    } else if fc.SexRaw == 1 {
+        fc.Sex = Female
+    } else {
+        return errors.New("app: invalid sex")
+    }
+
+    return nil
+}
+
+func TestConfig_Feed_With_No_Data(t *testing.T) {
     c := &struct{}{}
     err := config.New().AddFeeder(feeder.Env{}).AddStruct(c).Feed()
     assert.NoError(t, err)
 }
 
-func TestFeed_With_Invalid_File_It_Should_Fail(t *testing.T) {
+func TestConfig_Feed_With_Invalid_File_It_Should_Fail(t *testing.T) {
     s := struct{}{}
-    c := config.New()
-    c.AddFeeder(feeder.Json{})
-    c.AddStruct(&s)
+    c := config.New().AddFeeder(feeder.Json{}).AddStruct(&s)
     err := c.Feed()
-    assert.Error(t, err)
+    assert.EqualError(t, err, "config: feeder error: json: read .: is a directory")
 }
 
-func TestFeed_WithMultiple_Feeders_With_Multiple_Calls(t *testing.T) {
+func TestConfig_Feed(t *testing.T) {
     _ = os.Setenv("PRODUCTION", "1")
     _ = os.Setenv("APP_PORT", "6969")
 
-    c := &struct {
-        App struct {
-            Name string `env:"APP_NAME"`
-            Port int    `env:"APP_PORT"`
-        }
-        Debug      bool     `env:"DEBUG"`
-        Production bool     `env:"PRODUCTION"`
-        Pi         float64  `env:"PI"`
-        IPs        []string `env:"IPS"`
-        IDs        []int16  `env:"IDS"`
-    }{}
-
-    f1 := feeder.Json{Path: "assets/sample1.json"}
-    f2 := feeder.DotEnv{Path: "assets/.env.sample2"}
-    f3 := feeder.Env{}
-
-    err := config.New().AddFeeder(f1).AddFeeder(f2).AddFeeder(f3).AddStruct(c).Feed()
-    assert.NoError(t, err)
-
-    assert.Equal(t, "Blog", c.App.Name)
-    assert.Equal(t, 6969, c.App.Port)
-    assert.Equal(t, false, c.Debug)
-    assert.Equal(t, true, c.Production)
-    assert.Equal(t, 3.14, c.Pi)
-    assert.Equal(t, []string{"192.168.0.1", "192.168.0.2"}, c.IPs)
-    assert.Equal(t, []int16{10, 11, 12, 13}, c.IDs)
-}
-
-func TestFeed_WithMultiple_Feeders_With_A_Single_Call(t *testing.T) {
-    _ = os.Setenv("PRODUCTION", "1")
-    _ = os.Setenv("APP_PORT", "6969")
-
-    c := &struct {
-        App struct {
-            Name string `env:"APP_NAME"`
-            Port int    `env:"APP_PORT"`
-        }
-        Debug      bool     `env:"DEBUG"`
-        Production bool     `env:"PRODUCTION"`
-        Pi         float64  `env:"PI"`
-        IPs        []string `env:"IPS"`
-        IDs        []int16  `env:"IDS"`
-    }{}
+    c := &FullConfig{}
 
     f1 := feeder.Json{Path: "assets/sample1.json"}
     f2 := feeder.DotEnv{Path: "assets/.env.sample2"}
@@ -87,9 +77,23 @@ func TestFeed_WithMultiple_Feeders_With_A_Single_Call(t *testing.T) {
     assert.Equal(t, 3.14, c.Pi)
     assert.Equal(t, []string{"192.168.0.1", "192.168.0.2"}, c.IPs)
     assert.Equal(t, []int16{10, 11, 12, 13}, c.IDs)
+
+    assert.Equal(t, Male, c.Sex)
 }
 
-func TestConfig_Feed_For_Refreshing(t *testing.T) {
+func TestConfig_Feed_With_Setup_Returning_Error(t *testing.T) {
+    _ = os.Setenv("SEX", "3")
+
+    c := &FullConfig{}
+
+    f1 := feeder.Json{Path: "assets/sample1.json"}
+    f2 := feeder.Env{}
+
+    err := config.New().AddFeeder(f1, f2).AddStruct(c).Feed()
+    assert.Error(t, err, "app: invalid sex")
+}
+
+func TestConfig_ReFeeding(t *testing.T) {
     _ = os.Setenv("NAME", "One")
 
     s := &struct {
