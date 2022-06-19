@@ -185,12 +185,7 @@ feeder1 := feeder.Json{Path: "sample1.json"}
 feeder2 := feeder.DotEnv{Path: ".env.sample2"}
 feeder3 := feeder.Env{}
 
-err := config.New()
-        .AddFeeder(feeder1)
-        .AddFeeder(feeder2)
-        .AddFeeder(feeder3)
-        .AddStruct(&myConfig)
-        .Feed()
+err := config.New().AddFeeder(feeder1, feeder2, feeder3).AddStruct(&myConfig).Feed()
 
 fmt.Println(c.App.Name)   // Blog  [from DotEnv]
 fmt.Println(c.App.Port)   // 6969  [from Env]
