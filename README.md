@@ -211,24 +211,31 @@ You can use this method for post-processing logic.
 ```go
 _ = os.Setenv("SEX", "0")
 
-type Sex int
+type Region int
+
 const (
-    Male Sex = iota
-    Female
+    Asia Region = iota
+    Europe
+    America
+    Else
 )
 
 type Config struct {
-    sexRaw int `env:"SEX"`
-    Sex    Sex
+    RegionId int `env:"REGION"`
+    Region   Region
 }
 
 func (c *Config) Setup() error {
-    if c.sexRaw == 0 {
-        c.Sex = Male
-    } else if c.sexRaw == 1 {
-        c.Sex = Female
+    if fc.RegionId == 0 {
+        fc.Region = Asia
+    } else if fc.RegionId == 1 {
+        fc.Region = Europe
+    } else if fc.RegionId == 2 {
+        fc.Region = America
+    } else if fc.RegionId == 3 {
+        fc.Region = Else
     } else {
-        return errors.New("invalid sex")
+        return errors.New("invalid region")
     }
     return nil
 }
