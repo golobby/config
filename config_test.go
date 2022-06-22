@@ -11,11 +11,13 @@ import (
     "time"
 )
 
-type Sex int
+type Region int
 
 const (
-    Male Sex = iota
-    Female
+    Asia Region = iota
+    Europe
+    America
+    Else
 )
 
 type FullConfig struct {
@@ -28,17 +30,21 @@ type FullConfig struct {
     Pi         float64  `env:"PI"`
     IPs        []string `env:"IPS"`
     IDs        []int16  `env:"IDS"`
-    SexRaw     int      `env:"SEX"`
-    Sex        Sex
+    RegionId   int      `env:"REGION"`
+    Region     Region
 }
 
 func (fc *FullConfig) Setup() error {
-    if fc.SexRaw == 0 {
-        fc.Sex = Male
-    } else if fc.SexRaw == 1 {
-        fc.Sex = Female
+    if fc.RegionId == 0 {
+        fc.Region = Asia
+    } else if fc.RegionId == 1 {
+        fc.Region = Europe
+    } else if fc.RegionId == 2 {
+        fc.Region = America
+    } else if fc.RegionId == 3 {
+        fc.Region = Else
     } else {
-        return errors.New("invalid sex")
+        return errors.New("invalid region")
     }
 
     return nil
@@ -78,11 +84,11 @@ func TestConfig_Feed(t *testing.T) {
     assert.Equal(t, []string{"192.168.0.1", "192.168.0.2"}, c.IPs)
     assert.Equal(t, []int16{10, 11, 12, 13}, c.IDs)
 
-    assert.Equal(t, Male, c.Sex)
+    assert.Equal(t, Asia, c.Region)
 }
 
 func TestConfig_Feed_With_Setup_Returning_Error(t *testing.T) {
-    _ = os.Setenv("SEX", "3")
+    _ = os.Setenv("REGION", "4")
 
     c := &FullConfig{}
 
@@ -90,7 +96,7 @@ func TestConfig_Feed_With_Setup_Returning_Error(t *testing.T) {
     f2 := feeder.Env{}
 
     err := config.New().AddFeeder(f1, f2).AddStruct(c).Feed()
-    assert.Error(t, err, "invalid sex")
+    assert.Error(t, err, "invalid region")
 }
 
 func TestConfig_ReFeeding(t *testing.T) {
