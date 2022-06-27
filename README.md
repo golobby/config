@@ -124,14 +124,6 @@ The `Env` feeder is built on top of the [GoLobby Env](https://github.com/golobby
 The example below shows how to use the `Env` feeder.
 
 ```go
-_ = os.Setenv("APP_NAME", "Shop")
-_ = os.Setenv("APP_PORT", "8585")
-_ = os.Setenv("DEBUG", "true")
-_ = os.Setenv("PRODUCTION", "false")
-_ = os.Setenv("PI", "3.14")
-_ = os.Setenv("IPS", "192.168.0.1", "192.168.0.2")
-_ = os.Setenv("IDS", "10, 11, 12, 13")
-
 type MyConfig struct {
     App struct {
         Name string `env:"APP_NAME"`
@@ -143,6 +135,14 @@ type MyConfig struct {
     IPs        []string `env:"IPS"`
     IDs        []int16  `env:"IDS"`
 }
+
+_ = os.Setenv("APP_NAME", "Shop")
+_ = os.Setenv("APP_PORT", "8585")
+_ = os.Setenv("DEBUG", "true")
+_ = os.Setenv("PRODUCTION", "false")
+_ = os.Setenv("PI", "3.14")
+_ = os.Setenv("IPS", "192.168.0.1", "192.168.0.2")
+_ = os.Setenv("IDS", "10, 11, 12, 13")
 
 myConfig := MyConfig{}
 envFeeder := feeder.DotEnv{}
@@ -164,10 +164,6 @@ The example below demonstrates how to use a JSON file as the main configuration 
 * Env (OS) variables: Defined in the Go code!
 
 ```go
-_ = os.Setenv("PRODUCTION", "true")
-_ = os.Setenv("APP_PORT", "6969")
-_ = os.Setenv("IDs", "6, 9")
-
 type MyConfig struct {
     App struct {
         Name string `env:"APP_NAME"`
@@ -178,6 +174,10 @@ type MyConfig struct {
     Pi         float64 `env:"PI"`
     IDs        []int32 `env:"IDS"`
 }
+
+_ = os.Setenv("PRODUCTION", "true")
+_ = os.Setenv("APP_PORT", "6969")
+_ = os.Setenv("IDs", "6, 9")
 
 myConfig := MyConfig{}
 
@@ -206,11 +206,9 @@ What happened?
 ### Setup Method
 
 The `Setup()` method runs automatically after feeding.
-You can use this method for post-processing logic.
+You can use this method for post-processing logics.
 
 ```go
-_ = os.Setenv("SEX", "0")
-
 type Region int
 
 const (
@@ -240,12 +238,14 @@ func (c *Config) Setup() error {
     return nil
 }
 
+_ = os.Setenv("REGION", "2")
+
 myConfig := Config{}
 f := feeder.Env{}
 
 err := config.New().AddFeeder(f).AddStruct(&myConfig).Feed()
 
-fmt.Println(c.Sex)
+fmt.Println(c.Region) // America (2)
 ```
 
 ### Re-feed
